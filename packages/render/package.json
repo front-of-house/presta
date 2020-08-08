@@ -1,6 +1,6 @@
 {
   "name": "@presta/render",
-  "version": "0.0.0-3",
+  "version": "0.0.1",
   "description": "",
   "source": "index.ts",
   "main": "dist/index.js",
@@ -45,6 +45,6 @@
     ]
   },
   "dependencies": {
-    "@presta/load": "0.0.0-2"
+    "@presta/load": "^0.0.1"
   }
 }
