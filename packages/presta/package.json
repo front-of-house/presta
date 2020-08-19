@@ -1,0 +1,33 @@
+{
+  "name": "presta",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "presta": "cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sure-thing/presta.git"
+  },
+  "author": "estrattonbailey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sure-thing/presta/issues"
+  },
+  "homepage": "https://github.com/sure-thing/presta#readme",
+  "dependencies": {
+    "babel-loader": "^8.1.0",
+    "esm": "^3.2.25",
+    "fs-extra": "^9.0.1",
+    "lodash": "^4.17.20",
+    "matched": "^5.0.0",
+    "minimist": "^1.2.5",
+    "read-env": "^2.0.0",
+    "rev-hash": "^3.0.0",
+    "webpack": "^4.44.1"
+  },
+  "devDependencies": {
+    "baretest": "^2.0.0"
+  }
+}
