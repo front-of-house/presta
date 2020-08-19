@@ -23,5 +23,6 @@
     "minimist": "^1.2.5",
     "pocket.io": "^0.1.4",
     "serve-static": "^1.14.1"
-  }
+  },
+  "gitHead": "d61197227abaf828e9149897cb8a74980f3f2b56"
 }

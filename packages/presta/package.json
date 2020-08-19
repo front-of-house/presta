@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
+    "@babel/core": "^7.11.1",
     "@presta/load": "^0.0.2",
+    "@presta/serve": "^0.0.2",
     "babel-loader": "^8.1.0",
     "esm": "^3.2.25",
     "fs-extra": "^9.0.1",
@@ -29,7 +31,7 @@
     "webpack": "^4.44.1"
   },
   "devDependencies": {
-    "@presta/serve": "^0.0.2",
     "baretest": "^2.0.0"
-  }
+  },
+  "gitHead": "d61197227abaf828e9149897cb8a74980f3f2b56"
 }
