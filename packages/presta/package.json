@@ -29,6 +29,7 @@
     "webpack": "^4.44.1"
   },
   "devDependencies": {
+    "@presta/serve": "0.0.1",
     "baretest": "^2.0.0"
   }
 }
