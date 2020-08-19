@@ -23,6 +23,7 @@
     "babel-loader": "^8.1.0",
     "esm": "^3.2.25",
     "fs-extra": "^9.0.1",
+    "ignore": "^5.1.8",
     "lodash": "^4.17.20",
     "matched": "^5.0.0",
     "minimist": "^1.2.5",
