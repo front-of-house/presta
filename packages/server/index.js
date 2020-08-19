@@ -1,21 +1,11 @@
-#! /usr/bin/env node
-'use strict'
-
-const cwd = process.cwd()
-
 const fs = require('fs')
 const path = require('path')
 const http = require('http')
 const getPort = require('get-port')
 const c = require('ansi-colors')
 
-const [ i, n ] = process.argv.slice(2)
-const input = path.resolve(cwd, i || cwd)
-const noreload = n || false
-
-const serve = require('serve-static')(input)
-
-;(async () => {
+module.exports = async (input, noreload) => {
+  const serve = require('serve-static')(input)
   const port = await getPort({ port: 4000 })
 
   const server = http.createServer((req, res) => {
@@ -98,5 +88,4 @@ const serve = require('serve-static')(input)
       socket.emit('refresh')
     })
   }
-})()
-
+}

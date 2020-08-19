@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "presta-serve": "index.js"
+    "presta-serve": "cli.js"
   },
   "repository": {
     "type": "git",
