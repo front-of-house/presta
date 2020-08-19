@@ -6,7 +6,7 @@ const { encodeFilename } = require('./encodeFilename')
 
 // TODO make config optional
 function createScript({ sourceFile, configFilepath }) {
-  return `import { render as resolve } from '@/render/load';
+  return `import { render as resolve } from '@presta/load';
 import { Page, getPaths as paths } from '${sourceFile}';
 import * as config from '${configFilepath}';
 
