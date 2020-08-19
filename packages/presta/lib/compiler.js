@@ -22,7 +22,7 @@ const base = {
     setImmediate: true,
   },
   performance: { hints: false },
-  devtool: "inline-cheap-module-source-map",
+  devtool: "eval-cheap-module-source-map",
   module: {
     rules: [
       {

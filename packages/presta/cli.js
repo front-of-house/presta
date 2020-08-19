@@ -6,6 +6,7 @@ const path = require("path");
 const fs = require('fs-extra')
 const assert = require('assert')
 const serve = require('@presta/serve')
+const c = require('ansi-colors')
 
 const { watch, build } = require('./')
 const { CWD, PRESTA_DIR, PRESTA_PAGES, PRESTA_WRAPPED_PAGES } = require('./lib/constants')
@@ -21,7 +22,7 @@ const runtimeFilepath = safeConfigFilepath(args.r || args.runtime || 'presta.run
 const configFile = safeRequire(configFilepath, {})
 const input = args.i || args.in || configFile.input
 const output = args.o || args.out || configFile.output || 'build'
-const incremental = args.inc || args.incremental || configFile.incremental || false
+const incremental = args.inc || args.incremental || configFile.incremental || command === 'watch' ? true : false
 
 assert(!!input, `presta - please provide an input`)
 
@@ -42,16 +43,22 @@ function clean() {
 }
 
 ;(async () => {
+  console.clear()
+
   if (command === "watch") {
     clean()
-    console.log('watching')
+    console.log(c.blue('presta watch'), incremental ? c.gray('awaiting changes') : '')
+    console.log('')
     watch(config);
   } else if (command === "build") {
     clean()
-    console.log('building')
-    console.time('build')
+    console.log(c.blue('presta build'), incremental ? c.gray('checking cache') : '')
+    console.log('')
+    const st = Date.now()
     await build(config)
-    console.timeEnd('build')
+    const time = Date.now() - st
+    console.log('')
+    console.log(c.blue('built'), c.gray(`in ${time}ms`))
   } else if (command === "serve") {
     serve(args.i || args.in || config.output)
   }

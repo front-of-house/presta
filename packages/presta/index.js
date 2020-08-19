@@ -2,6 +2,8 @@ const fs = require("fs-extra");
 const path = require("path");
 const chokidar = require("chokidar");
 const { difference } = require("lodash");
+const onExit = require('exit-hook')
+const c = require('ansi-colors')
 
 const { PRESTA_PAGES } = require("./lib/constants");
 const { isStaticallyExportable } = require("./lib/isStaticallyExportable");
@@ -82,9 +84,10 @@ async function renderEntries(entries, options = {}) {
 
   while (renderQueue.length) {
     const { pathname, render } = renderQueue.pop();
-    console.time(pathname);
+    const st = Date.now()
     await render()
-    console.timeEnd(pathname)
+    const time = Date.now() - st
+    console.log(`  ${c.gray(time + 'ms')}  ${pathname}`)
   }
 
   if (build && !pagesWereRendered) {
