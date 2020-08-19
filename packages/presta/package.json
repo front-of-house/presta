@@ -1,6 +1,6 @@
 {
   "name": "presta",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "@presta/load": "0.0.1",
+    "@presta/load": "^0.0.2",
     "babel-loader": "^8.1.0",
     "esm": "^3.2.25",
     "fs-extra": "^9.0.1",
@@ -29,7 +29,7 @@
     "webpack": "^4.44.1"
   },
   "devDependencies": {
-    "@presta/serve": "0.0.1",
+    "@presta/serve": "^0.0.2",
     "baretest": "^2.0.0"
   }
 }

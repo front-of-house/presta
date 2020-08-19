@@ -1,6 +1,6 @@
 {
   "name": "@presta/load",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.esm.min.js",
@@ -36,6 +36,5 @@
     "require": [
       "ts-node/register"
     ]
-  },
-  "dependencies": {}
+  }
 }
