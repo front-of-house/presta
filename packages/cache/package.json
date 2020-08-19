@@ -1,0 +1,49 @@
+{
+  "name": "@presta/cache",
+  "version": "0.0.6",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.min.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "watch": "bili index.ts --format cjs,esm-min -w",
+    "build": "bili index.ts --format cjs,esm-min",
+    "test": "ava test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sure-thing/presta.git"
+  },
+  "author": "estrattonbailey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sure-thing/presta/issues"
+  },
+  "homepage": "https://github.com/sure-thing/presta#readme",
+  "devDependencies": {
+    "@types/flat-cache": "^2.0.0",
+    "@types/ms": "^0.7.31",
+    "ava": "^2.4.0",
+    "bili": "^5.0.5",
+    "rollup-plugin-typescript2": "^0.27.2",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.9.7"
+  },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  },
+  "gitHead": "d61197227abaf828e9149897cb8a74980f3f2b56",
+  "dependencies": {
+    "flat-cache": "^2.0.1",
+    "ms": "^2.1.2"
+  }
+}
