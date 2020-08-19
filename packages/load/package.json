@@ -2,17 +2,15 @@
   "name": "@presta/load",
   "version": "0.0.1",
   "description": "",
-  "source": "index.ts",
   "main": "dist/index.js",
-  "module": "dist/index.m.js",
-  "esmodule": "dist/index.modern.js",
+  "module": "dist/index.esm.min.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "microbundle build --external react --format cjs,es,modern",
-    "watch": "microbundle watch --external react --format cjs,es,modern",
+    "watch": "bili index.ts --format cjs,esm-min -w",
+    "build": "bili index.ts --format cjs,esm-min",
     "test": "ava test.ts"
   },
   "repository": {
@@ -26,13 +24,8 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "devDependencies": {
-    "@types/react": "^16.9.43",
-    "@types/react-dom": "^16.9.8",
     "ava": "^2.4.0",
-    "core-js": "^3.6.5",
-    "microbundle": "^0.12.3",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "bili": "^5.0.5",
     "ts-node": "^8.4.1"
   },
   "ava": {
@@ -44,7 +37,5 @@
       "ts-node/register"
     ]
   },
-  "dependencies": {
-    "lur": "^1.0.2"
-  }
+  "dependencies": {}
 }

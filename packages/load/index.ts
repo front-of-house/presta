@@ -1,103 +1,67 @@
-import React from "react";
-import lur from "lur";
+type Component = () => string;
+type Context = { pathname: string };
+type Renderer = (component: Component, ctx: Context) => string;
+type Resolved = { body: string; data: { [key: string]: any } };
 
-type Options = {
-  key?: string;
-};
+let _id = 0;
+let _reqs: string[] = [];
+let _cache: { [key: string]: Promise<any> } = {};
 
-type DataloaderState<T> = {
-  loading: boolean;
-  reloading: boolean;
-  result: T;
-};
+function isPending() {
+  return !!_reqs.length;
+}
 
-const isServer = typeof window === "undefined";
-const win = isServer ? {} : window;
-export const initialData: object =
+function resolve() {
+  const requests = Object.keys(_cache).map((key) => _cache[key]);
+
   // @ts-ignore
-  isServer ? {} : win.__hydrate || {};
-
-export let context: {
-  id: number;
-  reqs: any[];
-  cache: ReturnType<typeof lur>;
-} = {
-  id: 0,
-  reqs: [],
-  cache: lur(1000, initialData),
+  return Promise.allSettled(requests).then(() => {
+    _id = 0;
+    _reqs = [];
+  });
 }
 
-export function getContext() {
-  return context
-}
+function cache(key: string, loader: () => Promise<any>) {
+  if (_cache[key]) return _cache[key];
 
-export function configure({ cacheSize }: { cacheSize: number }) {
-  context.cache = lur(cacheSize, context.cache.serialize())
-}
+  _reqs.push(key);
 
-/*
- * CLIENT
- */
+  _cache[key] = loader();
 
-export function useDataloader<T>(
-  loader: () => Promise<T>,
-  deps: any[] = [],
-  options: Options = {}
-): DataloaderState<T> & { reload: () => void } {
-  let result = null;
-  const { key } = options;
-
-  if (isServer) {
-    const id = key || context.id++ + "";
-    result = context.cache.get(id);
-
-    if (!result) {
-      context.reqs.push(id);
-
-      const req = loader();
-
-      context.cache.set(id, req);
-
-      req.then((res: any) => {
-        context.cache.set(id, res);
-        context.reqs.splice(context.reqs.indexOf(id), 1);
-      });
-    }
-  } else if (key) {
-    result = context.cache.get(key);
-  }
-
-  const [state, setState] = React.useState<DataloaderState<T>>({
-    loading: !result,
-    reloading: false,
-    result: (result as unknown) as T,
+  _cache[key].then((res) => {
+    _cache[key] = res;
+    _reqs.splice(_reqs.indexOf(key), 1);
   });
 
-  const reload = React.useCallback(async () => {
-    setState({
-      ...state,
-      reloading: !state.loading,
-    });
+  return null;
+}
 
-    const res = await loader();
+export function load(
+  loader: () => Promise<any>,
+  options: {
+    key?: string;
+  } = {}
+) {
+  const key = options.key || _id++ + "";
+  return cache(key, loader);
+}
 
-    if (key) {
-      context.cache.set(key, res);
-    }
+export async function render(
+  component: Component,
+  ctx: Context,
+  renderer: Renderer
+): Promise<Resolved> {
+  const body = renderer(component, ctx);
 
-    setState({
-      loading: false,
-      reloading: false,
-      result: res,
-    });
-  }, [state, setState, loader]);
+  if (isPending()) {
+    await resolve();
+    return render(component, ctx, renderer);
+  }
 
-  React.useEffect(() => {
-    reload();
-  }, deps);
+  _reqs = [];
 
   return {
-    ...state,
-    reload,
+    body,
+    data: _cache,
   };
 }
