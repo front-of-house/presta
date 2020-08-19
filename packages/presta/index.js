@@ -98,6 +98,7 @@ async function watch(config) {
     filesArray,
     baseDir: config.baseDir,
     configFilepath: config.configFilepath,
+    runtimeFilepath: config.runtimeFilepath,
   });
   let stopCompiler = createCompiler(entries).watch(compilerCallback);
 
@@ -177,6 +178,7 @@ async function watch(config) {
           filesArray,
           baseDir: config.baseDir,
           configFilepath: config.configFilepath,
+          runtimeFilepath: config.runtimeFilepath,
         });
         stopCompiler = createCompiler(entries).watch(compilerCallback);
       }
@@ -189,6 +191,7 @@ async function build(config) {
     filesArray,
     baseDir: config.baseDir,
     configFilepath: config.configFilepath,
+    runtimeFilepath: config.runtimeFilepath,
   });
 
   return new Promise((res, rej) => {

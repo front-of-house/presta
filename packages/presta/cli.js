@@ -5,6 +5,7 @@ require('esm')(module)
 const path = require("path");
 const fs = require('fs-extra')
 const assert = require('assert')
+const serve = require('@presta/serve')
 
 const { watch, build } = require('./')
 const { CWD, PRESTA_DIR, PRESTA_PAGES, PRESTA_WRAPPED_PAGES } = require('./lib/constants')
@@ -16,6 +17,7 @@ const args = require('minimist')(process.argv.slice(2))
 const [ command ] = args._
 
 const configFilepath = safeConfigFilepath(args.c || args.config || 'presta.config.js')
+const runtimeFilepath = safeConfigFilepath(args.r || args.runtime || 'presta.runtime.js')
 const configFile = safeRequire(configFilepath, {})
 const input = args.i || args.in || configFile.input
 const output = args.o || args.out || configFile.output || 'build'
@@ -29,6 +31,7 @@ const config = {
   output: path.join(CWD, output),
   baseDir: path.resolve(CWD, getGlobCommonDirectory(input)),
   configFilepath,
+  runtimeFilepath,
   incremental,
 }
 
@@ -45,5 +48,7 @@ fs.emptyDirSync(PRESTA_WRAPPED_PAGES);
     console.time('build')
     await build(config)
     console.timeEnd('build')
+  } else if (command === "serve") {
+    serve(args.i || args.in || config.output)
   }
 })();
