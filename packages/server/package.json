@@ -1,0 +1,27 @@
+{
+  "name": "@presta/serve",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "presta-serve": "index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sure-thing/presta.git"
+  },
+  "author": "estrattonbailey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sure-thing/presta/issues"
+  },
+  "homepage": "https://github.com/sure-thing/presta#readme",
+  "dependencies": {
+    "ansi-colors": "^4.1.1",
+    "finalhandler": "^1.1.2",
+    "get-port": "^5.1.1",
+    "minimist": "^1.2.5",
+    "pocket.io": "^0.1.4",
+    "serve-static": "^1.14.1"
+  }
+}
