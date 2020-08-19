@@ -58,7 +58,7 @@ async function renderEntries(entries, options = {}) {
             render: async () => {
               const { render, prepare } = cleanRequire(entry.compiledFile);
               const file = path.join(output, pathnameToHtmlFile(pathname));
-              const result = await render({ pathname });
+              const result = await render({ pathname, head: '' });
 
               fs.outputFileSync(file, prepare(result), "utf-8");
             },

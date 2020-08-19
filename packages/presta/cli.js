@@ -35,15 +35,19 @@ const config = {
   incremental,
 }
 
-fs.ensureDir(PRESTA_DIR);
-fs.emptyDirSync(PRESTA_PAGES);
-fs.emptyDirSync(PRESTA_WRAPPED_PAGES);
+function clean() {
+  fs.ensureDirSync(PRESTA_DIR);
+  fs.emptyDirSync(PRESTA_PAGES);
+  fs.emptyDirSync(PRESTA_WRAPPED_PAGES);
+}
 
 ;(async () => {
   if (command === "watch") {
+    clean()
     console.log('watching')
     watch(config);
   } else if (command === "build") {
+    clean()
     console.log('building')
     console.time('build')
     await build(config)

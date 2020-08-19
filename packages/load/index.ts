@@ -1,7 +1,6 @@
 type Component = () => string;
-type Context = { pathname: string };
+type Context = { pathname: string; head: string; body: string; data: { [key: string]: any } };
 type Renderer = (component: Component, ctx: Context) => string;
-type Resolved = { body: string; data: { [key: string]: any } };
 
 let _id = 0;
 let _reqs: string[] = [];
@@ -50,7 +49,7 @@ export async function render(
   component: Component,
   ctx: Context,
   renderer: Renderer
-): Promise<Resolved> {
+): Promise<Context> {
   const body = renderer(component, ctx);
 
   if (isPending()) {
@@ -61,7 +60,11 @@ export async function render(
   _reqs = [];
 
   return {
-    body,
-    data: _cache,
+    ...ctx,
+    body: body + (ctx.body || ''),
+    data: {
+      ..._cache,
+      ...(ctx.data || {}),
+    },
   };
 }
