@@ -4,6 +4,7 @@ const chokidar = require("chokidar");
 const { difference } = require("lodash");
 const onExit = require('exit-hook')
 const c = require('ansi-colors')
+const debug = require('debug')('presta')
 
 const { PRESTA_PAGES } = require("./lib/constants");
 const { isStaticallyExportable } = require("./lib/isStaticallyExportable");
@@ -36,8 +37,9 @@ async function renderEntries(entries, options = {}) {
       const nextRev = fileHash.hash(entry.compiledFile); // should be compiled file?
       const fileFromHash = fileHash.get(entry.id);
 
+      // get paths
       const { getPaths } = cleanRequire(entry.compiledFile);
-      const pagePaths = await getPaths();
+      const paths = await getPaths()
 
       const revisionMismatch =
         incremental && fileFromHash ? fileFromHash.rev !== nextRev : true;
@@ -47,14 +49,14 @@ async function renderEntries(entries, options = {}) {
         if (fileFromHash) {
           fileFromHash.pages
             .filter((p) => {
-              return pagePaths.indexOf(p) < 0;
+              return paths.indexOf(p) < 0;
             })
             .forEach((page) => {
               fs.removeSync(path.join(output, pathnameToHtmlFile(page)));
             });
         }
 
-        pagePaths.forEach(async (pathname) => {
+        paths.forEach(async (pathname) => {
           renderQueue.push({
             pathname,
             render: async () => {
@@ -68,7 +70,7 @@ async function renderEntries(entries, options = {}) {
         });
 
         fileHash.set(entry.id, nextRev, {
-          pages: pagePaths,
+          pages: paths,
         });
 
         fileHash.save();
@@ -103,6 +105,7 @@ async function watch(config) {
     configFilepath: config.configFilepath,
     runtimeFilepath: config.runtimeFilepath,
   });
+  debug('entries', entries)
   let stopCompiler = createCompiler(entries).watch(compilerCallback);
 
   function compilerCallback(err, pages) {

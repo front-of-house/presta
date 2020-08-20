@@ -7,6 +7,7 @@ const fs = require('fs-extra')
 const assert = require('assert')
 const serve = require('@presta/serve')
 const c = require('ansi-colors')
+const debug = require('debug')('presta')
 
 const { watch, build } = require('./')
 const { CWD, PRESTA_DIR, PRESTA_PAGES, PRESTA_WRAPPED_PAGES } = require('./lib/constants')
@@ -35,6 +36,8 @@ const config = {
   runtimeFilepath,
   incremental,
 }
+
+debug('config', config)
 
 function clean() {
   fs.ensureDirSync(PRESTA_DIR);
