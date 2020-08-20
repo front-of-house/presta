@@ -1,3 +1,5 @@
+import { cache as prestaCache } from '@presta/cache'
+
 type Component = () => string;
 type Context = { pathname: string; head: string; body: string; data: { [key: string]: any } };
 type Renderer = (component: Component, ctx: Context) => string;
@@ -39,9 +41,15 @@ export function load(
   loader: () => Promise<any>,
   options: {
     key?: string;
+    cache?: string;
   } = {}
 ) {
-  const key = options.key || _id++ + "";
+  const { key = _id++ + "", cache: duration } = options
+
+  if (key && duration) {
+    return cache(key, () => prestaCache(loader, { key, duration }));
+  }
+
   return cache(key, loader);
 }
 

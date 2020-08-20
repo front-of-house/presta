@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "devDependencies": {
+    "@types/debug": "^4.1.5",
     "ava": "^2.4.0",
     "bili": "^5.0.5",
     "rollup-plugin-typescript2": "^0.27.2",
@@ -39,5 +40,9 @@
       "ts-node/register"
     ]
   },
-  "gitHead": "d61197227abaf828e9149897cb8a74980f3f2b56"
+  "gitHead": "d61197227abaf828e9149897cb8a74980f3f2b56",
+  "dependencies": {
+    "@presta/cache": "0.0.6",
+    "debug": "^4.1.1"
+  }
 }
