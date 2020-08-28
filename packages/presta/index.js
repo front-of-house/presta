@@ -26,6 +26,8 @@ async function renderEntries(entries, options = {}) {
 
   let pagesWereRendered = false;
 
+  debug('render', entries)
+
   await Promise.all(
     entries.map(async (entry) => {
       // remove so that it can re-render if reconfigured
@@ -43,6 +45,8 @@ async function renderEntries(entries, options = {}) {
 
       const revisionMismatch =
         incremental && fileFromHash ? fileFromHash.rev !== nextRev : true;
+
+      debug(`${entry.id} updated`, !!revisionMismatch)
 
       if (revisionMismatch) {
         // remove non-existant paths
@@ -199,6 +203,7 @@ async function build(config) {
     configFilepath: config.configFilepath,
     runtimeFilepath: config.runtimeFilepath,
   });
+  debug('entries', entries)
 
   return new Promise((res, rej) => {
     createCompiler(entries).build(async (err, pages) => {

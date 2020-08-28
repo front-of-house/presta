@@ -42,6 +42,9 @@ const base = {
   optimization: {
     minimize: false,
   },
+  externals: {
+    react: path.join(CWD, 'node_modules/react'),
+  }
 };
 
 function createConfig({ id, generatedFile }) {
