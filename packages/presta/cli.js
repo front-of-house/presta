@@ -12,6 +12,8 @@ const {
 } = require("./lib/constants");
 const { createConfigFromCLI } = require("./lib/createConfigFromCLI");
 
+console.clear();
+
 const args = require("minimist")(process.argv.slice(2));
 const config = createConfigFromCLI(args);
 
@@ -22,24 +24,22 @@ function clean() {
 }
 
 (async () => {
-  console.clear();
-
-  if (command === "watch") {
+  if (config.command === "watch") {
     clean();
 
     console.log(
       c.blue("presta watch"),
-      incremental ? c.gray("awaiting changes") : ""
+      config.incremental ? c.gray("awaiting changes") : ""
     );
     console.log("");
 
     watch(config);
-  } else if (command === "build") {
+  } else if (config.command === "build") {
     clean();
 
     console.log(
       c.blue("presta build"),
-      incremental ? c.gray("checking cache") : ""
+      config.incremental ? c.gray("checking cache") : ""
     );
     console.log("");
 
@@ -50,7 +50,7 @@ function clean() {
     const time = Date.now() - st;
     console.log("");
     console.log(c.blue("built"), c.gray(`in ${time}ms`));
-  } else if (command === "serve") {
-    serve(args.i || args.in || config.output);
+  } else if (config.command === "serve") {
+    serve(config.args.i || config.args.in || config.output);
   }
 })();

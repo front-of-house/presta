@@ -30,6 +30,7 @@ function createConfigFromCLI(args) {
   assert(!!input, `presta - please provide an input`);
 
   const config = {
+    args,
     command,
     input,
     output: path.join(CWD, output),
