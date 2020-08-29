@@ -16,14 +16,11 @@ function resolve() {
   const requests = Object.keys(_cache).map((key) => _cache[key]);
 
   // @ts-ignore
-  return Promise.allSettled(requests).then(() => {
-    _id = 0;
-    _reqs = [];
-  });
+  return Promise.allSettled(requests);
 }
 
 function cache(key: string, loader: () => Promise<any>) {
-  if (_cache[key]) return _cache[key];
+  if (_cache[key] !== undefined) return _cache[key];
 
   _reqs.push(key);
 
@@ -62,10 +59,16 @@ export async function render(
 
   if (isPending()) {
     await resolve();
+
+    // reset on each render
+    _id = 0;
+
     return render(component, ctx, renderer);
   }
 
-  _reqs = [];
+  if (_reqs.length) {
+    throw new Error(`@presta/load - unresolved requests: ${JSON.stringify(_reqs)}`)
+  }
 
   return {
     ...ctx,
