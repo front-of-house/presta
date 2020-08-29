@@ -1,6 +1,6 @@
 {
   "name": "@presta/load",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.esm.min.js",
@@ -43,7 +43,7 @@
   },
   "gitHead": "d61197227abaf828e9149897cb8a74980f3f2b56",
   "dependencies": {
-    "@presta/cache": "^0.0.8",
+    "@presta/cache": "^0.0.9",
     "debug": "^4.1.1"
   }
 }

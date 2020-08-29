@@ -1,6 +1,6 @@
 {
   "name": "presta",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -18,8 +18,8 @@
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
     "@babel/core": "^7.11.1",
-    "@presta/load": "^0.0.8",
-    "@presta/serve": "^0.0.8",
+    "@presta/load": "^0.0.9",
+    "@presta/serve": "^0.0.9",
     "ansi-colors": "^4.1.1",
     "babel-loader": "^8.1.0",
     "debug": "^4.1.1",
