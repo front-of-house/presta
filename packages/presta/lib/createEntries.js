@@ -6,13 +6,10 @@ const { encodeFilename } = require('./encodeFilename')
 
 // TODO make config optional
 function createScript({ sourceFile, configFilepath, runtimeFilepath }) {
-  return `import { render as resolve } from '@presta/load';
+  return `import { render as resolve } from 'presta/load';
 import { Page, getPaths as paths } from '${sourceFile}';
 ${runtimeFilepath ? `import * as config from '${runtimeFilepath}'` : `const config = {}`};
 
-function defaultRender (page, context) {
-  return page(context);
-}
 function defaultPrepare ({ body = '', head = '' }) {
   return \`<!DOCTYPE html>
 <html>
@@ -30,7 +27,7 @@ export function getPaths() {
 }
 
 export function render (context) {
-  return resolve(Page, context, config.render || defaultRender);
+  return resolve(Page, context, config.render);
 }
 
 export function prepare (props) {

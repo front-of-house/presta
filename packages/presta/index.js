@@ -21,7 +21,6 @@ const fileHash = require("./lib/fileHash");
 const { pathnameToHtmlFile } = require("./lib/pathnameToHtmlFile");
 const { safeConfigFilepath } = require("./lib/safeConfigFilepath");
 
-// TODO why does it render many times after adding back a prev deleted file
 let renderQueue = [];
 
 async function renderEntries(entries, options = {}) {
