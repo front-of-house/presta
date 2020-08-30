@@ -10,6 +10,24 @@ const requests = new Map()
 const memoryCache = {}
 const fileCache = flatCache.load('presta', path.resolve(cwd, './.presta/cache'));
 
+function getFromFileCache(key) {
+  const entry = fileCache.getKey(key)
+  const now = Date.now()
+
+  if (entry) {
+    const { expires } = entry
+
+    if (now > expires) {
+      debug(`{ ${key} } has expired on disk`)
+      fileCache.removeKey(key)
+      return undefined;
+    } else {
+      debug(`{ ${key} } is cached to disk`)
+      return entry
+    }
+  }
+}
+
 export function prime(value, options) {
   const { key, duration } = options
 
@@ -34,25 +52,7 @@ export function prime(value, options) {
   }
 }
 
-export function getFromFileCache(key) {
-  const entry = fileCache.getKey(key)
-  const now = Date.now()
-
-  if (entry) {
-    const { expires } = entry
-
-    if (now > expires) {
-      debug(`{ ${key} } has expired on disk`)
-      fileCache.removeKey(key)
-      return undefined;
-    } else {
-      debug(`{ ${key} } is cached to disk`)
-      return entry
-    }
-  }
-}
-
-export function expireFromFileCache(key) {
+export function expire(key) {
   fileCache.removeKey(key)
 }
 

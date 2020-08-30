@@ -1,4 +1,4 @@
-const { prime, cache, load, render, expireFromFileCache } = require("../load");
+const { prime, cache, load, render, expire } = require("../load");
 
 function createComponent({ key, duration, loadCb }) {
   return ({ children }) => {
@@ -100,7 +100,7 @@ module.exports = async (test, assert) => {
   test("disk - loads", async () => {
     let loads = 0;
 
-    expireFromFileCache('disk')
+    expire('disk')
 
     const comp = createComponent({
       key: "disk",
@@ -139,7 +139,7 @@ module.exports = async (test, assert) => {
   test("prime to disk", async () => {
     let loads = 0;
 
-    expireFromFileCache('disk')
+    expire('disk')
 
     prime({ disk: true }, { key: 'disk', duration: '1m' })
 
