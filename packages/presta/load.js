@@ -22,9 +22,10 @@ export function prime(value, options) {
     fileCache.setKey(key, {
       value,
       expires: now + interval,
+      duration,
     })
 
-    fileCache.save(true)
+    //fileCache.save(true) // TODO will this break?
 
     debug(`{ ${key} } has been primed to disk for ${duration}`)
   } else {
@@ -46,7 +47,7 @@ export function getFromFileCache(key) {
       return undefined;
     } else {
       debug(`{ ${key} } is cached to disk`)
-      return entry.value
+      return entry
     }
   }
 }
@@ -64,13 +65,14 @@ export async function cache(loading, options) {
   const interval = ms(duration)
 
   const entry = getFromFileCache(key)
-  if (entry) return entry
+  if (entry) return entry.value
 
   const value = await (typeof loading === 'function' ? loading() : loading)
 
   fileCache.setKey(key, {
     value,
     expires: Date.now() + parseInt(interval),
+    duration,
   })
 
   debug(`{ ${key} } has been cached for ${duration}`)
@@ -89,7 +91,14 @@ export function load(
   if (duration) {
     const entry = getFromFileCache(key)
 
-    if (entry) return entry;
+    if (entry) {
+      // update duration
+      if (duration !== entry.duration) {
+        prime(entry.value, { key, duration })
+      }
+
+      return entry.value;
+    }
 
     const loading = loader()
 
