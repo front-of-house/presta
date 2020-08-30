@@ -40,6 +40,7 @@ async function renderEntries(entries, options = {}) {
 
       const nextRev = fileHash.hash(entry.compiledFile); // should be compiled file?
       const fileFromHash = fileHash.get(entry.id);
+      const pagesFromHashedFile = fileFromHash ? fileFromHash.pages : []
 
       // get paths
       const { getPaths } = cleanRequire(entry.compiledFile);
@@ -47,22 +48,28 @@ async function renderEntries(entries, options = {}) {
 
       const revisionMismatch =
         incremental && fileFromHash ? fileFromHash.rev !== nextRev : true;
+      const newPages = paths.filter((p) => {
+        return pagesFromHashedFile.indexOf(p) < 0;
+      })
+
+      // remove non-existant paths
+      if (fileFromHash) {
+        fileFromHash.pages
+          .filter((p) => {
+            return paths.indexOf(p) < 0;
+          })
+          .forEach((page) => {
+            fs.removeSync(path.join(output, pathnameToHtmlFile(page)));
+          });
+      }
 
       debug(`${entry.id} updated`, !!revisionMismatch)
+      debug(`${entry.id} has new pages`, !!newPages.length)
 
-      if (revisionMismatch) {
-        // remove non-existant paths
-        if (fileFromHash) {
-          fileFromHash.pages
-            .filter((p) => {
-              return paths.indexOf(p) < 0;
-            })
-            .forEach((page) => {
-              fs.removeSync(path.join(output, pathnameToHtmlFile(page)));
-            });
-        }
+      if (revisionMismatch || !!newPages.length) {
+        const pages = revisionMismatch ? paths : newPages
 
-        paths.forEach(async (pathname) => {
+        pages.forEach(async (pathname) => {
           renderQueue.push({
             pathname,
             render: async () => {
