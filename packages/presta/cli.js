@@ -17,16 +17,22 @@ console.clear();
 const args = require("minimist")(process.argv.slice(2));
 const config = createConfigFromCLI(args);
 
-function clean() {
-  fs.ensureDirSync(PRESTA_DIR);
-  fs.emptyDirSync(PRESTA_PAGES);
-  fs.emptyDirSync(PRESTA_WRAPPED_PAGES);
-}
+// just make sure it's there
+fs.ensureDirSync(PRESTA_DIR);
 
 (async () => {
-  if (config.command === "watch") {
-    clean();
+  if (config.command === 'serve') {
+    return serve(args.i || args.in || config.output);
+  }
 
+  // clear entire dir
+  if (args.clean) fs.emptyDirSync(PRESTA_DIR);
+
+  // clear compiled pages
+  fs.emptyDirSync(PRESTA_PAGES);
+  fs.emptyDirSync(PRESTA_WRAPPED_PAGES);
+
+  if (config.command === "watch") {
     console.log(
       c.blue("presta watch"),
       config.incremental ? c.gray("awaiting changes") : ""
@@ -35,8 +41,6 @@ function clean() {
 
     watch(config);
   } else if (config.command === "build") {
-    clean();
-
     console.log(
       c.blue("presta build"),
       config.incremental ? c.gray("checking cache") : ""
@@ -50,7 +54,5 @@ function clean() {
     const time = Date.now() - st;
     console.log("");
     console.log(c.blue("built"), c.gray(`in ${time}ms`));
-  } else if (config.command === "serve") {
-    serve(config.args.i || config.args.in || config.output);
   }
 })();
