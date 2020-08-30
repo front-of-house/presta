@@ -50,7 +50,6 @@ function createEntries({ filesArray, baseDir, configFilepath, runtimeFilepath })
       id: encoded,
       sourceFile,
       generatedFile,
-      compiledFile: path.join(PRESTA_PAGES, encoded + ".js"),
     };
   });
 }

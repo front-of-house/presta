@@ -11,7 +11,6 @@ const debug = require('debug')('presta')
 
 const { PRESTA_PAGES } = require("./lib/constants");
 const { isStaticallyExportable } = require("./lib/isStaticallyExportable");
-const { cleanRequire } = require("./lib/cleanRequire");
 const { encodeFilename } = require("./lib/encodeFilename");
 const { getValidFilesArray } = require("./lib/getValidFilesArray");
 const { createCompiler } = require("./lib/compiler");
@@ -32,18 +31,18 @@ async function renderEntries(entries, options = {}) {
 
   await Promise.all(
     entries.map(async (entry) => {
-      // remove so that it can re-render if reconfigured
+      // was previously configured, remove so that it can re-render if reconfigured
       if (!isStaticallyExportable(entry.sourceFile)) {
         fileHash.remove(entry.id);
         return;
       }
 
-      const nextRev = fileHash.hash(entry.compiledFile); // should be compiled file?
+      const nextRev = fileHash.hash(entry.compiledFile);
       const fileFromHash = fileHash.get(entry.id);
       const pagesFromHashedFile = fileFromHash ? fileFromHash.pages : []
 
       // get paths
-      const { getPaths } = cleanRequire(entry.compiledFile);
+      const { getPaths, render, prepare } = require(entry.compiledFile);
       const paths = await getPaths()
 
       const revisionMismatch =
@@ -71,9 +70,9 @@ async function renderEntries(entries, options = {}) {
 
         pages.forEach(async (pathname) => {
           renderQueue.push({
+            entry,
             pathname,
             render: async () => {
-              const { render, prepare } = cleanRequire(entry.compiledFile);
               const file = path.join(output, pathnameToHtmlFile(pathname));
               const result = await render({ pathname, head: { title: '', style: [], meta: [] } });
 
@@ -98,11 +97,12 @@ async function renderEntries(entries, options = {}) {
   });
 
   while (renderQueue.length) {
-    const { pathname, render } = renderQueue.pop();
+    const { pathname, render, entry } = renderQueue.pop();
     const st = Date.now()
     await render()
     const time = Date.now() - st
     console.log(`  ${c.gray(time + 'ms')}  ${pathname}`)
+    delete require.cache[entry.compiledFile];
   }
 
   if (build && !pagesWereRendered) {
@@ -129,6 +129,11 @@ async function watch(config) {
     // match entries to emitted pages
     const entriesToUpdate = entries.filter((e) => {
       return pages.find((p) => p[0].indexOf(e.id) > -1);
+    }).map(e => {
+      return {
+        ...e,
+        compiledFile: pages.find((p) => p[0].indexOf(e.id) > -1)[1]
+      }
     });
 
     renderEntries(entriesToUpdate, {

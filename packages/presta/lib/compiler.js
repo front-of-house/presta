@@ -8,7 +8,7 @@ const { NODE_ENV } = process.env;
 const base = {
   output: {
     libraryTarget: "commonjs2",
-    filename: "[name].js",
+    filename: "[name].[hash].js",
   },
   mode: NODE_ENV === "production" ? "production" : "development",
   target: "node",
