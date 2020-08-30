@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require("fs-extra");
-const serve = require("@presta/serve");
+const serve = require("./serve");
 const c = require("ansi-colors");
 
 const { watch, build } = require("./");

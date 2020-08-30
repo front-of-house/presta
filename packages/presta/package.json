@@ -28,6 +28,7 @@
     "exit-hook": "^2.2.0",
     "flat-cache": "^2.0.1",
     "fs-extra": "^9.0.1",
+    "get-port": "^5.1.1",
     "ignore": "^5.1.8",
     "lodash": "^4.17.20",
     "matched": "^5.0.0",
