@@ -22,6 +22,7 @@
     "@presta/serve": "^0.0.10",
     "ansi-colors": "^4.1.1",
     "babel-loader": "^8.1.0",
+    "core-js": "^3.6.5",
     "debug": "^4.1.1",
     "esm": "^3.2.25",
     "exit-hook": "^2.2.0",
@@ -31,6 +32,7 @@
     "matched": "^5.0.0",
     "minimist": "^1.2.5",
     "read-env": "^2.0.0",
+    "regenerator-runtime": "^0.13.7",
     "rev-hash": "^3.0.0",
     "webpack": "^4.44.1"
   },
