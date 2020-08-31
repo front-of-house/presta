@@ -1,13 +1,13 @@
-require('core-js/stable')
-require('regenerator-runtime/runtime')
+require("core-js/stable");
+require("regenerator-runtime/runtime");
 
 const fs = require("fs-extra");
 const path = require("path");
 const chokidar = require("chokidar");
 const { difference } = require("lodash");
-const onExit = require('exit-hook')
-const c = require('ansi-colors')
-const debug = require('debug')('presta')
+const onExit = require("exit-hook");
+const c = require("ansi-colors");
+const debug = require("debug")("presta");
 
 const { PRESTA_PAGES } = require("./lib/constants");
 const { isStaticallyExportable } = require("./lib/isStaticallyExportable");
@@ -27,7 +27,7 @@ async function renderEntries(entries, options = {}) {
 
   let pagesWereRendered = false;
 
-  debug('render', entries)
+  debug("render", entries);
 
   await Promise.all(
     entries.map(async (entry) => {
@@ -39,17 +39,17 @@ async function renderEntries(entries, options = {}) {
 
       const nextRev = fileHash.hash(entry.compiledFile);
       const fileFromHash = fileHash.get(entry.id);
-      const pagesFromHashedFile = fileFromHash ? fileFromHash.pages : []
+      const pagesFromHashedFile = fileFromHash ? fileFromHash.pages : [];
 
       // get paths
       const { getPaths, render, prepare } = require(entry.compiledFile);
-      const paths = await getPaths()
+      const paths = await getPaths();
 
       const revisionMismatch =
         incremental && fileFromHash ? fileFromHash.rev !== nextRev : true;
       const newPages = paths.filter((p) => {
         return pagesFromHashedFile.indexOf(p) < 0;
-      })
+      });
 
       // remove non-existant paths
       if (fileFromHash) {
@@ -62,11 +62,11 @@ async function renderEntries(entries, options = {}) {
           });
       }
 
-      debug(`${entry.id} updated`, !!revisionMismatch)
-      debug(`${entry.id} has new pages`, !!newPages.length)
+      debug(`${entry.id} updated`, !!revisionMismatch);
+      debug(`${entry.id} has new pages`, !!newPages.length);
 
       if (revisionMismatch || !!newPages.length) {
-        const pages = revisionMismatch ? paths : newPages
+        const pages = revisionMismatch ? paths : newPages;
 
         pages.forEach(async (pathname) => {
           renderQueue.push({
@@ -74,7 +74,10 @@ async function renderEntries(entries, options = {}) {
             pathname,
             render: async () => {
               const file = path.join(output, pathnameToHtmlFile(pathname));
-              const result = await render({ pathname, head: { title: '', style: [], meta: [] } });
+              const result = await render({
+                pathname,
+                head: { title: "", style: [], meta: [] },
+              });
 
               fs.outputFileSync(file, prepare(result), "utf-8");
             },
@@ -98,10 +101,10 @@ async function renderEntries(entries, options = {}) {
 
   while (renderQueue.length) {
     const { pathname, render, entry } = renderQueue.pop();
-    const st = Date.now()
-    await render()
-    const time = Date.now() - st
-    console.log(`  ${c.gray(time + 'ms')}  ${pathname}`)
+    const st = Date.now();
+    await render();
+    const time = Date.now() - st;
+    console.log(`  ${c.gray(time + "ms")}  ${pathname}`);
     delete require.cache[entry.compiledFile];
   }
 
@@ -118,7 +121,7 @@ async function watch(config) {
     configFilepath: config.configFilepath,
     runtimeFilepath: config.runtimeFilepath,
   });
-  debug('entries', entries)
+  debug("entries", entries);
   let stopCompiler = createCompiler(entries).watch(compilerCallback);
 
   function compilerCallback(err, pages) {
@@ -127,14 +130,16 @@ async function watch(config) {
     }
 
     // match entries to emitted pages
-    const entriesToUpdate = entries.filter((e) => {
-      return pages.find((p) => p[0].indexOf(e.id) > -1);
-    }).map(e => {
-      return {
-        ...e,
-        compiledFile: pages.find((p) => p[0].indexOf(e.id) > -1)[1]
-      }
-    });
+    const entriesToUpdate = entries
+      .filter((e) => {
+        return pages.find((p) => p[0].indexOf(e.id) > -1);
+      })
+      .map((e) => {
+        return {
+          ...e,
+          compiledFile: pages.find((p) => p[0].indexOf(e.id) > -1)[1],
+        };
+      });
 
     renderEntries(entriesToUpdate, {
       output: config.output,
@@ -217,16 +222,23 @@ async function build(config) {
     configFilepath: config.configFilepath,
     runtimeFilepath: config.runtimeFilepath,
   });
-  debug('entries', entries)
+  debug("entries", entries);
 
   return new Promise((res, rej) => {
     createCompiler(entries).build(async (err, pages) => {
-      if (err) rej(err)
+      if (err) rej(err);
 
       // match entries to emitted pages
-      const entriesToUpdate = entries.filter((e) => {
-        return pages.find((p) => p[0].indexOf(e.id) > -1);
-      });
+      const entriesToUpdate = entries
+        .filter((e) => {
+          return pages.find((p) => p[0].indexOf(e.id) > -1);
+        })
+        .map((e) => {
+          return {
+            ...e,
+            compiledFile: pages.find((p) => p[0].indexOf(e.id) > -1)[1],
+          };
+        });
 
       await renderEntries(entriesToUpdate, {
         build: true,
@@ -234,9 +246,9 @@ async function build(config) {
         output: config.output,
       });
 
-      res()
+      res();
     });
-  })
+  });
 }
 
 module.exports = {
