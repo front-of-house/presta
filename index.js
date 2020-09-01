@@ -101,11 +101,27 @@ async function renderEntries(entries, options = {}) {
 
   while (renderQueue.length) {
     const { pathname, render, entry } = renderQueue.pop();
-    const st = Date.now();
-    await render();
-    const time = Date.now() - st;
-    console.log(`  ${c.gray(time + "ms")}  ${pathname}`);
-    delete require.cache[entry.compiledFile];
+
+    try {
+      const st = Date.now();
+      await render();
+      const time = Date.now() - st;
+      console.log(`  ${c.gray(time + "ms")}\t${pathname}`);
+      delete require.cache[entry.compiledFile];
+    } catch (e) {
+      console.log('\n\n')
+      console.log(`  ${c.red('error')}  ${pathname}`)
+      console.log('\n\n')
+      console.error(e)
+      console.log('\n\n')
+      console.log(c.gray('  errors detected, pausing...'))
+      console.log('\n\n')
+
+      // important, reset this for next pass
+      renderQueue = []
+
+      break;
+    }
   }
 
   if (build && !pagesWereRendered) {
