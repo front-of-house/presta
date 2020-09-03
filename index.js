@@ -19,6 +19,7 @@ const { ignoreArray } = require("./lib/ignore");
 const fileHash = require("./lib/fileHash");
 const { pathnameToHtmlFile } = require("./lib/pathnameToHtmlFile");
 const { safeConfigFilepath } = require("./lib/safeConfigFilepath");
+const { log } = require("./lib/log");
 
 let renderQueue = [];
 
@@ -94,9 +95,7 @@ async function renderEntries(entries, options = {}) {
       }
     })
   ).catch((e) => {
-    console.log("\n\n");
-    console.log("render error", e);
-    console.log("\n\n");
+    log(`\n  render error\n\n${e}\n`)
   });
 
   while (renderQueue.length) {
@@ -106,16 +105,10 @@ async function renderEntries(entries, options = {}) {
       const st = Date.now();
       await render();
       const time = Date.now() - st;
-      console.log(`  ${c.gray(time + "ms")}\t${pathname}`);
+      log(`  ${c.gray(time + "ms")}\t${pathname}`)
       delete require.cache[entry.compiledFile];
     } catch (e) {
-      console.log('\n\n')
-      console.log(`  ${c.red('error')}  ${pathname}`)
-      console.log('\n\n')
-      console.error(e)
-      console.log('\n\n')
-      console.log(c.gray('  errors detected, pausing...'))
-      console.log('\n\n')
+      log(`\n  ${c.red('error')}  ${pathname}\n\n${e}\n\n${c.gray(`  errors detected, ${build ? 'exiting' : 'pausing'}...`)}\n`)
 
       // important, reset this for next pass
       renderQueue = []
@@ -125,7 +118,7 @@ async function renderEntries(entries, options = {}) {
   }
 
   if (build && !pagesWereRendered) {
-    console.log("no changes detected, exiting...");
+    log(`no changes detected, exiting...`)
   }
 }
 
@@ -242,7 +235,10 @@ async function build(config) {
 
   return new Promise((res, rej) => {
     createCompiler(entries).build(async (err, pages) => {
-      if (err) rej(err);
+      if (err) {
+        console.error("compiler issue", err);
+        return;
+      }
 
       // match entries to emitted pages
       const entriesToUpdate = entries

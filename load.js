@@ -3,11 +3,14 @@ import ms from "ms";
 import flatCache from "flat-cache";
 import createDebug from "debug";
 import assert from "assert";
+const c = require("ansi-colors");
+const { log } = require("./lib/log");
 
 const debug = createDebug("presta");
 const cwd = process.cwd();
 const requests = new Map();
 const memoryCache = {};
+const skipLoaders = [];
 const fileCache = flatCache.load(
   "presta",
   path.resolve(cwd, "./.presta/cache")
@@ -78,67 +81,64 @@ export async function cache(loading, options) {
     duration,
   });
 
-  debug(`{ ${key} } has been cached for ${duration}`);
+  debug(`{ ${key} } has been cached to disk for ${duration}`);
 
   return value;
 }
 
 export function load(loader, options = {}) {
   const { key, duration } = options;
+  const cacheToFile = !!duration;
 
   assert(!!key, "presta/load cache expects a key");
 
-  if (duration) {
-    const entry = getFromFileCache(key);
+  if (skipLoaders.indexOf(key) > -1) {
+    debug(`{ ${key} } threw on last render, skipping...`)
+    return null;
+  }
 
-    if (entry) {
-      // update duration
-      if (duration !== entry.duration) {
-        prime(entry.value, { key, duration });
+  const entry = cacheToFile ? getFromFileCache(key) : memoryCache[key];
+
+  if (entry) {
+    if (cacheToFile && duration !== entry.duration) {
+      prime(entry.value, { key, duration });
+    }
+
+    return cacheToFile ? entry.value : entry;
+  }
+
+  async function run() {
+    try {
+      const loading = loader();
+      requests.set(key, loading);
+
+      if (cacheToFile) {
+        cache(loading, { key, duration });
       }
 
-      return entry.value;
-    }
+      const res = await loading
 
-    const loading = loader();
+      requests.delete(key);
 
-    requests.set(key, loading);
-
-    cache(loading, { key, duration });
-
-    loading
-      .then(() => {
-        requests.delete(key);
-      })
-      .catch((e) => {
-        debug(`{ ${key} } threw an error: ${e.message}`);
-        requests.delete(key);
-      });
-  } else {
-    const entry = memoryCache[key];
-
-    if (entry) {
-      debug(`{ ${key} } is cached in memory`);
-      return entry;
-    }
-
-    const loading = loader();
-
-    requests.set(key, loading);
-
-    loading
-      .then((res) => {
-        requests.delete(key);
+      if (!cacheToFile) {
         memoryCache[key] = res;
-
         debug(`{ ${key} } has been cached in memory`);
-      })
-      .catch((e) => {
-        debug(`{ ${key} } threw an error: ${e.message}`);
-        requests.delete(key);
-        memoryCache[key] = "error";
-      });
+      }
+    } catch (e) {
+      debug(`{ ${key} } threw an error: ${e.message}`);
+      requests.delete(key);
+
+      skipLoaders.push(key)
+
+      if (cacheToFile) {
+        expire(key)
+      }
+
+      log(`\n  ${c.red('error')} load { ${key} }\n\n${e}\n`)
+    }
   }
+
+  run()
 }
 
 export async function render(component, ctx, renderer = (fn, ctx) => fn(ctx)) {

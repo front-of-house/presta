@@ -100,11 +100,11 @@ module.exports = async (test, assert) => {
   test("disk - loads", async () => {
     let loads = 0;
 
-    expire('disk')
+    expire("disk");
 
     const comp = createComponent({
       key: "disk",
-      duration: '1m',
+      duration: "1m",
       loadCb() {
         loads++;
       },
@@ -117,10 +117,60 @@ module.exports = async (test, assert) => {
     assert(loads === 1);
   });
 
+  test("memory - no recursion on error", async () => {
+    let loads = 0;
+
+    function component() {
+      loads++;
+
+      load(
+        async () => {
+          throw "error";
+          return "data";
+        },
+        { key: "recursion error" }
+      );
+
+      return "component";
+    }
+
+    try {
+      await render(component, {});
+      throw "unreachable";
+    } catch (e) {
+      assert((loads = 1));
+    }
+  });
+
+  test("disk - no recursion on error", async () => {
+    let loads = 0;
+
+    function component() {
+      loads++;
+
+      load(
+        async () => {
+          throw "error";
+          return "data";
+        },
+        { key: "recursion error", duration: "1m" }
+      );
+
+      return "component";
+    }
+
+    try {
+      await render(component, {});
+      throw "unreachable";
+    } catch (e) {
+      assert((loads = 1));
+    }
+  });
+
   test("prime to memory", async () => {
     let loads = 0;
 
-    prime({ memory: true }, { key: 'memory' })
+    prime({ memory: true }, { key: "memory" });
 
     const comp = createComponent({
       key: "memory",
@@ -139,13 +189,13 @@ module.exports = async (test, assert) => {
   test("prime to disk", async () => {
     let loads = 0;
 
-    expire('disk')
+    expire("disk");
 
-    prime({ disk: true }, { key: 'disk', duration: '1m' })
+    prime({ disk: true }, { key: "disk", duration: "1m" });
 
     const comp = createComponent({
       key: "disk",
-      duration: '1m',
+      duration: "1m",
       loadCb() {
         loads++;
       },
@@ -156,5 +206,55 @@ module.exports = async (test, assert) => {
 
     assert(json.disk);
     assert(loads === 0);
+  });
+
+  test("memory - catches sync error", async () => {
+    let loads = 0;
+
+    function component() {
+      loads++;
+
+      load(
+        () => {
+          throw "error";
+          return "data";
+        },
+        { key: "sync error" }
+      );
+
+      return "component";
+    }
+
+    try {
+      await render(component, {});
+      throw "unreachable";
+    } catch (e) {
+      assert((loads = 1));
+    }
+  });
+
+  test("memory - catches async error", async () => {
+    let loads = 0;
+
+    function component() {
+      loads++;
+
+      load(
+        async () => {
+          throw "error";
+          return "data";
+        },
+        { key: "async error" }
+      );
+
+      return "component";
+    }
+
+    try {
+      await render(component, {});
+      throw "unreachable";
+    } catch (e) {
+      assert((loads = 1));
+    }
   });
 };
