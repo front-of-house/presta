@@ -43,7 +43,7 @@ async function renderEntries(entries, options = {}) {
       const pagesFromHashedFile = fileFromHash ? fileFromHash.pages : [];
 
       // get paths
-      const { getPaths, render, prepare } = require(entry.compiledFile);
+      const { getPaths, render, createDocument } = require(entry.compiledFile);
       const paths = await getPaths();
 
       const revisionMismatch =
@@ -77,10 +77,9 @@ async function renderEntries(entries, options = {}) {
               const file = path.join(output, pathnameToHtmlFile(pathname));
               const result = await render({
                 pathname,
-                head: { title: "", style: [], meta: [] },
               });
 
-              fs.outputFileSync(file, prepare(result), "utf-8");
+              fs.outputFileSync(file, createDocument(result), "utf-8");
             },
           });
         });
