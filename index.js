@@ -107,6 +107,7 @@ async function renderEntries(entries, options = {}) {
       log(`  ${c.gray(time + "ms")}\t${pathname}`)
       delete require.cache[entry.compiledFile];
     } catch (e) {
+      console.log(e)
       log(`\n  ${c.red('error')}  ${pathname}\n\n${e}\n\n${c.gray(`  errors detected, ${build ? 'exiting' : 'pausing'}...`)}\n`)
 
       // important, reset this for next pass
