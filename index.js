@@ -94,7 +94,7 @@ async function renderEntries(entries, options = {}) {
       }
     })
   ).catch((e) => {
-    log(`\n  render error\n\n${e}\n`)
+    log(`\n  render error\n  > ${e.stack || e}\n`)
   });
 
   while (renderQueue.length) {
@@ -121,7 +121,7 @@ async function renderEntries(entries, options = {}) {
   }
 
   if (build && !pagesWereRendered) {
-    log(`no changes detected, exiting...`)
+    log(`nothing to build, exiting...`)
   }
 }
 
