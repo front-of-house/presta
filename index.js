@@ -21,6 +21,10 @@ const { pathnameToHtmlFile } = require("./lib/pathnameToHtmlFile");
 const { safeConfigFilepath } = require("./lib/safeConfigFilepath");
 const { log } = require("./lib/log");
 
+function findMatchedPages(id, pages) {
+  return pages.find((p) =>  p[0].match(/(@.[^\.]+)/)[0] === id)
+}
+
 let renderQueue = [];
 
 async function renderEntries(entries, options = {}) {
@@ -59,6 +63,7 @@ async function renderEntries(entries, options = {}) {
             return paths.indexOf(p) < 0;
           })
           .forEach((page) => {
+            debug(`unused path, removing ${page}`)
             fs.removeSync(path.join(output, pathnameToHtmlFile(page)));
           });
       }
@@ -121,7 +126,7 @@ async function renderEntries(entries, options = {}) {
   }
 
   if (build && !pagesWereRendered) {
-    log(`nothing to build, exiting...`)
+    log(`  ${c.gray('nothing to build, exiting...')}`)
   }
 }
 
@@ -144,12 +149,12 @@ async function watch(config) {
     // match entries to emitted pages
     const entriesToUpdate = entries
       .filter((e) => {
-        return pages.find((p) => p[0].indexOf(e.id) > -1);
+        return findMatchedPages(e.id, pages)
       })
       .map((e) => {
         return {
           ...e,
-          compiledFile: pages.find((p) => p[0].indexOf(e.id) > -1)[1],
+          compiledFile: findMatchedPages(e.id, pages)[1],
         };
       });
 

@@ -37,11 +37,11 @@
     "ignore": "^5.1.8",
     "lodash": "^4.17.20",
     "matched": "^5.0.0",
-    "minimist": "^1.2.5",
     "ms": "^2.1.2",
     "read-env": "^2.0.0",
     "regenerator-runtime": "^0.13.7",
     "rev-hash": "^3.0.0",
+    "sade": "^1.7.3",
     "webpack": "^4.44.1"
   },
   "devDependencies": {
