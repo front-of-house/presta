@@ -1,11 +1,10 @@
-const assert = require('assert');
-const test = require('baretest')('presta');
+const assert = require('assert')
+const test = require('baretest')('presta')
 
 const { watch } = require('../')
 
-test('add user', async () => {
-})
+test('add user', async () => {})
 
-!(async function() {
+!(async function () {
   await test.run()
 })()

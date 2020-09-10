@@ -1,5 +1,5 @@
 export let headCache = {}
 
-export function head(obj) {
+export function head (obj) {
   headCache = { ...headCache, ...obj }
 }

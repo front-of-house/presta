@@ -5,7 +5,7 @@ require('./__test__/load.test')(test, assert)
 require('./lib/__test__/createConfigFromCLI.test')(test, assert)
 require('./lib/__test__/createHeadTags.test')(test, assert)
 
-!(async function() {
+!(async function () {
   console.time('test')
   await test.run()
   console.timeEnd('test')

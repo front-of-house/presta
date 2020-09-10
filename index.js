@@ -1,124 +1,128 @@
-require("core-js/stable");
-require("regenerator-runtime/runtime");
+require('core-js/stable')
+require('regenerator-runtime/runtime')
 
-const fs = require("fs-extra");
-const path = require("path");
-const chokidar = require("chokidar");
-const { difference } = require("lodash");
-const onExit = require("exit-hook");
-const c = require("ansi-colors");
-const debug = require("debug")("presta");
+const fs = require('fs-extra')
+const path = require('path')
+const chokidar = require('chokidar')
+const { difference } = require('lodash')
+const onExit = require('exit-hook')
+const c = require('ansi-colors')
+const debug = require('debug')('presta')
 
-const { PRESTA_PAGES } = require("./lib/constants");
-const { isStaticallyExportable } = require("./lib/isStaticallyExportable");
-const { encodeFilename } = require("./lib/encodeFilename");
-const { getValidFilesArray } = require("./lib/getValidFilesArray");
-const { createCompiler } = require("./lib/compiler");
-const { createEntries } = require("./lib/createEntries");
-const { ignoreArray } = require("./lib/ignore");
-const fileHash = require("./lib/fileHash");
-const { pathnameToHtmlFile } = require("./lib/pathnameToHtmlFile");
-const { safeConfigFilepath } = require("./lib/safeConfigFilepath");
-const { log } = require("./lib/log");
+const { PRESTA_PAGES } = require('./lib/constants')
+const { isStaticallyExportable } = require('./lib/isStaticallyExportable')
+const { encodeFilename } = require('./lib/encodeFilename')
+const { getValidFilesArray } = require('./lib/getValidFilesArray')
+const { createCompiler } = require('./lib/compiler')
+const { createEntries } = require('./lib/createEntries')
+const { ignoreArray } = require('./lib/ignore')
+const fileHash = require('./lib/fileHash')
+const { pathnameToHtmlFile } = require('./lib/pathnameToHtmlFile')
+const { safeConfigFilepath } = require('./lib/safeConfigFilepath')
+const { log } = require('./lib/log')
 
-function findMatchedPages(id, pages) {
-  return pages.find((p) =>  p[0].match(/(@.[^\.]+)/)[0] === id)
+function findMatchedPages (id, pages) {
+  return pages.find(p => p[0].match(/(@.[^\.]+)/)[0] === id)
 }
 
-let renderQueue = [];
+let renderQueue = []
 
-async function renderEntries(entries, options = {}) {
-  const { incremental = true, output, build = false } = options;
+async function renderEntries (entries, options = {}) {
+  const { incremental = true, output, build = false } = options
 
-  let pagesWereRendered = false;
+  let pagesWereRendered = false
 
-  debug("render", entries);
+  debug('render', entries)
 
   await Promise.all(
-    entries.map(async (entry) => {
+    entries.map(async entry => {
       // was previously configured, remove so that it can re-render if reconfigured
       if (!isStaticallyExportable(entry.sourceFile)) {
-        fileHash.remove(entry.id);
-        return;
+        fileHash.remove(entry.id)
+        return
       }
 
-      const nextRev = fileHash.hash(entry.compiledFile);
-      const fileFromHash = fileHash.get(entry.id);
-      const pagesFromHashedFile = fileFromHash ? fileFromHash.pages : [];
+      const nextRev = fileHash.hash(entry.compiledFile)
+      const fileFromHash = fileHash.get(entry.id)
+      const pagesFromHashedFile = fileFromHash ? fileFromHash.pages : []
 
       // get paths
-      const { getPaths, render, createDocument } = require(entry.compiledFile);
-      const paths = await getPaths();
+      const { getPaths, render, createDocument } = require(entry.compiledFile)
+      const paths = await getPaths()
 
       const revisionMismatch =
-        incremental && fileFromHash ? fileFromHash.rev !== nextRev : true;
-      const newPages = paths.filter((p) => {
-        return pagesFromHashedFile.indexOf(p) < 0;
-      });
+        incremental && fileFromHash ? fileFromHash.rev !== nextRev : true
+      const newPages = paths.filter(p => {
+        return pagesFromHashedFile.indexOf(p) < 0
+      })
 
       // remove non-existant paths
       if (fileFromHash) {
         fileFromHash.pages
-          .filter((p) => {
-            return paths.indexOf(p) < 0;
+          .filter(p => {
+            return paths.indexOf(p) < 0
           })
-          .forEach((page) => {
+          .forEach(page => {
             debug(`unused path, removing ${page}`)
-            fs.removeSync(path.join(output, pathnameToHtmlFile(page)));
-          });
+            fs.removeSync(path.join(output, pathnameToHtmlFile(page)))
+          })
       }
 
-      debug(`${entry.id} updated`, !!revisionMismatch);
-      debug(`${entry.id} has new pages`, !!newPages.length);
+      debug(`${entry.id} updated`, !!revisionMismatch)
+      debug(`${entry.id} has new pages`, !!newPages.length)
 
       if (revisionMismatch || !!newPages.length) {
-        const pages = revisionMismatch ? paths : newPages;
+        const pages = revisionMismatch ? paths : newPages
 
-        pages.forEach(async (pathname) => {
+        pages.forEach(async pathname => {
           renderQueue.push({
             entry,
             pathname,
             render: async () => {
-              const file = path.join(output, pathnameToHtmlFile(pathname));
+              const file = path.join(output, pathnameToHtmlFile(pathname))
               const result = await render({
-                pathname,
-              });
+                pathname
+              })
 
-              fs.outputFileSync(file, createDocument(result), "utf-8");
-            },
-          });
-        });
+              fs.outputFileSync(file, createDocument(result), 'utf-8')
+            }
+          })
+        })
 
         fileHash.set(entry.id, nextRev, {
-          pages: paths,
-        });
+          pages: paths
+        })
 
-        fileHash.save();
+        fileHash.save()
 
-        pagesWereRendered = true;
+        pagesWereRendered = true
       }
     })
-  ).catch((e) => {
+  ).catch(e => {
     log(`\n  render error\n  > ${e.stack || e}\n`)
-  });
+  })
 
   while (renderQueue.length) {
-    const { pathname, render, entry } = renderQueue.pop();
+    const { pathname, render, entry } = renderQueue.pop()
 
     try {
-      const st = Date.now();
-      await render();
-      const time = Date.now() - st;
-      log(`  ${c.gray(time + "ms")}\t${pathname}`)
-      delete require.cache[entry.compiledFile];
+      const st = Date.now()
+      await render()
+      const time = Date.now() - st
+      log(`  ${c.gray(time + 'ms')}\t${pathname}`)
+      delete require.cache[entry.compiledFile]
     } catch (e) {
       if (!build) {
-        log(`\n  ${c.red('error')}  ${pathname}\n  > ${e.stack || e}\n\n${c.gray(`  errors detected, pausing...`)}\n`)
+        log(
+          `\n  ${c.red('error')}  ${pathname}\n  > ${e.stack || e}\n\n${c.gray(
+            `  errors detected, pausing...`
+          )}\n`
+        )
 
         // important, reset this for next pass
         renderQueue = []
 
-        break;
+        break
       } else {
         log(`\n  ${c.red('error')}  ${pathname}\n  > ${e.stack || e}\n`)
       }
@@ -130,148 +134,148 @@ async function renderEntries(entries, options = {}) {
   }
 }
 
-async function watch(config) {
-  let filesArray = getValidFilesArray(config.input);
+async function watch (config) {
+  let filesArray = getValidFilesArray(config.input)
   let entries = createEntries({
     filesArray,
     baseDir: config.baseDir,
     configFilepath: config.configFilepath,
-    runtimeFilepath: config.runtimeFilepath,
-  });
-  debug("entries", entries);
-  let stopCompiler = createCompiler(entries).watch(compilerCallback);
+    runtimeFilepath: config.runtimeFilepath
+  })
+  debug('entries', entries)
+  let stopCompiler = createCompiler(entries).watch(compilerCallback)
 
-  function compilerCallback(err, pages) {
+  function compilerCallback (err, pages) {
     if (err) {
-      console.error("compiler issue", err);
+      console.error('compiler issue', err)
     }
 
     // match entries to emitted pages
     const entriesToUpdate = entries
-      .filter((e) => {
+      .filter(e => {
         return findMatchedPages(e.id, pages)
       })
-      .map((e) => {
+      .map(e => {
         return {
           ...e,
-          compiledFile: findMatchedPages(e.id, pages)[1],
-        };
-      });
+          compiledFile: findMatchedPages(e.id, pages)[1]
+        }
+      })
 
     renderEntries(entriesToUpdate, {
       output: config.output,
-      incremental: config.incremental,
-    });
+      incremental: config.incremental
+    })
   }
 
   chokidar
     .watch(config.baseDir, {
       ignore: ignoreArray,
-      ignoreInitial: true,
+      ignoreInitial: true
     })
-    .on("all", async (ev, p) => {
-      let shouldRestart = false;
+    .on('all', async (ev, p) => {
+      let shouldRestart = false
 
-      const filename = p.replace(config.baseDir, "");
+      const filename = p.replace(config.baseDir, '')
 
       /*
        * sometimes need to "create" a dummy entry, say in the case of a filename
        * letter case change or rename, so that it can be compared against what it
        * was named previously
        */
-      const entry = entries.find((entry) => entry.sourceFile === p) || {
-        id: encodeFilename(filename),
-      };
+      const entry = entries.find(entry => entry.sourceFile === p) || {
+        id: encodeFilename(filename)
+      }
 
-      const potentiallyRenamedFileID = fileHash.keys().find((key) => {
-        return key.toLowerCase() === entry.id.toLowerCase();
-      });
-      const wasRenamed = potentiallyRenamedFileID && !fileHash.get(entry.id);
+      const potentiallyRenamedFileID = fileHash.keys().find(key => {
+        return key.toLowerCase() === entry.id.toLowerCase()
+      })
+      const wasRenamed = potentiallyRenamedFileID && !fileHash.get(entry.id)
 
       if (wasRenamed) {
-        fileHash.remove(potentiallyRenamedFileID);
+        fileHash.remove(potentiallyRenamedFileID)
       }
 
       if (wasRenamed || /add|unlink/.test(ev)) {
-        if (ev === "unlink") {
-          const { pages = [] } = fileHash.get(entry.id);
+        if (ev === 'unlink') {
+          const { pages = [] } = fileHash.get(entry.id)
 
           // remove built pages
-          pages.forEach((page) => {
-            fs.removeSync(path.join(config.output, pathnameToHtmlFile(page)));
-          });
+          pages.forEach(page => {
+            fs.removeSync(path.join(config.output, pathnameToHtmlFile(page)))
+          })
 
-          fileHash.remove(entry.id);
+          fileHash.remove(entry.id)
         }
 
-        shouldRestart = true;
-      } else if (ev === "change") {
+        shouldRestart = true
+      } else if (ev === 'change') {
         const previouslyInvalid =
-          !fileHash.get(entry.id) && isStaticallyExportable(p);
+          !fileHash.get(entry.id) && isStaticallyExportable(p)
         // const nowInvalid = fileHash[entry.id] && !isStaticallyExportable(p)
 
-        if (previouslyInvalid) shouldRestart = true;
+        if (previouslyInvalid) shouldRestart = true
         // if (nowInvalid) {
         //   fs.removeSync(path.join(pagesTmp, entry.id + '.js'))
         // }
       }
 
       if (shouldRestart) {
-        await stopCompiler();
+        await stopCompiler()
 
-        filesArray = getValidFilesArray(config.input);
+        filesArray = getValidFilesArray(config.input)
         entries = createEntries({
           filesArray,
           baseDir: config.baseDir,
           configFilepath: config.configFilepath,
-          runtimeFilepath: config.runtimeFilepath,
-        });
-        stopCompiler = createCompiler(entries).watch(compilerCallback);
+          runtimeFilepath: config.runtimeFilepath
+        })
+        stopCompiler = createCompiler(entries).watch(compilerCallback)
       }
-    });
+    })
 }
 
-async function build(config) {
-  const filesArray = getValidFilesArray(config.input);
+async function build (config) {
+  const filesArray = getValidFilesArray(config.input)
   const entries = createEntries({
     filesArray,
     baseDir: config.baseDir,
     configFilepath: config.configFilepath,
-    runtimeFilepath: config.runtimeFilepath,
-  });
-  debug("entries", entries);
+    runtimeFilepath: config.runtimeFilepath
+  })
+  debug('entries', entries)
 
   return new Promise((res, rej) => {
     createCompiler(entries).build(async (err, pages) => {
       if (err) {
-        console.error("compiler issue", err);
-        return;
+        console.error('compiler issue', err)
+        return
       }
 
       // match entries to emitted pages
       const entriesToUpdate = entries
-        .filter((e) => {
-          return pages.find((p) => p[0].indexOf(e.id) > -1);
+        .filter(e => {
+          return pages.find(p => p[0].indexOf(e.id) > -1)
         })
-        .map((e) => {
+        .map(e => {
           return {
             ...e,
-            compiledFile: pages.find((p) => p[0].indexOf(e.id) > -1)[1],
-          };
-        });
+            compiledFile: pages.find(p => p[0].indexOf(e.id) > -1)[1]
+          }
+        })
 
       await renderEntries(entriesToUpdate, {
         build: true,
         incremental: config.incremental,
-        output: config.output,
-      });
+        output: config.output
+      })
 
-      res();
-    });
-  });
+      res()
+    })
+  })
 }
 
 module.exports = {
   watch,
-  build,
-};
+  build
+}

@@ -8,28 +8,29 @@ module.exports = async (input, noreload) => {
   const serve = require('serve-static')(input)
   const port = await getPort({ port: 4000 })
 
-  const server = http.createServer((req, res) => {
-    const { url } = req
+  const server = http
+    .createServer((req, res) => {
+      const { url } = req
 
-    // static assets
-    if (/^.+\..+$/.test(url)) {
-      return serve(req, res, require('finalhandler')(req, res))
-    }
+      // static assets
+      if (/^.+\..+$/.test(url)) {
+        return serve(req, res, require('finalhandler')(req, res))
+      }
 
-    let status = 200
-    let file = ''
+      let status = 200
+      let file = ''
 
-    try {
-      file = fs.readFileSync(path.join(input, url + '/index.html'), 'utf8')
-    } catch (e) {
-      status = 404
       try {
-        file = fs.readFileSync(path.join(input, '/not-found.html'), 'utf8')
-      } catch (e) {}
-    }
+        file = fs.readFileSync(path.join(input, url + '/index.html'), 'utf8')
+      } catch (e) {
+        status = 404
+        try {
+          file = fs.readFileSync(path.join(input, '/not-found.html'), 'utf8')
+        } catch (e) {}
+      }
 
-    if (!noreload) {
-      file += `
+      if (!noreload) {
+        file += `
         <script>
           (function (global) {
             try {
@@ -75,27 +76,25 @@ module.exports = async (input, noreload) => {
           })(this);
         </script>
       `
-    }
+      }
 
-    const ok = status < 299
+      const ok = status < 299
 
-    console.log(
-      c.gray(status),
-      ok ? c.blue(url) : c.white(url)
-    )
+      console.log(c.gray(status), ok ? c.blue(url) : c.white(url))
 
-    res.writeHead(status, {
-      'Content-Type': 'text/html'
+      res.writeHead(status, {
+        'Content-Type': 'text/html'
+      })
+      res.write(file)
+      res.end()
     })
-    res.write(file)
-    res.end()
-  }).listen(port, () => {
-    console.log(
-      c.gray(`presta`),
-      c.blue(`serving`),
-      `on http://localhost:${port}`
-    )
-  })
+    .listen(port, () => {
+      console.log(
+        c.gray(`presta`),
+        c.blue(`serving`),
+        `on http://localhost:${port}`
+      )
+    })
 
   if (!noreload) {
     const socket = require('pocket.io')(server, {
@@ -107,4 +106,3 @@ module.exports = async (input, noreload) => {
     })
   }
 }
-
