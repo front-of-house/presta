@@ -1,20 +1,15 @@
-import path from "path";
-import ms from "ms";
-import flatCache from "flat-cache";
-import createDebug from "debug";
-import assert from "assert";
+const path = require('path')
+const ms = require('ms')
+const debug = require('debug')('presta')
+const assert = require('assert')
 const c = require("ansi-colors");
-const { log } = require("./lib/log");
 
-const debug = createDebug("presta");
-const cwd = process.cwd();
+const { log } = require("./lib/log");
+const { fileCache } = require('./lib/fileCache')
+
 const requests = new Map();
 const memoryCache = {};
 const skipLoaders = [];
-const fileCache = flatCache.load(
-  "presta",
-  path.resolve(cwd, "./.presta/cache")
-);
 
 function getFromFileCache(key) {
   const entry = fileCache.getKey(key);
@@ -60,6 +55,7 @@ export function prime(value, options) {
 
 export function expire(key) {
   fileCache.removeKey(key);
+  fileCache.save(true)
 }
 
 export async function cache(loading, options) {
@@ -80,6 +76,8 @@ export async function cache(loading, options) {
     expires: Date.now() + parseInt(interval),
     duration,
   });
+
+  fileCache.save(true);
 
   debug(`{ ${key} } has been cached to disk for ${duration}`);
 
@@ -156,8 +154,6 @@ export async function render(component, ctx, renderer = (fn, ctx) => fn(ctx)) {
       )}`
     );
   }
-
-  fileCache.save(true);
 
   return {
     ...ctx,

@@ -15,8 +15,7 @@ const { createConfigFromCLI } = require("./lib/createConfigFromCLI");
 const { safeConfigFilepath } = require("./lib/safeConfigFilepath");
 const { safeRequire } = require("./lib/safeRequire");
 const { log } = require("./lib/log");
-
-console.clear();
+const { fileCache } = require('./lib/fileCache')
 
 const prog = sade("presta");
 
@@ -30,20 +29,6 @@ prog
 fs.ensureDirSync(PRESTA_DIR);
 
 prog
-  .command("serve [dir]")
-  .describe(
-    "Serve a directory of files. By default serves the output specified in your presta config file."
-  )
-  .option("--livereload, -l", "Only build changed files.", true)
-  .example(`serve`)
-  .example(`serve build`)
-  .example(`serve -c presta.config.js`)
-  .action((dir, opts) => {
-    const config = safeRequire(safeConfigFilepath(opts.config), {});
-    return serve(dir || config.output);
-  });
-
-prog
   .command("watch [pages] [output]")
   .describe("Watch and build a glob of pages to an output directory.")
   .option("--incremental, -n", "Only build changed files.", true)
@@ -51,6 +36,8 @@ prog
   .example(`watch pages/**/*.js build`)
   .example(`watch -c presta.config.js`)
   .action(async (pages, output, opts) => {
+    console.clear();
+
     // clear entire dir
     if (opts.clean) fs.emptyDirSync(PRESTA_DIR);
 
@@ -76,6 +63,8 @@ prog
   .example(`build pages/**/*.js build`)
   .example(`build -c presta.config.js`)
   .action(async (pages, output, opts) => {
+    console.clear();
+
     // clear entire dir
     if (opts.clean) fs.emptyDirSync(PRESTA_DIR);
 
@@ -93,6 +82,41 @@ prog
 
     const time = Date.now() - st;
     log(`\n${c.blue("built")} ${c.gray(`in ${time}ms`)}`);
+  });
+
+prog
+  .command("serve [dir]")
+  .describe(
+    "Serve a directory of files. By default serves the output specified in your presta config file."
+  )
+  .option("--livereload, -l", "Only build changed files.", true)
+  .example(`serve`)
+  .example(`serve build`)
+  .example(`serve -c presta.config.js`)
+  .action((dir, opts) => {
+    console.clear();
+    const config = safeRequire(safeConfigFilepath(opts.config), {});
+    return serve(dir || config.output);
+  });
+
+prog
+  .command("clear <keys>")
+  .describe(
+    "Pass a comma separated list to clear specific keys from the loader cache."
+  )
+  .example(`cache clear pages,photos`)
+  .action((raw) => {
+    const keys = raw.split(/,/)
+
+    log(c.blue('presta clear\n'))
+
+    for (const k of keys) {
+      fileCache.removeKey(k)
+      fileCache.save(true)
+      log(`  ${c.gray(k)}`)
+    }
+
+    log(c.blue('\ncleared'))
   });
 
 prog.parse(process.argv);
