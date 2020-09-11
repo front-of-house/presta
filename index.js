@@ -58,7 +58,7 @@ async function renderEntries (entries, options, cb) {
       // remove non-existant paths
       if (fileFromHash) {
         fileFromHash.pages
-          .filter(p => allPages.includes(p))
+          .filter(p => !allPages.includes(p))
           .forEach(page => {
             debug(`unused path, removing ${page}`)
             fs.remove(path.join(output, pathnameToHtmlFile(page)))
