@@ -44,6 +44,7 @@
     "lodash": "^4.17.20",
     "matched": "^5.0.0",
     "ms": "^2.1.2",
+    "p-queue": "^6.6.1",
     "read-env": "^2.0.0",
     "regenerator-runtime": "^0.13.7",
     "rev-hash": "^3.0.0",

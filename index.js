@@ -8,6 +8,7 @@ const { difference } = require('lodash')
 const onExit = require('exit-hook')
 const c = require('ansi-colors')
 const debug = require('debug')('presta')
+const { default: PQueue } = require('p-queue')
 
 const { PRESTA_PAGES } = require('./lib/constants')
 const { isStaticallyExportable } = require('./lib/isStaticallyExportable')
@@ -25,14 +26,16 @@ function findMatchedPages (id, pages) {
   return pages.find(p => p[0].match(/(@.[^\.]+)/)[0] === id)
 }
 
-let renderQueue = []
-
-async function renderEntries (entries, options = {}) {
+async function renderEntries (entries, options, cb) {
   const { incremental = true, output, build = false } = options
 
   let pagesWereRendered = false
 
   debug('render', entries)
+
+  const queue = new PQueue({ concurrency: 10 })
+
+  if (cb) queue.on('idle', cb)
 
   await Promise.all(
     entries.map(async entry => {
@@ -74,17 +77,38 @@ async function renderEntries (entries, options = {}) {
       if (revisionMismatch || !!newPages.length) {
         const pages = revisionMismatch ? paths : newPages
 
-        pages.forEach(async pathname => {
-          renderQueue.push({
-            entry,
-            pathname,
-            render: async () => {
-              const file = path.join(output, pathnameToHtmlFile(pathname))
+        pages.forEach(pathname => {
+          queue.add(async () => {
+            try {
+              const st = Date.now()
+
               const result = await render({
                 pathname
               })
 
-              fs.outputFileSync(file, createDocument(result), 'utf-8')
+              fs.outputFileSync(
+                path.join(output, pathnameToHtmlFile(pathname)),
+                createDocument(result),
+                'utf-8'
+              )
+
+              const time = Date.now() - st
+
+              log(`  ${c.gray(time + 'ms')}\t${pathname}`)
+
+              delete require.cache[entry.compiledFile]
+            } catch (e) {
+              if (!build) {
+                log(
+                  `\n  ${c.red('error')}  ${pathname}\n  > ${e.stack ||
+                    e}\n\n${c.gray(`  errors detected, pausing...`)}\n`
+                )
+
+                // important, reset this for next pass
+                queue.clear()
+              } else {
+                log(`\n  ${c.red('error')}  ${pathname}\n  > ${e.stack || e}\n`)
+              }
             }
           })
         })
@@ -102,39 +126,12 @@ async function renderEntries (entries, options = {}) {
     log(`\n  render error\n  > ${e.stack || e}\n`)
   })
 
-  while (renderQueue.length) {
-    const { pathname, render, entry } = renderQueue.pop()
-
-    try {
-      const st = Date.now()
-      await render()
-      const time = Date.now() - st
-      log(`  ${c.gray(time + 'ms')}\t${pathname}`)
-      delete require.cache[entry.compiledFile]
-    } catch (e) {
-      if (!build) {
-        log(
-          `\n  ${c.red('error')}  ${pathname}\n  > ${e.stack || e}\n\n${c.gray(
-            `  errors detected, pausing...`
-          )}\n`
-        )
-
-        // important, reset this for next pass
-        renderQueue = []
-
-        break
-      } else {
-        log(`\n  ${c.red('error')}  ${pathname}\n  > ${e.stack || e}\n`)
-      }
-    }
-  }
-
   if (build && !pagesWereRendered) {
     log(`  ${c.gray('nothing to build, exiting...')}`)
   }
 }
 
-async function watch (config) {
+async function watch (config, options = {}) {
   let filesArray = getValidFilesArray(config.input)
   let entries = createEntries({
     filesArray,
@@ -162,10 +159,16 @@ async function watch (config) {
         }
       })
 
-    renderEntries(entriesToUpdate, {
-      output: config.output,
-      incremental: config.incremental
-    })
+    renderEntries(
+      entriesToUpdate,
+      {
+        output: config.output,
+        incremental: config.incremental
+      },
+      () => {
+        options.onRenderComplete && options.onRenderComplete()
+      }
+    )
   }
 
   chokidar
@@ -235,7 +238,7 @@ async function watch (config) {
     })
 }
 
-async function build (config) {
+async function build (config, options = {}) {
   const filesArray = getValidFilesArray(config.input)
   const entries = createEntries({
     filesArray,
@@ -264,11 +267,19 @@ async function build (config) {
           }
         })
 
-      await renderEntries(entriesToUpdate, {
-        build: true,
-        incremental: config.incremental,
-        output: config.output
-      })
+      options.onRenderStart && options.onRenderStart()
+
+      await renderEntries(
+        entriesToUpdate,
+        {
+          build: true,
+          incremental: config.incremental,
+          output: config.output
+        },
+        () => {
+          options.onRenderComplete && options.onRenderComplete()
+        }
+      )
 
       res()
     })

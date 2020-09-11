@@ -29,6 +29,48 @@ prog
 fs.ensureDirSync(PRESTA_DIR)
 
 prog
+  .command(
+    'build [pages] [output]',
+    'Build a glob of pages to an output directory. Defaults to `./build`.',
+    { default: true }
+  )
+  .option('--incremental, -n', 'Only build changed files.', false)
+  .example(`build`)
+  .example(`build pages/**/*.js build`)
+  .example(`build -c presta.config.js`)
+  .action(async (pages, output, opts) => {
+    console.clear()
+
+    // clear entire dir
+    if (opts.clean) fs.emptyDirSync(PRESTA_DIR)
+
+    const config = createConfigFromCLI({
+      ...opts,
+      pages,
+      output
+    })
+
+    log(`${c.blue('presta build')}\n\n  ${c.gray('compiling...')}\n`)
+
+    const st = Date.now()
+    let rst
+
+    await build(config, {
+      onRenderStart () {
+        rst = Date.now()
+      },
+      onRenderComplete () {
+        const time = Date.now() - st
+        log(
+          `\n${c.blue('built')} ${c.gray(
+            `in ${time}ms / ${Date.now() - rst}ms`
+          )}`
+        )
+      }
+    })
+  })
+
+prog
   .command('watch [pages] [output]')
   .describe('Watch and build a glob of pages to an output directory.')
   .option('--incremental, -n', 'Only build changed files.', true)
@@ -54,38 +96,6 @@ prog
     )
 
     watch(config)
-  })
-
-prog
-  .command(
-    'build [pages] [output]',
-    'Build a glob of pages to an output directory. Defaults to `./build`.',
-    { default: true }
-  )
-  .option('--incremental, -n', 'Only build changed files.', false)
-  .example(`build`)
-  .example(`build pages/**/*.js build`)
-  .example(`build -c presta.config.js`)
-  .action(async (pages, output, opts) => {
-    console.clear()
-
-    // clear entire dir
-    if (opts.clean) fs.emptyDirSync(PRESTA_DIR)
-
-    const config = createConfigFromCLI({
-      ...opts,
-      pages,
-      output
-    })
-
-    log(`${c.blue('presta build')}\n\n  ${c.gray('compiling...')}\n`)
-
-    const st = Date.now()
-
-    await build(config)
-
-    const time = Date.now() - st
-    log(`\n${c.blue('built')} ${c.gray(`in ${time}ms`)}`)
   })
 
 prog
