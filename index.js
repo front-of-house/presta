@@ -28,14 +28,12 @@ function findMatchedPages (id, pages) {
 
 async function renderEntries (entries, options, cb) {
   const { incremental = true, output, build = false } = options
-
   let pagesWereRendered = false
 
   debug('render', entries)
 
   const queue = new PQueue({ concurrency: 10 })
-
-  if (cb) queue.on('idle', cb)
+  queue.on('idle', cb || (() => {}))
 
   await Promise.all(
     entries.map(async entry => {
@@ -45,46 +43,40 @@ async function renderEntries (entries, options, cb) {
         return
       }
 
-      const nextRev = fileHash.hash(entry.compiledFile)
+      const revision = fileHash.hash(entry.compiledFile)
       const fileFromHash = fileHash.get(entry.id)
-      const pagesFromHashedFile = fileFromHash ? fileFromHash.pages : []
+      const fileWasUpdated =
+        incremental && fileFromHash ? fileFromHash.rev !== revision : true
 
-      // get paths
       const { getPaths, render, createDocument } = require(entry.compiledFile)
-      const paths = await getPaths()
 
-      const revisionMismatch =
-        incremental && fileFromHash ? fileFromHash.rev !== nextRev : true
-      const newPages = paths.filter(p => {
-        return pagesFromHashedFile.indexOf(p) < 0
+      const allPages = await getPaths()
+      const newPages = allPages.filter(p => {
+        return (fileFromHash ? fileFromHash.pages : []).indexOf(p) < 0
       })
 
       // remove non-existant paths
       if (fileFromHash) {
         fileFromHash.pages
-          .filter(p => {
-            return paths.indexOf(p) < 0
-          })
+          .filter(p => allPages.includes(p))
           .forEach(page => {
             debug(`unused path, removing ${page}`)
-            fs.removeSync(path.join(output, pathnameToHtmlFile(page)))
+            fs.remove(path.join(output, pathnameToHtmlFile(page)))
           })
       }
 
-      debug(`${entry.id} updated`, !!revisionMismatch)
+      debug(`${entry.id} updated`, !!fileWasUpdated)
       debug(`${entry.id} has new pages`, !!newPages.length)
 
-      if (revisionMismatch || !!newPages.length) {
-        const pages = revisionMismatch ? paths : newPages
+      if (fileWasUpdated || Boolean(newPages.length)) {
+        // only render new pages
+        const pages = fileWasUpdated ? allPages : newPages
 
         pages.forEach(pathname => {
           queue.add(async () => {
             try {
               const st = Date.now()
-
-              const result = await render({
-                pathname
-              })
+              const result = await render({ pathname })
 
               fs.outputFileSync(
                 path.join(output, pathnameToHtmlFile(pathname)),
@@ -92,9 +84,7 @@ async function renderEntries (entries, options, cb) {
                 'utf-8'
               )
 
-              const time = Date.now() - st
-
-              log(`  ${c.gray(time + 'ms')}\t${pathname}`)
+              log(`  ${c.gray(Date.now() - st + 'ms')}\t${pathname}`)
 
               delete require.cache[entry.compiledFile]
             } catch (e) {
@@ -113,8 +103,8 @@ async function renderEntries (entries, options, cb) {
           })
         })
 
-        fileHash.set(entry.id, nextRev, {
-          pages: paths
+        fileHash.set(entry.id, revision, {
+          pages: allPages
         })
 
         fileHash.save()
@@ -159,6 +149,8 @@ async function watch (config, options = {}) {
         }
       })
 
+    options.onRenderStart()
+
     renderEntries(
       entriesToUpdate,
       {
@@ -166,7 +158,7 @@ async function watch (config, options = {}) {
         incremental: config.incremental
       },
       () => {
-        options.onRenderComplete && options.onRenderComplete()
+        options.onRenderEnd()
       }
     )
   }
@@ -267,7 +259,7 @@ async function build (config, options = {}) {
           }
         })
 
-      options.onRenderStart && options.onRenderStart()
+      options.onRenderStart()
 
       await renderEntries(
         entriesToUpdate,
@@ -277,7 +269,7 @@ async function build (config, options = {}) {
           output: config.output
         },
         () => {
-          options.onRenderComplete && options.onRenderComplete()
+          options.onRenderEnd()
         }
       )
 

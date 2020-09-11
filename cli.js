@@ -59,12 +59,12 @@ prog
       onRenderStart () {
         rst = Date.now()
       },
-      onRenderComplete () {
+      onRenderEnd () {
         const time = Date.now() - st
         log(
-          `\n${c.blue('built')} ${c.gray(
-            `in ${time}ms / ${Date.now() - rst}ms`
-          )}`
+          `\n${c.blue('built')} ${c.gray(`in ${time}ms –`)} ${c.blue(
+            'rendered'
+          )} ${c.gray(`in ${Date.now() - rst}ms`)}`
         )
       }
     })
@@ -95,7 +95,16 @@ prog
       }\n`
     )
 
-    watch(config)
+    let rst
+
+    watch(config, {
+      onRenderStart () {
+        rst = Date.now()
+      },
+      onRenderEnd () {
+        log(c.gray(`\n  rendered paths in ${Date.now() - rst}ms\n`))
+      }
+    })
   })
 
 prog
