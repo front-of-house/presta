@@ -5,6 +5,7 @@ const assert = require('assert')
 
 process.chdir('testApp')
 
+require('./__test__/index.test')(test, assert)
 require('./__test__/load.test')(test, assert)
 require('./lib/__test__/createConfigFromCLI.test')(test, assert)
 require('./lib/__test__/createHeadTags.test')(test, assert)
