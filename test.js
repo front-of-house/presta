@@ -10,6 +10,10 @@ require('./lib/__test__/createConfigFromCLI.test')(test, assert)
 require('./lib/__test__/createHeadTags.test')(test, assert)
 require('./lib/__test__/encodeFilename.test')(test, assert)
 require('./lib/__test__/createEntries.test')(test, assert)
+require('./lib/__test__/getGlobCommonDirectory.test')(test, assert)
+require('./lib/__test__/isStaticallyExportable.test')(test, assert)
+require('./lib/__test__/getValidFilesArray.test')(test, assert)
+require('./lib/__test__/pathnameToHtmlFile.test')(test, assert)
 
 !(async function () {
   console.time('test')

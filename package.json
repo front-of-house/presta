@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "NODE_ENV=test node -r esm test",
-    "test:watch": "NODE_ENV=test nodemon -r esm test",
+    "test:watch": "NODE_ENV=test nodemon -i testApp -r esm test",
     "lint:format": "prettier-standard --format"
   },
   "husky": {

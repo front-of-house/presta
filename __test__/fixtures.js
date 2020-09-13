@@ -13,5 +13,5 @@ fs.outputFileSync(
 )
 fs.outputFileSync(
   path.join(cwd, '/pages/Root.js'),
-  `module.exports = 'Root.js'`
+  `export function getPaths() {};export function Page() {}`
 )
