@@ -22,10 +22,6 @@ const { pathnameToHtmlFile } = require('./lib/pathnameToHtmlFile')
 const { safeConfigFilepath } = require('./lib/safeConfigFilepath')
 const { log } = require('./lib/log')
 
-function findMatchedPages (id, pages) {
-  return pages.find(p => p[0].match(/(@.[^\.]+)/)[0] === id)
-}
-
 async function renderEntries (entries, options, cb) {
   const { incremental = true, output, build = false } = options
   let pagesWereRendered = false
@@ -133,21 +129,15 @@ async function watch (config, options = {}) {
   let stopCompiler = createCompiler(entries).watch(compilerCallback)
 
   function compilerCallback (err, pages) {
-    if (err) {
-      console.error('compiler issue', err)
-    }
+    if (err) console.error('compiler issue', err)
 
     // match entries to emitted pages
     const entriesToUpdate = entries
-      .filter(e => {
-        return findMatchedPages(e.id, pages)
-      })
-      .map(e => {
-        return {
-          ...e,
-          compiledFile: findMatchedPages(e.id, pages)[1]
-        }
-      })
+      .filter(e => Boolean(pages[e.id]))
+      .map(e => ({
+        ...e,
+        compiledFile: pages[e.id]
+      }))
 
     options.onRenderStart()
 
@@ -174,14 +164,17 @@ async function watch (config, options = {}) {
       const filename = p.replace(config.baseDir, '')
 
       /*
-       * sometimes need to "create" a dummy entry, say in the case of a filename
+       * fallback to a "dummy" entry, say in the case of a filename
        * letter case change or rename, so that it can be compared against what it
        * was named previously
        */
       const entry = entries.find(entry => entry.sourceFile === p) || {
         id: encodeFilename(filename)
       }
-
+      /*
+       * If the normalized entry IDs match, but don't match un-normalized, it was
+       * very likely renamed.
+       */
       const potentiallyRenamedFileID = fileHash.keys().find(key => {
         return key.toLowerCase() === entry.id.toLowerCase()
       })
@@ -247,17 +240,12 @@ async function build (config, options = {}) {
         return
       }
 
-      // match entries to emitted pages
       const entriesToUpdate = entries
-        .filter(e => {
-          return pages.find(p => p[0].indexOf(e.id) > -1)
-        })
-        .map(e => {
-          return {
-            ...e,
-            compiledFile: pages.find(p => p[0].indexOf(e.id) > -1)[1]
-          }
-        })
+        .filter(e => Boolean(pages[e.id]))
+        .map(e => ({
+          ...e,
+          compiledFile: pages[e.id]
+        }))
 
       options.onRenderStart()
 
