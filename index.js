@@ -1,24 +1,21 @@
-require('core-js/stable')
-require('regenerator-runtime/runtime')
+import fs from 'fs-extra'
+import path from 'path'
+import chokidar from 'chokidar'
+import c from 'ansi-colors'
+import PQueue from 'p-queue'
+import graph from 'watch-dependency-graph'
 
-const fs = require('fs-extra')
-const path = require('path')
-const chokidar = require('chokidar')
-const c = require('ansi-colors')
-const debug = require('debug')('presta')
-const { default: PQueue } = require('p-queue')
+import { debug } from './lib/debug'
+import { isStaticallyExportable } from './lib/isStaticallyExportable'
+import { encodeFilename } from './lib/encodeFilename'
+import { getValidFilesArray } from './lib/getValidFilesArray'
+import { createEntries } from './lib/createEntries'
+import { ignoredFilesArray } from './lib/ignore'
+import * as fileHash from './lib/fileHash'
+import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
+import { log } from './lib/log'
 
-const { isStaticallyExportable } = require('./lib/isStaticallyExportable')
-const { encodeFilename } = require('./lib/encodeFilename')
-const { getValidFilesArray } = require('./lib/getValidFilesArray')
-const { createCompiler } = require('./lib/compiler')
-const { createEntries } = require('./lib/createEntries')
-const { ignoreArray } = require('./lib/ignore')
-const fileHash = require('./lib/fileHash')
-const { pathnameToHtmlFile } = require('./lib/pathnameToHtmlFile')
-const { log } = require('./lib/log')
-
-async function renderEntries (entries, options, cb) {
+export async function renderEntries (entries, options, cb) {
   const { incremental = true, output, build = false } = options
   let pagesWereRendered = false
 
@@ -29,23 +26,19 @@ async function renderEntries (entries, options, cb) {
 
   await Promise.all(
     entries.map(async entry => {
+      // TODO do this elsewhere
       // was previously configured, remove so that it can re-render if reconfigured
-      if (!isStaticallyExportable(entry.sourceFile)) {
+      if (!isStaticallyExportable(entry.generatedFile)) {
         fileHash.remove(entry.id)
         return
       }
 
-      const revision = fileHash.hash(entry.compiledFile)
+      // really jusst used for prev paths now
       const fileFromHash = fileHash.get(entry.id)
-      const fileWasUpdated =
-        incremental && fileFromHash ? fileFromHash.rev !== revision : true
 
-      const { getPaths, render, createDocument } = require(entry.compiledFile)
+      const { getPaths, render, createDocument } = require(entry.generatedFile)
 
       const allPages = await getPaths()
-      const newPages = allPages.filter(p => {
-        return (fileFromHash ? fileFromHash.pages : []).indexOf(p) < 0
-      })
 
       // remove non-existant paths
       if (fileFromHash) {
@@ -57,52 +50,38 @@ async function renderEntries (entries, options, cb) {
           })
       }
 
-      debug(`${entry.id} updated`, !!fileWasUpdated)
-      debug(`${entry.id} has new pages`, !!newPages.length)
+      allPages.forEach(pathname => {
+        queue.add(async () => {
+          try {
+            const st = Date.now()
+            const result = await render({ pathname })
 
-      if (fileWasUpdated || Boolean(newPages.length)) {
-        // only render new pages
-        const pages = fileWasUpdated ? allPages : newPages
+            fs.outputFileSync(
+              path.join(output, pathnameToHtmlFile(pathname)),
+              createDocument(result),
+              'utf-8'
+            )
 
-        pages.forEach(pathname => {
-          queue.add(async () => {
-            try {
-              const st = Date.now()
-              const result = await render({ pathname })
+            log(`  ${c.gray(Date.now() - st + 'ms')}\t${pathname}`)
 
-              fs.outputFileSync(
-                path.join(output, pathnameToHtmlFile(pathname)),
-                createDocument(result),
-                'utf-8'
+            delete require.cache[entry.generatedFile]
+          } catch (e) {
+            if (!build) {
+              log(
+                `\n  ${c.red('error')}  ${pathname}\n  > ${e.stack ||
+                  e}\n\n${c.gray(`  errors detected, pausing...`)}\n`
               )
 
-              log(`  ${c.gray(Date.now() - st + 'ms')}\t${pathname}`)
-
-              delete require.cache[entry.compiledFile]
-            } catch (e) {
-              if (!build) {
-                log(
-                  `\n  ${c.red('error')}  ${pathname}\n  > ${e.stack ||
-                    e}\n\n${c.gray(`  errors detected, pausing...`)}\n`
-                )
-
-                // important, reset this for next pass
-                queue.clear()
-              } else {
-                log(`\n  ${c.red('error')}  ${pathname}\n  > ${e.stack || e}\n`)
-              }
+              // important, reset this for next pass
+              queue.clear()
+            } else {
+              log(`\n  ${c.red('error')}  ${pathname}\n  > ${e.stack || e}\n`)
             }
-          })
+          }
         })
+      })
 
-        fileHash.set(entry.id, revision, {
-          pages: allPages
-        })
-
-        fileHash.save()
-
-        pagesWereRendered = true
-      }
+      pagesWereRendered = true
     })
   ).catch(e => {
     log(`\n  render error\n  > ${e.stack || e}\n`)
@@ -113,113 +92,50 @@ async function renderEntries (entries, options, cb) {
   }
 }
 
-async function watch (config, options = {}) {
-  let filesArray = getValidFilesArray(config.input)
-  let entries = createEntries({
-    filesArray,
-    baseDir: config.baseDir,
-    configFilepath: config.configFilepath,
-    runtimeFilepath: config.runtimeFilepath
-  })
-  debug('entries', entries)
-  let stopCompiler = createCompiler(entries).watch(compilerCallback)
+export async function watch (config) {
+  function init () {
+    let filesArray = getValidFilesArray(config.input)
+    let entries = createEntries({
+      filesArray,
+      baseDir: config.baseDir,
+      configFilepath: config.configFilepath,
+      runtimeFilepath: config.runtimeFilepath
+    })
+    debug('entries', entries)
 
-  function compilerCallback (err, pages) {
-    if (err) console.error('compiler issue', err)
+    const instance = graph(config.input)
 
-    // match entries to emitted pages
-    const entriesToUpdate = entries
-      .filter(e => Boolean(pages[e.id]))
-      .map(e => ({
-        ...e,
-        compiledFile: pages[e.id]
-      }))
+    instance.on('update', ids => {
+      debug('watch-dependency-graph', ids)
 
-    options.onRenderStart()
+      const entriesToUpdate = []
 
-    renderEntries(
-      entriesToUpdate,
-      {
-        output: config.output,
-        incremental: config.incremental
-      },
-      () => {
-        options.onRenderEnd()
+      for (const id of ids) {
+        for (const entry of entries) {
+          if (entry.sourceFile === id) entriesToUpdate.push(entry)
+        }
       }
-    )
+
+      if (!entriesToUpdate.length) return
+
+      debug('entriesToUpdate', entriesToUpdate)
+
+      renderEntries(entriesToUpdate, {
+        incremental: config.incremental,
+        output: config.output
+      })
+    })
+
+    instance.on('remove', () => {
+      instance.close()
+      init()
+    })
   }
 
-  chokidar
-    .watch(config.baseDir, {
-      ignore: ignoreArray,
-      ignoreInitial: true
-    })
-    .on('all', async (ev, p) => {
-      let shouldRestart = false
-
-      const filename = p.replace(config.baseDir, '')
-
-      /*
-       * fallback to a "dummy" entry, say in the case of a filename
-       * letter case change or rename, so that it can be compared against what it
-       * was named previously
-       */
-      const entry = entries.find(entry => entry.sourceFile === p) || {
-        id: encodeFilename(filename)
-      }
-      /*
-       * If the normalized entry IDs match, but don't match un-normalized, it was
-       * very likely renamed.
-       */
-      const potentiallyRenamedFileID = fileHash.keys().find(key => {
-        return key.toLowerCase() === entry.id.toLowerCase()
-      })
-      const wasRenamed = potentiallyRenamedFileID && !fileHash.get(entry.id)
-
-      if (wasRenamed) {
-        fileHash.remove(potentiallyRenamedFileID)
-      }
-
-      if (wasRenamed || /add|unlink/.test(ev)) {
-        if (ev === 'unlink') {
-          const { pages = [] } = fileHash.get(entry.id)
-
-          // remove built pages
-          pages.forEach(page => {
-            fs.removeSync(path.join(config.output, pathnameToHtmlFile(page)))
-          })
-
-          fileHash.remove(entry.id)
-        }
-
-        shouldRestart = true
-      } else if (ev === 'change') {
-        const previouslyInvalid =
-          !fileHash.get(entry.id) && isStaticallyExportable(p)
-        // const nowInvalid = fileHash[entry.id] && !isStaticallyExportable(p)
-
-        if (previouslyInvalid) shouldRestart = true
-        // if (nowInvalid) {
-        //   fs.removeSync(path.join(pagesTmp, entry.id + '.js'))
-        // }
-      }
-
-      if (shouldRestart) {
-        await stopCompiler()
-
-        filesArray = getValidFilesArray(config.input)
-        entries = createEntries({
-          filesArray,
-          baseDir: config.baseDir,
-          configFilepath: config.configFilepath,
-          runtimeFilepath: config.runtimeFilepath
-        })
-        stopCompiler = createCompiler(entries).watch(compilerCallback)
-      }
-    })
+  init()
 }
 
-async function build (config, options = {}) {
+export async function build (config, options = {}) {
   const filesArray = getValidFilesArray(config.input)
   const entries = createEntries({
     filesArray,
@@ -229,40 +145,17 @@ async function build (config, options = {}) {
   })
   debug('entries', entries)
 
-  return new Promise((res, rej) => {
-    createCompiler(entries).build(async (err, pages) => {
-      if (err) {
-        console.error('compiler issue', err)
-        return
-      }
+  options.onRenderStart()
 
-      const entriesToUpdate = entries
-        .filter(e => Boolean(pages[e.id]))
-        .map(e => ({
-          ...e,
-          compiledFile: pages[e.id]
-        }))
-
-      options.onRenderStart()
-
-      await renderEntries(
-        entriesToUpdate,
-        {
-          build: true,
-          incremental: config.incremental,
-          output: config.output
-        },
-        () => {
-          options.onRenderEnd()
-        }
-      )
-
-      res()
-    })
-  })
-}
-
-module.exports = {
-  watch,
-  build
+  await renderEntries(
+    entries,
+    {
+      build: true,
+      incremental: config.incremental,
+      output: config.output
+    },
+    () => {
+      options.onRenderEnd()
+    }
+  )
 }

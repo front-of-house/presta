@@ -4,7 +4,7 @@ const { load } = require('presta/load')
 export async function getPaths () {
   const paths = []
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 1000; i++) {
     paths.push(i + '')
   }
 

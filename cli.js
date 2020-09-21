@@ -1,21 +1,15 @@
-#!/usr/bin/env node
+import fs from 'fs-extra'
+import c from 'ansi-colors'
+import sade from 'sade'
 
-const fs = require('fs-extra')
-const serve = require('./serve')
-const c = require('ansi-colors')
-const sade = require('sade')
-
-const { watch, build } = require('./')
-const {
-  PRESTA_DIR,
-  PRESTA_PAGES,
-  PRESTA_WRAPPED_PAGES
-} = require('./lib/constants')
-const { createConfigFromCLI } = require('./lib/createConfigFromCLI')
-const { safeConfigFilepath } = require('./lib/safeConfigFilepath')
-const { safeRequire } = require('./lib/safeRequire')
-const { log } = require('./lib/log')
-const { fileCache } = require('./lib/fileCache')
+import serve from './serve'
+import { watch, build } from './'
+import { PRESTA_DIR } from './lib/constants'
+import { createConfigFromCLI } from './lib/createConfigFromCLI'
+import { safeConfigFilepath } from './lib/safeConfigFilepath'
+import { safeRequire } from './lib/safeRequire'
+import { log } from './lib/log'
+import { fileCache } from './lib/fileCache'
 
 const prog = sade('presta')
 
@@ -24,6 +18,7 @@ prog
   .option('--config, -c', 'Path to a config file.', 'presta.config.js')
   .option('--runtime, -r', 'Path to a runtime file.', 'presta.runtime.js')
   .option('--clean, -e', 'Clean build directory of cached files.')
+  .option('--jsx', 'Specify a JSX pragma.', 'h')
 
 // just make sure it's there
 fs.ensureDirSync(PRESTA_DIR)
@@ -95,16 +90,7 @@ prog
       }\n`
     )
 
-    let rst
-
-    watch(config, {
-      onRenderStart () {
-        rst = Date.now()
-      },
-      onRenderEnd () {
-        log(c.gray(`\n  rendered paths in ${Date.now() - rst}ms\n`))
-      }
-    })
+    watch(config)
   })
 
 prog

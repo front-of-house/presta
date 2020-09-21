@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "presta": "cli.js"
+    "presta": "presta.js"
   },
   "scripts": {
     "test": "NODE_ENV=test node -r esm test",
@@ -28,6 +28,8 @@
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
     "@babel/core": "^7.11.1",
+    "@babel/preset-react": "^7.10.4",
+    "@babel/register": "^7.11.5",
     "ansi-colors": "^4.1.1",
     "babel-loader": "^8.1.0",
     "core-js": "^3.6.5",
@@ -39,12 +41,14 @@
     "get-port": "^5.1.1",
     "ignore": "^5.1.8",
     "matched": "^5.0.0",
+    "module-alias": "^2.2.2",
     "ms": "^2.1.2",
     "p-queue": "^6.6.1",
     "read-env": "^2.0.0",
     "regenerator-runtime": "^0.13.7",
     "rev-hash": "^3.0.0",
     "sade": "^1.7.3",
+    "watch-dependency-graph": "^0.1.0",
     "webpack": "^4.44.1"
   },
   "devDependencies": {
