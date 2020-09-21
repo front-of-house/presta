@@ -1,22 +1,19 @@
 import fs from 'fs-extra'
 import path from 'path'
-import chokidar from 'chokidar'
 import c from 'ansi-colors'
 import PQueue from 'p-queue'
 import graph from 'watch-dependency-graph'
 
 import { debug } from './lib/debug'
 import { isStaticallyExportable } from './lib/isStaticallyExportable'
-import { encodeFilename } from './lib/encodeFilename'
 import { getValidFilesArray } from './lib/getValidFilesArray'
 import { createEntries } from './lib/createEntries'
-import { ignoredFilesArray } from './lib/ignore'
 import * as fileHash from './lib/fileHash'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
 
 export async function renderEntries (entries, options, cb) {
-  const { incremental = true, output, build = false } = options
+  const { output, build = false } = options
   let pagesWereRendered = false
 
   debug('render', entries)
@@ -121,7 +118,6 @@ export async function watch (config) {
       debug('entriesToUpdate', entriesToUpdate)
 
       renderEntries(entriesToUpdate, {
-        incremental: config.incremental,
         output: config.output
       })
     })
@@ -151,7 +147,6 @@ export async function build (config, options = {}) {
     entries,
     {
       build: true,
-      incremental: config.incremental,
       output: config.output
     },
     () => {

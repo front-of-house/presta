@@ -29,7 +29,6 @@ prog
     'Build a glob of pages to an output directory. Defaults to `./build`.',
     { default: true }
   )
-  .option('--incremental, -n', 'Only build changed files.', false)
   .example(`build`)
   .example(`build pages/**/*.js build`)
   .example(`build -c presta.config.js`)
@@ -45,7 +44,7 @@ prog
       output
     })
 
-    log(`${c.blue('presta build')}\n\n  ${c.gray('compiling...')}\n`)
+    log(`${c.blue('presta build')}\n`)
 
     const st = Date.now()
     let rst
@@ -68,7 +67,6 @@ prog
 prog
   .command('watch [pages] [output]')
   .describe('Watch and build a glob of pages to an output directory.')
-  .option('--incremental, -n', 'Only build changed files.', true)
   .example(`watch`)
   .example(`watch pages/**/*.js build`)
   .example(`watch -c presta.config.js`)
@@ -84,11 +82,7 @@ prog
       output
     })
 
-    log(
-      `${c.blue('presta watch')} ${
-        config.incremental ? c.gray('awaiting changes') : ''
-      }\n`
-    )
+    log(`${c.blue('presta watch')}\n`)
 
     watch(config)
   })

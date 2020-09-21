@@ -26,14 +26,6 @@ export default async function (test, assert) {
     assert(/\/output/.test(config.output))
   })
 
-  test('createConfigFromCLI - incremental', async () => {
-    const config = createConfigFromCLI({
-      pages,
-      incremental: true
-    })
-    assert(config.incremental)
-  })
-
   test('createConfigFromCLI - no config', async () => {
     const config = createConfigFromCLI({
       pages: './pages/**/*.js'
