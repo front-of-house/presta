@@ -3,6 +3,7 @@ import path from 'path'
 import c from 'ansi-colors'
 import PQueue from 'p-queue'
 import graph from 'watch-dependency-graph'
+import exit from 'exit'
 
 import { debug } from './lib/debug'
 import { isStaticallyExportable } from './lib/isStaticallyExportable'
@@ -13,8 +14,7 @@ import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
 
 export async function renderEntries (entries, options, cb) {
-  const { output, build = false } = options
-  let pagesWereRendered = false
+  const { output, watch = false } = options
 
   debug('render', entries)
 
@@ -63,7 +63,7 @@ export async function renderEntries (entries, options, cb) {
 
             delete require.cache[entry.generatedFile]
           } catch (e) {
-            if (!build) {
+            if (watch) {
               log(
                 `\n  ${c.red('error')}  ${pathname}\n  > ${e.stack ||
                   e}\n\n${c.gray(`  errors detected, pausing...`)}\n`
@@ -77,16 +77,10 @@ export async function renderEntries (entries, options, cb) {
           }
         })
       })
-
-      pagesWereRendered = true
     })
   ).catch(e => {
     log(`\n  render error\n  > ${e.stack || e}\n`)
   })
-
-  if (build && !pagesWereRendered) {
-    log(`  ${c.gray('nothing to build, exiting...')}`)
-  }
 }
 
 export async function watch (config) {
@@ -118,6 +112,7 @@ export async function watch (config) {
       debug('entriesToUpdate', entriesToUpdate)
 
       renderEntries(entriesToUpdate, {
+        watch: true,
         output: config.output
       })
     })
@@ -141,12 +136,16 @@ export async function build (config, options = {}) {
   })
   debug('entries', entries)
 
+  if (!entries.length) {
+    log(`  ${c.gray('nothing to build')}\n`)
+    exit()
+  }
+
   options.onRenderStart()
 
   await renderEntries(
     entries,
     {
-      build: true,
       output: config.output
     },
     () => {
