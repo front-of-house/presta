@@ -1,11 +1,11 @@
-const path = require('path')
-const ms = require('ms')
-const debug = require('debug')('presta')
-const assert = require('assert')
-const c = require('ansi-colors')
+import path from 'path'
+import ms from 'ms'
+import assert from 'assert'
+import c from 'ansi-colors'
 
-const { log } = require('./lib/log')
-const { fileCache } = require('./lib/fileCache')
+import { debug } from './lib/debug'
+import { log } from './lib/log'
+import { fileCache } from './lib/fileCache'
 
 const requests = new Map()
 const memoryCache = {}

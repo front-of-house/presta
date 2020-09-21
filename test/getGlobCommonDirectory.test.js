@@ -1,6 +1,6 @@
-const { getGlobCommonDirectory } = require('../getGlobCommonDirectory')
+import { getGlobCommonDirectory } from '../lib/getGlobCommonDirectory'
 
-module.exports = async function (test, assert) {
+export default async function (test, assert) {
   test('getGlobCommonDirectory', async () => {
     assert(getGlobCommonDirectory('/*.js') === '/')
     assert(getGlobCommonDirectory('/**/*.js') === '/')

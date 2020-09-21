@@ -7,8 +7,10 @@
     "presta": "presta.js"
   },
   "scripts": {
-    "test": "NODE_ENV=test node -r esm test",
-    "test:watch": "NODE_ENV=test nodemon -i testApp -r esm test",
+    "test": "npm run fixtures && NODE_ENV=test node -r esm test && npm run fixtures:remove",
+    "test:watch": "NODE_ENV=test npm run fixtures && nodemon -i ./fixtures -r esm test",
+    "fixtures": "node test/fixtures",
+    "fixtures:remove": "rm -rf /fixtures",
     "lint:format": "prettier-standard --format"
   },
   "husky": {

@@ -1,13 +1,13 @@
-const fs = require('fs-extra')
-const path = require('path')
+import fs from 'fs-extra'
+import path from 'path'
 
-const { CWD, PRESTA_WRAPPED_PAGES } = require('../constants')
-const { createEntries } = require('../createEntries')
+import { CWD, PRESTA_WRAPPED_PAGES } from '../lib/constants'
+import { createEntries } from '../lib/createEntries'
 
 const sourceFile = path.join(CWD, '/pages/Root.js')
 const generatedFile = path.join(PRESTA_WRAPPED_PAGES, 'Root.js')
 
-module.exports = (test, assert) => {
+export default (test, assert) => {
   test('createEntries', () => {
     const entries = createEntries({
       filesArray: [sourceFile],

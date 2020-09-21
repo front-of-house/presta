@@ -1,13 +1,13 @@
-const fs = require('fs-extra')
-const path = require('path')
+import fs from 'fs-extra'
+import path from 'path'
 
-const { CWD } = require('../constants')
-const { isStaticallyExportable } = require('../isStaticallyExportable')
+import { CWD } from '../lib/constants'
+import { isStaticallyExportable } from '../lib/isStaticallyExportable'
 
 const no = path.join(CWD, '/pages/NotStaticallyExportable.js')
 const yes = path.join(CWD, '/pages/IsStaticallyExportable.js')
 
-module.exports = async function (test, assert) {
+export default async function (test, assert) {
   test('isStaticallyExportable', async () => {
     fs.outputFileSync(no, `export function Page() {}`)
     fs.outputFileSync(

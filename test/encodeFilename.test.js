@@ -1,6 +1,6 @@
-const { encodeFilename } = require('../encodeFilename')
+import { encodeFilename } from '../lib/encodeFilename'
 
-module.exports = async function (test, assert) {
+export default async function (test, assert) {
   test('encodeFilename', async () => {
     assert(encodeFilename('test.js') === 'test')
     assert(encodeFilename('/test.js') === '@test')

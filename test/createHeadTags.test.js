@@ -1,11 +1,11 @@
-const {
+import {
   filterUnique,
   objectToTag,
   prefixToObjects,
   createHeadTags
-} = require('../createHeadTags')
+} from '../lib/createHeadTags'
 
-module.exports = async function (test, assert) {
+export default async function (test, assert) {
   test('filterUnique', async () => {
     const unique = filterUnique([
       { name: 'author', content: 'foo' },

@@ -1,4 +1,4 @@
-const { prime, cache, load, render, expire } = require('../load')
+import { prime, cache, load, render, expire } from '../load'
 
 function createComponent ({ key, duration, loadCb }) {
   return ({ children }) => {
@@ -20,7 +20,7 @@ function createComponent ({ key, duration, loadCb }) {
   }
 }
 
-module.exports = async (test, assert) => {
+export default async (test, assert) => {
   test('requires a key', async () => {
     function component () {
       load(async () => ({ component: true }))
