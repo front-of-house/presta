@@ -6,7 +6,6 @@ import graph from 'watch-dependency-graph'
 import exit from 'exit'
 
 import { debug } from './lib/debug'
-import { isStaticallyExportable } from './lib/isStaticallyExportable'
 import { getValidFilesArray } from './lib/getValidFilesArray'
 import { createEntries } from './lib/createEntries'
 import * as fileHash from './lib/fileHash'
@@ -23,17 +22,19 @@ export async function renderEntries (entries, options, cb) {
 
   await Promise.all(
     entries.map(async entry => {
-      // TODO do this elsewhere
-      // was previously configured, remove so that it can re-render if reconfigured
-      if (!isStaticallyExportable(entry.generatedFile)) {
-        fileHash.remove(entry.id)
-        return
-      }
-
       // really jusst used for prev paths now
       const fileFromHash = fileHash.get(entry.id)
 
+      try {
+        delete require.cache[entry.generatedFile]
+      } catch (e) {}
       const { getPaths, render, createDocument } = require(entry.generatedFile)
+
+      // was previously configured, remove so that it can re-render if reconfigured
+      if (!getPaths) {
+        fileHash.remove(entry.id)
+        return
+      }
 
       const allPages = await getPaths()
 
@@ -60,8 +61,6 @@ export async function renderEntries (entries, options, cb) {
             )
 
             log(`  ${c.gray(Date.now() - st + 'ms')}\t${pathname}`)
-
-            delete require.cache[entry.generatedFile]
           } catch (e) {
             if (watch) {
               log(
