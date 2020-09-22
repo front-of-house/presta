@@ -49,8 +49,6 @@
     "ms": "^2.1.2",
     "p-queue": "^6.6.1",
     "pocket.io": "^0.1.4",
-    "read-env": "^2.0.0",
-    "regenerator-runtime": "^0.13.7",
     "rev-hash": "^3.0.0",
     "sade": "^1.7.3",
     "serve-static": "^1.14.1",
@@ -59,9 +57,7 @@
   },
   "devDependencies": {
     "baretest": "^2.0.0",
-    "fs-monkey": "^1.0.1",
     "husky": "^4.3.0",
-    "mock-fs": "^4.13.0",
     "nodemon": "^2.0.4",
     "prettier-standard": "^16.4.1",
     "proxyquire": "^2.1.3",
