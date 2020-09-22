@@ -12,74 +12,78 @@ import * as fileHash from './lib/fileHash'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
 
-export async function renderEntries (entries, options, cb) {
-  const { output, watch = false } = options
+const queue = new PQueue({ concurrency: 10 })
 
+async function renderEntry (entry, options) {
+  // really jusst used for prev paths now
+  const fileFromHash = fileHash.get(entry.id)
+
+  try {
+    delete require.cache[entry.generatedFile]
+  } catch (e) {}
+  const { getPaths, render, createDocument } = require(entry.generatedFile)
+
+  // was previously configured, remove so that it can re-render if reconfigured
+  if (!getPaths) {
+    fileHash.remove(entry.id)
+    return
+  }
+
+  const pages = await getPaths()
+
+  // remove non-existant paths
+  if (fileFromHash) {
+    fileFromHash.pages
+      .filter(p => !pages.includes(p))
+      .forEach(page => {
+        debug(`unused path, removing ${page}`)
+        fs.remove(path.join(output, pathnameToHtmlFile(page)))
+      })
+  }
+
+  for (const page of pages) {
+    queue.add(async () => {
+      try {
+        const st = Date.now()
+        const result = await render({ pathname: page })
+
+        fs.outputFileSync(
+          path.join(options.output, pathnameToHtmlFile(page)),
+          createDocument(result),
+          'utf-8'
+        )
+
+        log(`  ${c.gray(Date.now() - st + 'ms')}\t${page}`)
+      } catch (e) {
+        if (options.watch) {
+          log(
+            `\n  ${c.red('error')}  ${page}\n  > ${e.stack || e}\n\n${c.gray(
+              `  errors detected, pausing...`
+            )}\n`
+          )
+
+          // important, reset this for next pass
+          queue.clear()
+        } else {
+          log(`\n  ${c.red('error')}  ${page}\n  > ${e.stack || e}\n`)
+        }
+      }
+    })
+  }
+}
+
+export async function renderEntries (entries, options, cb) {
   debug('render', entries)
 
-  const queue = new PQueue({ concurrency: 10 })
   queue.on('idle', cb || (() => {}))
 
-  await Promise.all(
-    entries.map(async entry => {
-      // really jusst used for prev paths now
-      const fileFromHash = fileHash.get(entry.id)
-
-      try {
-        delete require.cache[entry.generatedFile]
-      } catch (e) {}
-      const { getPaths, render, createDocument } = require(entry.generatedFile)
-
-      // was previously configured, remove so that it can re-render if reconfigured
-      if (!getPaths) {
-        fileHash.remove(entry.id)
-        return
-      }
-
-      const allPages = await getPaths()
-
-      // remove non-existant paths
-      if (fileFromHash) {
-        fileFromHash.pages
-          .filter(p => !allPages.includes(p))
-          .forEach(page => {
-            debug(`unused path, removing ${page}`)
-            fs.remove(path.join(output, pathnameToHtmlFile(page)))
-          })
-      }
-
-      allPages.forEach(pathname => {
-        queue.add(async () => {
-          try {
-            const st = Date.now()
-            const result = await render({ pathname })
-
-            fs.outputFileSync(
-              path.join(output, pathnameToHtmlFile(pathname)),
-              createDocument(result),
-              'utf-8'
-            )
-
-            log(`  ${c.gray(Date.now() - st + 'ms')}\t${pathname}`)
-          } catch (e) {
-            if (watch) {
-              log(
-                `\n  ${c.red('error')}  ${pathname}\n  > ${e.stack ||
-                  e}\n\n${c.gray(`  errors detected, pausing...`)}\n`
-              )
-
-              // important, reset this for next pass
-              queue.clear()
-            } else {
-              log(`\n  ${c.red('error')}  ${pathname}\n  > ${e.stack || e}\n`)
-            }
-          }
-        })
-      })
-    })
-  ).catch(e => {
-    log(`\n  render error\n  > ${e.stack || e}\n`)
-  })
+  for (const entry of entries) {
+    try {
+      renderEntry(entry, options)
+    } catch (e) {
+      log(`\n  render error\n  > ${e.stack || e}\n`)
+    }
+  }
 }
 
 export async function watch (config) {
