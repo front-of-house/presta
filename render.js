@@ -1,5 +1,1 @@
-require = require('esm')(module)
-
-const { render } = require('./load')
-
-module.exports = { render }
+export { render } from './load'
