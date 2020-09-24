@@ -1,30 +1,29 @@
-# presta ![npm](https://img.shields.io/npm/v/presta)
+![presta](https://user-images.githubusercontent.com/4732330/94159216-e61d4600-fe48-11ea-8bdb-c4e3a40f196f.png)
 
-A flexible site generator, for both static and server rendered pages.
+### The simple way to build the modern web.
 
-> `presta` is still in beta, but I'm actively using it on a few side projects
-> and plan to continue development. Questions, comments, ideas? Open an issue or
-> PR!
+> `presta` is in active beta. Questions, comments, ideas? Open an issue or PR!
 
-### Features
+Presta starts simple and stays simple. It provides familiar ergonomics, but
+avoids opaque abstraction, giving more power (and responsibility) to the
+developer.
 
-- zero config
-- zero runtime
-- ergonomic dataloading
-- render any file type, not just HTML
+At its core, presta requests paths – or routes – to render, and concatenates
+strings returned from your pages into HTML documents. It can event render other
+formats too, like JSON.
 
-### Install
+#### Installation
 
-You can use it as a global executable with `npx`:
+`presta` needs to be installed local to your project:
+
+```bash
+$ npm i presta
+```
+
+Help will always be given to those who ask for it:
 
 ```bash
 $ npx presta help
-```
-
-Or install locally to your project if you're using the included utilities:
-
-```bash
-$ npm i presta -D
 ```
 
 ## Quick Start
@@ -130,14 +129,14 @@ export function createDocument ({ body }) {
 That's pretty much it, but there are a few other things that I need to document:
 
 - full API for the included utilities
-- generating pathnames
+- generating dynamic pathnames
 - caching optimizations
 - concurrency
 - dynamic rendering on a server (yay!)
 
 ## Roadmap
 
-- Typescript - supported experimentally atm, but the library itself isn't typed
+- Typescript support
 
 ### License
 
