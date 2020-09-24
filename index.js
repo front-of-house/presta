@@ -14,6 +14,8 @@ import { log } from './lib/log'
 
 const queue = new PQueue({ concurrency: 10 })
 
+let buildRenderCount = 0
+
 async function renderEntry (entry, options) {
   // really jusst used for prev paths now
   const fileFromHash = fileHash.get(entry.id)
@@ -40,6 +42,8 @@ async function renderEntry (entry, options) {
         fs.remove(path.join(output, pathnameToHtmlFile(page)))
       })
   }
+
+  buildRenderCount += pages.length
 
   for (const page of pages) {
     queue.add(async () => {
@@ -72,10 +76,10 @@ async function renderEntry (entry, options) {
   }
 }
 
-export async function renderEntries (entries, options, cb) {
+export async function renderEntries (entries, options, done) {
   debug('render', entries)
 
-  queue.on('idle', cb || (() => {}))
+  queue.on('idle', done || (() => {}))
 
   for (const entry of entries) {
     try {
@@ -152,7 +156,7 @@ export async function build (config, options = {}) {
       output: config.output
     },
     () => {
-      options.onRenderEnd()
+      options.onRenderEnd({ count: buildRenderCount })
     }
   )
 }

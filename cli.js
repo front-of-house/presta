@@ -47,19 +47,12 @@ prog
     log(`${c.blue('presta build')}\n`)
 
     const st = Date.now()
-    let rst
 
     await build(config, {
-      onRenderStart () {
-        rst = Date.now()
-      },
-      onRenderEnd () {
+      onRenderStart () {},
+      onRenderEnd ({ count }) {
         const time = Date.now() - st
-        log(
-          `\n${c.blue('built')} ${c.gray(`in ${time}ms –`)} ${c.blue(
-            'rendered'
-          )} ${c.gray(`in ${Date.now() - rst}ms`)}`
-        )
+        log(`\n${c.blue('built')} ${count} files ${c.gray(`in ${time}ms`)}`)
       }
     })
   })
@@ -99,7 +92,7 @@ prog
   .action((dir, opts) => {
     console.clear()
     const config = safeRequire(safeConfigFilepath(opts.config), {})
-    return serve(dir || config.output)
+    return serve(dir || config.output || 'build')
   })
 
 prog
