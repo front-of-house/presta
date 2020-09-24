@@ -124,8 +124,12 @@ export async function watch (config) {
       })
     })
 
-    instance.on('remove', () => {
-      instance.close()
+    instance.on('remove', async () => {
+      await instance.close()
+      init()
+    })
+    instance.on('add', async () => {
+      await instance.close()
       init()
     })
   }
