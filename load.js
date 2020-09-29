@@ -2,6 +2,7 @@ import path from 'path'
 import ms from 'ms'
 import assert from 'assert'
 import c from 'ansi-colors'
+import merge from 'deepmerge'
 
 import { debug } from './lib/debug'
 import { log } from './lib/log'
@@ -139,12 +140,23 @@ export function load (loader, options = {}) {
   run()
 }
 
-export async function render (component, ctx, renderer = (fn, ctx) => fn(ctx)) {
-  const body = renderer(component, ctx)
+export async function render (
+  component,
+  context,
+  renderer = (fn, context) => fn(context), // for a custom render, like React
+  internals = { headCache: {} } // internal, don't use this elsewhere
+) {
+  if (!context.head) {
+    context.head = obj => {
+      Object.assign(internals.headCache, merge(internals.headCache, obj))
+    }
+  }
+
+  const body = renderer(component, context)
 
   if (!!requests.size) {
     await Promise.allSettled(Array.from(requests.values()))
-    return render(component, ctx, renderer)
+    return render(component, context, renderer, internals)
   }
 
   if (requests.size) {
@@ -156,12 +168,13 @@ export async function render (component, ctx, renderer = (fn, ctx) => fn(ctx)) {
   }
 
   return {
-    ...ctx,
-    body: body + (ctx.body || ''),
+    ...context,
+    head: internals.headCache,
+    body: body + (context.body || ''),
     data: {
       ...memoryCache,
       ...fileCache.all(),
-      ...(ctx.data || {})
+      ...(context.data || {})
     }
   }
 }

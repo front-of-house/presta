@@ -82,9 +82,7 @@ export function Page ({ pathname }) {
 page.
 
 ```js
-import { head } from 'presta/head'
-
-export function Page ({ pathname }) {
+export function Page ({ pathname, head }) {
   // ...
 
   if (!data) return

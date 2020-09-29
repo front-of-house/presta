@@ -15,6 +15,7 @@ require('./getGlobCommonDirectory.test').default(test, assert)
 require('./isStaticallyExportable.test').default(test, assert)
 require('./getValidFilesArray.test').default(test, assert)
 require('./pathnameToHtmlFile.test').default(test, assert)
+require('./head.test').default(test, assert)
 
 !(async function () {
   await test.run()

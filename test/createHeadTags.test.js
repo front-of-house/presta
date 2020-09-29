@@ -78,4 +78,19 @@ export default async function (test, assert) {
 <meta name="twitter:description" content="test description" />`
     )
   })
+
+  test('image shorthand', async () => {
+    const head = createHeadTags({
+      image: 'foo'
+    })
+
+    assert(
+      head ===
+        `<title>presta</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta property="og:image" content="foo" />
+<meta name="twitter:image" content="foo" />`
+    )
+  })
 }
