@@ -10,6 +10,10 @@ export default async (test, assert) => {
     let one
     let two
 
+    const t = new Promise(y => {
+      queue.on('idle', y)
+    })
+
     queue.add(async () => {
       one = await render(({ head }) => {
         head({ title: 'title' })
@@ -23,17 +27,11 @@ export default async (test, assert) => {
       }, {})
     })
 
-    await new Promise((y, n) => {
-      queue.on('idle', () => {
-        try {
-          assert(one.head.title)
-          assert(!one.head.description)
-          assert(!two.head.title)
-          assert(two.head.description)
-        } catch (e) {
-          n(e)
-        }
-      })
-    })
+    await t
+
+    assert(one.head.title)
+    assert(!one.head.description)
+    assert(!two.head.title)
+    assert(two.head.description)
   })
 }
