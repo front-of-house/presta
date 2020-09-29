@@ -35,7 +35,16 @@ export default async function (test, assert) {
     assert(objects[0].content === 'test.com')
   })
 
-  test('createHeadTags', async () => {
+  test('createHeadTags - defaults', async () => {
+    const head = createHeadTags({})
+
+    assert(/presta/.test(head))
+    assert(/charset/.test(head))
+    assert(/viewport/.test(head))
+    assert(/description/.test(head))
+  })
+
+  test('createHeadTags - basic', async () => {
     const head = createHeadTags({
       title: 'test',
       description: 'test description',
@@ -49,18 +58,10 @@ export default async function (test, assert) {
       script: [`<script src="/test.js"></script>`]
     })
 
-    assert(
-      head ===
-        `<title>test</title>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="author" content="test" />
-<meta property="og:description" content="test description" />
-<meta property="og:url" content="test.com" />
-<meta name="twitter:description" content="test description" />
-<meta name="twitter:card" content="summary_large_image" />
-<script src="/test.js"></script>`
-    )
+    assert(/<title>test/.test(head))
+    assert(/name="description" content="test description.+\/>/.test(head))
+    assert(/name="author" content="test.+\/>/.test(head))
+    assert(/script.+src="\/test/.test(head))
   })
 
   test('twitter and og', async () => {
@@ -69,14 +70,10 @@ export default async function (test, assert) {
       description: 'test description'
     })
 
-    assert(
-      head ===
-        `<title>test</title>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta property="og:description" content="test description" />
-<meta name="twitter:description" content="test description" />`
-    )
+    assert(/og:title/.test(head))
+    assert(/og:description/.test(head))
+    assert(/twitter:title/.test(head))
+    assert(/twitter:description/.test(head))
   })
 
   test('image shorthand', async () => {
@@ -84,13 +81,7 @@ export default async function (test, assert) {
       image: 'foo'
     })
 
-    assert(
-      head ===
-        `<title>presta</title>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta property="og:image" content="foo" />
-<meta name="twitter:image" content="foo" />`
-    )
+    assert(/og:image/.test(head))
+    assert(/twitter:image/.test(head))
   })
 }
