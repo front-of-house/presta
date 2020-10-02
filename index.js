@@ -6,6 +6,7 @@ import graph from 'watch-dependency-graph'
 import exit from 'exit'
 
 import { debug } from './lib/debug'
+import { PRESTA_RUNTIME_DEFAULT } from './lib/constants'
 import { getValidFilesArray } from './lib/getValidFilesArray'
 import { createEntries } from './lib/createEntries'
 import * as fileHash from './lib/fileHash'
@@ -101,14 +102,26 @@ export async function watch (config) {
     })
     debug('entries', entries)
 
-    const instance = graph(config.input)
+    const instance = graph(
+      [config.input].concat(config.runtimeFilepath || PRESTA_RUNTIME_DEFAULT)
+    )
 
     instance.on('update', ids => {
       debug('watch-dependency-graph', ids)
 
-      const entriesToUpdate = []
+      let entriesToUpdate = []
 
       for (const id of ids) {
+        // if runtime file is updated OR added
+        if (
+          id.includes(config.runtimeFilepath) ||
+          id.includes(PRESTA_RUNTIME_DEFAULT)
+        ) {
+          entriesToUpdate = entries // reset to avoid dupes
+          debug('runtime file updated, rebuilding all pages')
+          break
+        }
+
         for (const entry of entries) {
           if (entry.sourceFile === id) entriesToUpdate.push(entry)
         }
