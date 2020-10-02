@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import c from 'ansi-colors'
 import sade from 'sade'
 
+import pkg from './package.json'
 import serve from './serve'
 import { watch, build } from './'
 import { PRESTA_DIR } from './lib/constants'
@@ -14,7 +15,7 @@ import { fileCache } from './lib/fileCache'
 const prog = sade('presta')
 
 prog
-  .version('1.0.5')
+  .version(pkg.version)
   .option('--config, -c', 'Path to a config file.', 'presta.config.js')
   .option('--runtime, -r', 'Path to a runtime file.', 'presta.runtime.js')
   .option('--clean, -e', 'Clean build directory of cached files.')
