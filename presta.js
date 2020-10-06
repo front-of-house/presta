@@ -18,7 +18,7 @@ const pragma = {
 }
 
 const babel = {
-  extensions: ['.ts', '.tsx', '.js', '.jsx'],
+  extensions: ['.js', '.jsx', '.ts', '.tsx'],
   presets: [['@babel/preset-react', pragma[jsx] || pragma.h]]
 }
 
