@@ -1,6 +1,6 @@
 {
   "name": "presta",
-  "version": "0.7.0-ts2",
+  "version": "0.7.0-ts3",
   "description": "",
   "main": "index.js",
   "bin": {
