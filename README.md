@@ -1,4 +1,4 @@
-![presta](https://user-images.githubusercontent.com/4732330/94159216-e61d4600-fe48-11ea-8bdb-c4e3a40f196f.png)
+![presta](https://user-images.githubusercontent.com/4732330/95477753-4aaec980-094e-11eb-9fa1-f2741b8233cd.png)
 
 ### The simple way to build the modern web.
 
