@@ -114,11 +114,14 @@ export async function watch (initialConfig) {
           id.includes(PRESTA_CONFIG_DEFAULT) // in event of added
         ) {
           const configFile = require(config.configFilepath)
+          const definesPages = configFile.pages !== undefined
+          const definesOutput = configFile.output !== undefined
+          const pagesMismatch =
+            definesPages && configFile.pages !== config.pages
+          const outputMismatch =
+            definesOutput && configFile.output !== config.output
 
-          if (
-            configFile.pages !== config.pages ||
-            configFile.output !== config.output
-          ) {
+          if (pagesMismatch || outputMismatch) {
             debug('config file updated, restarting watch process')
 
             restart({
