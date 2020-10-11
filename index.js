@@ -93,10 +93,14 @@ export async function renderEntries (entries, options, done) {
 export async function watch (initialConfig) {
   function init (config) {
     const entries = createEntries(config)
-
     const instance = graph(
       [config.pages].concat(config.configFilepath || PRESTA_CONFIG_DEFAULT)
     )
+
+    async function restart (c = config) {
+      await instance.close()
+      init(c)
+    }
 
     instance.on('update', async ids => {
       debug('watch-dependency-graph', ids)
@@ -115,15 +119,15 @@ export async function watch (initialConfig) {
             configFile.pages !== config.pages ||
             configFile.output !== config.output
           ) {
-            debug('config file updated, restarting')
+            debug('config file updated, restarting watch process')
 
-            await instance.close()
-
-            return init({
+            restart({
               ...config,
               pages: configFile.pages || config.pages,
               output: configFile.output || config.output
             })
+
+            return
           } else {
             debug('config file updated, rebuilding all pages')
 
@@ -148,13 +152,8 @@ export async function watch (initialConfig) {
       })
     })
 
-    async function reset () {
-      await instance.close()
-      init(config)
-    }
-
-    instance.on('remove', reset)
-    instance.on('add', reset)
+    instance.on('remove', restart)
+    instance.on('add', restart)
   }
 
   init(initialConfig)
