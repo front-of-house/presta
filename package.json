@@ -1,7 +1,7 @@
 {
   "name": "presta",
   "version": "0.9.0",
-  "description": "",
+  "description": "The simple way to build the modern web.",
   "main": "index.js",
   "bin": {
     "presta": "presta.js"
@@ -11,7 +11,7 @@
     "test:watch": "npm run fixtures && NODE_ENV=test nodemon -i ./fixtures -r esm test",
     "fixtures": "node test/fixtures",
     "fixtures:remove": "rm -rf /fixtures",
-    "lint:format": "prettier-standard --format"
+    "format": "prettier-standard --format"
   },
   "husky": {
     "hooks": {
@@ -49,7 +49,6 @@
     "ms": "^2.1.2",
     "p-queue": "^6.6.1",
     "pocket.io": "^0.1.4",
-    "rev-hash": "^3.0.0",
     "sade": "^1.7.3",
     "serve-static": "^1.14.1",
     "watch-dependency-graph": "^0.3.0",
@@ -62,6 +61,5 @@
     "prettier-standard": "^16.4.1",
     "proxyquire": "^2.1.3",
     "sinon": "^9.0.3"
-  },
-  "gitHead": "d61197227abaf828e9149897cb8a74980f3f2b56"
+  }
 }
