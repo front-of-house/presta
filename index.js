@@ -7,7 +7,6 @@ import exit from 'exit'
 
 import { debug } from './lib/debug'
 import { PRESTA_CONFIG_DEFAULT } from './lib/constants'
-import { getValidFilesArray } from './lib/getValidFilesArray'
 import { createEntries } from './lib/createEntries'
 import * as fileHash from './lib/fileHash'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
@@ -93,13 +92,7 @@ export async function renderEntries (entries, options, done) {
 
 export async function watch (initialConfig) {
   function init (config) {
-    let filesArray = getValidFilesArray(config.pages)
-    let entries = createEntries({
-      filesArray,
-      baseDir: config.baseDir,
-      configFilepath: config.configFilepath
-    })
-    debug('entries', entries)
+    const entries = createEntries(config)
 
     const instance = graph(
       [config.pages].concat(config.configFilepath || PRESTA_CONFIG_DEFAULT)
@@ -168,13 +161,7 @@ export async function watch (initialConfig) {
 }
 
 export async function build (config, options = {}) {
-  const filesArray = getValidFilesArray(config.pages)
-  const entries = createEntries({
-    filesArray,
-    baseDir: config.baseDir,
-    configFilepath: config.configFilepath
-  })
-  debug('entries', entries)
+  const entries = createEntries(config)
 
   if (!entries.length) {
     log(`  ${c.gray('nothing to build')}\n`)

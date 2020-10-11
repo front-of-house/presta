@@ -4,32 +4,29 @@ import path from 'path'
 import { CWD, PRESTA_WRAPPED_PAGES } from '../lib/constants'
 import { createEntries } from '../lib/createEntries'
 
-const sourceFile = path.join(CWD, '/pages/Root.js')
-const generatedFile = path.join(PRESTA_WRAPPED_PAGES, 'Root.js')
-
 export default (test, assert) => {
   test('createEntries', () => {
     const entries = createEntries({
-      filesArray: [sourceFile],
+      pages: 'pages/*.js',
       baseDir: path.join(CWD, '/pages')
     })
 
     const entry = entries[0]
 
-    assert(entry.id === '@Root')
-    assert(entry.sourceFile === sourceFile)
-    assert(entry.generatedFile === generatedFile)
-    assert(fs.existsSync(generatedFile))
-    assert(fs.readFileSync(generatedFile).includes(sourceFile))
+    assert(entry.id === '@A')
+    assert(entry.sourceFile.includes('A.js'))
+    assert(entry.generatedFile.includes('A.js'))
+    assert(fs.existsSync(entry.generatedFile))
+    assert(fs.readFileSync(entry.generatedFile).includes('A.js'))
   })
 
   test('createEntries - config', () => {
-    createEntries({
-      filesArray: [sourceFile],
+    const entry = createEntries({
+      pages: 'pages/*.js',
       baseDir: path.join(CWD, '/pages'),
       configFilepath: 'presta-config.js'
-    })
+    })[0]
 
-    assert(fs.readFileSync(generatedFile).includes('presta-config.js'))
+    assert(fs.readFileSync(entry.generatedFile).includes('presta-config.js'))
   })
 }
