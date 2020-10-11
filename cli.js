@@ -52,7 +52,7 @@ prog
       onRenderStart () {},
       onRenderEnd ({ count }) {
         const time = Date.now() - st
-        log(`\n${c.blue('built')} ${count} files ${c.gray(`in ${time}ms`)}`)
+        log(`\n${c.blue('built')} ${count} files ${c.gray(`in ${time}ms`)}\n`)
       }
     })
   })
