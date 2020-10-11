@@ -11,7 +11,8 @@
     "test:watch": "npm run fixtures && NODE_ENV=test nodemon -i ./fixtures -r esm test",
     "fixtures": "node test/fixtures",
     "fixtures:remove": "rm -rf /fixtures",
-    "format": "prettier-standard --format"
+    "format": "prettier-standard --format",
+    "cloc": "npx cloc lib/*.js cli.js presta.js document.js index.js load.js render.js serve.js"
   },
   "husky": {
     "hooks": {
