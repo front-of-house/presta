@@ -8,7 +8,6 @@ import exit from 'exit'
 import { debug } from './lib/debug'
 import { PRESTA_CONFIG_DEFAULT } from './lib/constants'
 import { createEntries } from './lib/createEntries'
-import * as fileHash from './lib/fileHash'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
 
@@ -17,31 +16,12 @@ const queue = new PQueue({ concurrency: 10 })
 let buildRenderCount = 0
 
 async function renderEntry (entry, options) {
-  // really jusst used for prev paths now
-  const fileFromHash = fileHash.get(entry.id)
-
   try {
-    delete require.cache[entry.generatedFile]
+    delete require.cache[entry.generatedFile] // TODO requried?
   } catch (e) {}
   const { getPaths, render, createDocument } = require(entry.generatedFile)
 
-  // was previously configured, remove so that it can re-render if reconfigured
-  if (!getPaths) {
-    fileHash.remove(entry.id)
-    return
-  }
-
   const pages = await getPaths()
-
-  // remove non-existant paths
-  if (fileFromHash) {
-    fileFromHash.pages
-      .filter(p => !pages.includes(p))
-      .forEach(page => {
-        debug(`unused path, removing ${page}`)
-        fs.remove(path.join(output, pathnameToHtmlFile(page)))
-      })
-  }
 
   buildRenderCount += pages.length
 
