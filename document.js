@@ -2,8 +2,8 @@ import merge from 'deepmerge'
 
 import { createHeadTags, createFootTags } from './lib/createHeadTags'
 
-export function document (some, rest = {}) {
-  const { body, head = {}, foot = {} } = merge(some, rest)
+export function document (some, ...rest) {
+  const { body, head = {}, foot = {} } = merge.all([some].concat(rest))
 
   const headTags = createHeadTags(head)
   const footTags = createFootTags(foot)
