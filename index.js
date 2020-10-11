@@ -16,9 +16,6 @@ const queue = new PQueue({ concurrency: 10 })
 let buildRenderCount = 0
 
 async function renderEntry (entry, options) {
-  try {
-    delete require.cache[entry.generatedFile] // TODO requried?
-  } catch (e) {}
   const { getPaths, render, createDocument } = require(entry.generatedFile)
 
   const pages = await getPaths()
@@ -74,7 +71,9 @@ export async function watch (initialConfig) {
   function init (config) {
     const entries = createEntries(config)
     const instance = graph(
-      [config.pages].concat(config.configFilepath || PRESTA_CONFIG_DEFAULT)
+      entries
+        .map(e => e.generatedFile)
+        .concat(config.configFilepath || PRESTA_CONFIG_DEFAULT)
     )
 
     async function restart (c = config) {
@@ -121,7 +120,7 @@ export async function watch (initialConfig) {
         }
 
         for (const entry of entries) {
-          if (entry.sourceFile === id) entriesToUpdate.push(entry)
+          if (entry.generatedFile === id) entriesToUpdate.push(entry)
         }
       }
 
