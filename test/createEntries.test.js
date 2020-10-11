@@ -23,13 +23,13 @@ export default (test, assert) => {
     assert(fs.readFileSync(generatedFile).includes(sourceFile))
   })
 
-  test('createEntries - runtime', () => {
+  test('createEntries - config', () => {
     createEntries({
       filesArray: [sourceFile],
       baseDir: path.join(CWD, '/pages'),
-      runtimeFilepath: 'presta-runtime.js'
+      configFilepath: 'presta-config.js'
     })
 
-    assert(fs.readFileSync(generatedFile).includes('presta-runtime.js'))
+    assert(fs.readFileSync(generatedFile).includes('presta-config.js'))
   })
 }

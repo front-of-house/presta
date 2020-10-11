@@ -6,7 +6,7 @@ import graph from 'watch-dependency-graph'
 import exit from 'exit'
 
 import { debug } from './lib/debug'
-import { PRESTA_RUNTIME_DEFAULT } from './lib/constants'
+import { PRESTA_CONFIG_DEFAULT } from './lib/constants'
 import { getValidFilesArray } from './lib/getValidFilesArray'
 import { createEntries } from './lib/createEntries'
 import * as fileHash from './lib/fileHash'
@@ -91,35 +91,53 @@ export async function renderEntries (entries, options, done) {
   }
 }
 
-export async function watch (config) {
-  function init () {
-    let filesArray = getValidFilesArray(config.input)
+export async function watch (initialConfig) {
+  function init (config) {
+    let filesArray = getValidFilesArray(config.pages)
     let entries = createEntries({
       filesArray,
       baseDir: config.baseDir,
-      configFilepath: config.configFilepath,
-      runtimeFilepath: config.runtimeFilepath
+      configFilepath: config.configFilepath
     })
     debug('entries', entries)
 
     const instance = graph(
-      [config.input].concat(config.runtimeFilepath || PRESTA_RUNTIME_DEFAULT)
+      [config.pages].concat(config.configFilepath || PRESTA_CONFIG_DEFAULT)
     )
 
-    instance.on('update', ids => {
+    instance.on('update', async ids => {
       debug('watch-dependency-graph', ids)
 
       let entriesToUpdate = []
 
       for (const id of ids) {
-        // if runtime file is updated OR added
+        // if config file is updated OR added
         if (
-          id.includes(config.runtimeFilepath) ||
-          id.includes(PRESTA_RUNTIME_DEFAULT)
+          id.includes(config.configFilepath) ||
+          id.includes(PRESTA_CONFIG_DEFAULT) // in event of added
         ) {
-          entriesToUpdate = entries // reset to avoid dupes
-          debug('runtime file updated, rebuilding all pages')
-          break
+          const configFile = require(config.configFilepath)
+
+          if (
+            configFile.pages !== config.pages ||
+            configFile.output !== config.output
+          ) {
+            debug('config file updated, restarting')
+
+            await instance.close()
+
+            return init({
+              ...config,
+              pages: configFile.pages || config.pages,
+              output: configFile.output || config.output
+            })
+          } else {
+            debug('config file updated, rebuilding all pages')
+
+            entriesToUpdate = entries // reset to avoid dupes
+
+            break
+          }
         }
 
         for (const entry of entries) {
@@ -137,26 +155,24 @@ export async function watch (config) {
       })
     })
 
-    instance.on('remove', async () => {
+    async function reset () {
       await instance.close()
-      init()
-    })
-    instance.on('add', async () => {
-      await instance.close()
-      init()
-    })
+      init(config)
+    }
+
+    instance.on('remove', reset)
+    instance.on('add', reset)
   }
 
-  init()
+  init(initialConfig)
 }
 
 export async function build (config, options = {}) {
-  const filesArray = getValidFilesArray(config.input)
+  const filesArray = getValidFilesArray(config.pages)
   const entries = createEntries({
     filesArray,
     baseDir: config.baseDir,
-    configFilepath: config.configFilepath,
-    runtimeFilepath: config.runtimeFilepath
+    configFilepath: config.configFilepath
   })
   debug('entries', entries)
 

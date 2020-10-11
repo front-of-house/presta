@@ -5,7 +5,7 @@ import sade from 'sade'
 import pkg from './package.json'
 import serve from './serve'
 import { watch, build } from './'
-import { PRESTA_DIR } from './lib/constants'
+import { PRESTA_DIR, PRESTA_CONFIG_DEFAULT } from './lib/constants'
 import { createConfigFromCLI } from './lib/createConfigFromCLI'
 import { safeConfigFilepath } from './lib/safeConfigFilepath'
 import { safeRequire } from './lib/safeRequire'
@@ -16,8 +16,7 @@ const prog = sade('presta')
 
 prog
   .version(pkg.version)
-  .option('--config, -c', 'Path to a config file.', 'presta.config.js')
-  .option('--runtime, -r', 'Path to a runtime file.', 'presta.runtime.js')
+  .option('--config, -c', 'Path to a config file.', PRESTA_CONFIG_DEFAULT)
   .option('--clean, -e', 'Clean build directory of cached files.')
   .option('--jsx', 'Specify a JSX pragma.', 'h')
 
@@ -32,7 +31,7 @@ prog
   )
   .example(`build`)
   .example(`build pages/**/*.js build`)
-  .example(`build -c presta.config.js`)
+  .example(`build -c ${PRESTA_CONFIG_DEFAULT}`)
   .action(async (pages, output, opts) => {
     console.clear()
 
@@ -63,7 +62,7 @@ prog
   .describe('Watch and build a glob of pages to an output directory.')
   .example(`watch`)
   .example(`watch pages/**/*.js build`)
-  .example(`watch -c presta.config.js`)
+  .example(`watch -c ${PRESTA_CONFIG_DEFAULT}`)
   .action(async (pages, output, opts) => {
     console.clear()
 
@@ -89,7 +88,7 @@ prog
   .option('--livereload, -l', 'Only build changed files.', true)
   .example(`serve`)
   .example(`serve build`)
-  .example(`serve -c presta.config.js`)
+  .example(`serve -c ${PRESTA_CONFIG_DEFAULT}`)
   .action((dir, opts) => {
     console.clear()
     const config = safeRequire(safeConfigFilepath(opts.config), {})

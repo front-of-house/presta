@@ -1,21 +1,30 @@
+import path from 'path'
+
 import { createConfigFromCLI } from '../lib/createConfigFromCLI'
 
 const pages = 'app/**/*.js'
 const output = 'output'
 const c = 'presta.config.js'
-const r = 'presta.runtime.js'
 
 export default async function (test, assert) {
-  test('createConfigFromCLI - requires input', async () => {
+  test('createConfigFromCLI - requires pages', async () => {
     try {
       createConfigFromCLI({})
       throw new Error('should not execute')
     } catch (e) {
       assert(e.message.includes('please provide'))
     }
+  })
 
-    const config = createConfigFromCLI({ pages })
-    assert(config.input.includes(pages))
+  test('createConfigFromCLI - defaults', async () => {
+    const config = createConfigFromCLI({
+      pages
+    })
+
+    assert(config.pages.includes(pages))
+    assert(path.isAbsolute(config.baseDir))
+    assert(path.isAbsolute(config.output))
+    assert(config.configFilepath === null)
   })
 
   test('createConfigFromCLI - output', async () => {
@@ -24,13 +33,7 @@ export default async function (test, assert) {
       output
     })
     assert(/\/output/.test(config.output))
-  })
-
-  test('createConfigFromCLI - no config', async () => {
-    const config = createConfigFromCLI({
-      pages: './pages/**/*.js'
-    })
-    assert(!config.configFilepath)
+    assert(path.isAbsolute(config.output))
   })
 
   test('createConfigFromCLI - config', async () => {
@@ -38,22 +41,19 @@ export default async function (test, assert) {
       pages: './pages/**/*.js',
       config: c
     })
-    assert(!!config.configFilepath)
-  })
 
-  test('createConfigFromCLI - runtime', async () => {
-    const config = createConfigFromCLI({
-      pages: './pages/**/*.js',
-      runtime: r
-    })
-    assert(!!config.runtimeFilepath)
+    assert(!!config.configFilepath)
+    assert(path.isAbsolute(config.configFilepath))
   })
 
   test('createConfigFromCLI - config file', async () => {
     const config = createConfigFromCLI({
       config: c
     })
-    assert(!!config.input)
+
+    assert(!!config.pages)
     assert(!!config.output)
+    assert(/dist/.test(config.output)) // from fixtures
+    assert(path.isAbsolute(config.output))
   })
 }

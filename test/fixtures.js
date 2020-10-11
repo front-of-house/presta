@@ -8,8 +8,8 @@ const fixtures = {
   config: {
     path: path.join(root, 'presta.config.js'),
     content: `
-      export const pages = './pages/**/*.js'
-      export const output = './build'
+      export const pages = './src/**/*.js'
+      export const output = './dist'
     `
   },
   runtime: {
