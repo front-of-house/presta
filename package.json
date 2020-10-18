@@ -12,6 +12,7 @@
     "fixtures": "node test/fixtures",
     "fixtures:remove": "rm -rf /fixtures",
     "format": "prettier-standard --format",
+    "lint": "prettier-standard --lint",
     "cloc": "npx cloc lib/*.js cli.js presta.js document.js index.js load.js render.js serve.js"
   },
   "husky": {

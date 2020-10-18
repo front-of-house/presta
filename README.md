@@ -13,6 +13,7 @@ strings returned from your pages into HTML documents. It can event render other
 formats too, like JSON.
 
 #### Features
+
 - fast, no compilation
 - render any file type, not just HTML
 - easily nest microsites

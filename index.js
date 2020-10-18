@@ -11,60 +11,82 @@ import { createEntries } from './lib/createEntries'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
 
-const queue = new PQueue({ concurrency: 10 })
+const cwd = process.cwd()
 
-let buildRenderCount = 0
-
-async function renderEntry (entry, options) {
+export async function prepareEntry (entry) {
   const { getPaths, render, createDocument } = require(entry.generatedFile)
 
-  const pages = await getPaths()
-
-  buildRenderCount += pages.length
-
-  for (const page of pages) {
-    queue.add(async () => {
-      try {
-        const st = Date.now()
-        const result = await render({ pathname: page })
-
-        fs.outputFileSync(
-          path.join(options.output, pathnameToHtmlFile(page)),
-          createDocument(result),
-          'utf-8'
-        )
-
-        log(`  ${c.gray(Date.now() - st + 'ms')}\t${page}`)
-      } catch (e) {
-        if (options.watch) {
-          log(
-            `\n  ${c.red('error')}  ${page}\n  > ${e.stack || e}\n\n${c.gray(
-              `  errors detected, pausing...`
-            )}\n`
-          )
-
-          // important, reset this for next pass
-          queue.clear()
-        } else {
-          log(`\n  ${c.red('error')}  ${page}\n  > ${e.stack || e}\n`)
-        }
-      }
-    })
+  return {
+    pages: await getPaths(),
+    render,
+    createDocument
   }
 }
 
-export async function renderEntries (entries, options, done) {
-  debug('render', entries)
+export function renderEntries (entries, options, done) {
+  return new Promise(async (y, n) => {
+    debug('render', entries)
 
-  queue.on('idle', done || (() => {}))
+    const preparedEntries = []
+    const allGeneratedFiles = []
+    const queue = new PQueue({ concurrency: 10 })
 
-  for (const entry of entries) {
-    try {
-      renderEntry(entry, options)
-    } catch (e) {
-      log(`\n  render error\n  > ${e.stack || e}\n`)
+    function onError (e, { location }) {
+      if (options.watch) {
+        log(
+          `\n  ${c.red('error')} ${location}\n\n  > ${e.stack || e}\n\n${c.gray(
+            `  errors detected, pausing...`
+          )}\n`
+        )
+
+        // IMPORTANT, reset this for next pass
+        queue.clear()
+      } else {
+        log(`\n  ${c.red('error')} ${location}\n\n  > ${e.stack || e}\n`)
+      }
+
+      y({ allGeneratedFiles })
     }
-  }
+
+    queue.on('idle', () => {
+      y({ allGeneratedFiles })
+    })
+
+    for (const entry of entries) {
+      try {
+        const p = await prepareEntry(entry)
+        preparedEntries.push(p)
+      } catch (e) {
+        onError(e, {
+          location: entry.sourceFile.replace(cwd, '') + ' getPaths'
+        })
+      }
+    }
+
+    for (const { pages, render, createDocument } of preparedEntries) {
+      for (const page of pages) {
+        queue.add(async () => {
+          try {
+            const st = Date.now()
+            const result = await render({ pathname: page })
+            const filename = pathnameToHtmlFile(page)
+
+            allGeneratedFiles.push(filename)
+
+            fs.outputFileSync(
+              path.join(options.output, filename),
+              createDocument(result),
+              'utf-8'
+            )
+
+            log(`  ${c.gray(Date.now() - st + 'ms')}\t${page}`)
+          } catch (e) {
+            onError(e, { location: page })
+          }
+        })
+      }
+    }
+  })
 }
 
 export async function watch (initialConfig) {
@@ -151,13 +173,9 @@ export async function build (config, options = {}) {
 
   options.onRenderStart()
 
-  await renderEntries(
-    entries,
-    {
-      output: config.output
-    },
-    () => {
-      options.onRenderEnd({ count: buildRenderCount })
-    }
-  )
+  const { allGeneratedFiles } = await renderEntries(entries, {
+    output: config.output
+  })
+
+  options.onRenderEnd({ count: allGeneratedFiles.length })
 }
