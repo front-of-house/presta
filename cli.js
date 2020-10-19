@@ -11,13 +11,13 @@ import { safeConfigFilepath } from './lib/safeConfigFilepath'
 import { safeRequire } from './lib/safeRequire'
 import { log } from './lib/log'
 import { fileCache } from './lib/fileCache'
+import * as globalConfig from './lib/config'
 
 const prog = sade('presta')
 
 prog
   .version(pkg.version)
   .option('--config, -c', 'Path to a config file.', PRESTA_CONFIG_DEFAULT)
-  .option('--clean, -e', 'Clean build directory of cached files.')
   .option('--jsx', 'Specify a JSX pragma.', 'h')
 
 // just make sure it's there
@@ -26,7 +26,7 @@ fs.ensureDirSync(PRESTA_DIR)
 prog
   .command(
     'build [pages] [output]',
-    'Build a glob of pages to an output directory. Defaults to `./build`.',
+    'Render page(s) to output directory (defaults to ./build)',
     { default: true }
   )
   .example(`build`)
@@ -35,14 +35,17 @@ prog
   .action(async (pages, output, opts) => {
     console.clear()
 
-    // clear entire dir
-    if (opts.clean) fs.emptyDirSync(PRESTA_DIR)
-
     const config = createConfigFromCLI({
       ...opts,
       pages,
       output
     })
+
+    // clear cached and generated files
+    fs.emptyDirSync(PRESTA_DIR)
+    fs.emptyDirSync(config.output)
+
+    globalConfig.set(config)
 
     log(`${c.blue('presta build')}\n`)
 
@@ -66,14 +69,13 @@ prog
   .action(async (pages, output, opts) => {
     console.clear()
 
-    // clear entire dir
-    if (opts.clean) fs.emptyDirSync(PRESTA_DIR)
-
     const config = createConfigFromCLI({
       ...opts,
       pages,
       output
     })
+
+    globalConfig.set(config)
 
     log(`${c.blue('presta watch')}\n`)
 
