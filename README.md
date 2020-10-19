@@ -1,4 +1,4 @@
-![presta](https://user-images.githubusercontent.com/4732330/96393904-30fb5680-1186-11eb-8fd9-ab646f6f5e69.png)
+![presta](https://user-images.githubusercontent.com/4732330/96394098-cdbdf400-1186-11eb-8930-21748099a039.png)
 
 ### The hyper minimal web framework for developers.
 
