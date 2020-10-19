@@ -1,27 +1,23 @@
-![presta](https://user-images.githubusercontent.com/4732330/95477753-4aaec980-094e-11eb-9fa1-f2741b8233cd.png)
+![presta](https://user-images.githubusercontent.com/4732330/96393904-30fb5680-1186-11eb-8fd9-ab646f6f5e69.png)
 
-### The simple way to build the modern web.
+### The hyper minimal web framework for developers.
 
 > `presta` is in active beta. Questions, comments, ideas? Open an issue or PR!
 
-Presta starts simple and stays simple. It provides familiar ergonomics, but
-avoids opaque abstraction, giving more power (and responsibility) to the
-developer.
+Render hybrid pages from a server or statically, with convenient co-located data loading. No more prop drilling or fat data files.
 
-At its core, presta requests paths – or routes – to render, and concatenates
-strings returned from your pages into HTML documents. It can event render other
-formats too, like JSON.
+Use any JS templating language (yes, React) and bring your own directory structure. Config is easy, if you even need it.
 
 #### Features
 
-- fast, no compilation
-- render any file type, not just HTML
-- easily nest microsites
-- ergonomic co-located data loading
-- smol, ~700 loc
-- 0kb runtime (there is no runtime)
-- get started with one file, two exports, and the CLI
-- made for the document web
+- 0kb runtime*
+- Runs ES modules natively in Node with no pre-compilation
+- Generate any file format. Seriously. Easily nest microsites.
+- Go read the source (and contribute!): atm it's only about 700 loc.
+- Get started in seconds, right from the command line. Scale to thousands of pages.
+- There's no magic, only strings. Bring back the document web.
+
+*There is no runtime. Pulled a sneaky on ya.
 
 #### Installation
 
@@ -40,10 +36,6 @@ $ npx presta help
 ## Docs
 
 Head over to [the docs site](https://sure-thing.net/presta) to get started.
-
-## Roadmap
-
-- TypeScript defs
 
 ### License
 
