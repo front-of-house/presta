@@ -12,6 +12,7 @@ import { safeRequire } from './lib/safeRequire'
 import { log } from './lib/log'
 import { fileCache } from './lib/fileCache'
 import * as globalConfig from './lib/config'
+import { timer } from './lib/timer'
 
 const prog = sade('presta')
 
@@ -49,13 +50,12 @@ prog
 
     log(`${c.blue('presta build')}\n`)
 
-    const st = Date.now()
+    const time = timer()
 
     await build(config, {
       onRenderStart () {},
       onRenderEnd ({ count }) {
-        const time = Date.now() - st
-        log(`\n${c.blue('built')} ${count} files ${c.gray(`in ${time}ms`)}\n`)
+        log(`\n${c.blue('built')} ${count} files ${c.gray(`in ${time()}`)}\n`)
       }
     })
   })

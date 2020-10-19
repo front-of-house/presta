@@ -10,6 +10,7 @@ import { PRESTA_CONFIG_DEFAULT } from './lib/constants'
 import { createEntries } from './lib/createEntries'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
+import { timer } from './lib/timer'
 
 const cwd = process.cwd()
 
@@ -67,7 +68,7 @@ export function renderEntries (entries, options, done) {
       for (const page of pages) {
         queue.add(async () => {
           try {
-            const st = Date.now()
+            const time = timer()
             const result = await render({ pathname: page })
             const filename = pathnameToHtmlFile(page)
 
@@ -79,7 +80,7 @@ export function renderEntries (entries, options, done) {
               'utf-8'
             )
 
-            log(`  ${c.gray(Date.now() - st + 'ms')}\t${page}`)
+            log(`  ${c.gray(time())}\t${page}`)
           } catch (e) {
             onError(e, { location: page })
           }
