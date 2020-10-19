@@ -41,7 +41,6 @@ export default async function (test, assert) {
     assert(/presta/.test(head))
     assert(/charset/.test(head))
     assert(/viewport/.test(head))
-    assert(/description/.test(head))
   })
 
   test('createHeadTags - basic', async () => {
