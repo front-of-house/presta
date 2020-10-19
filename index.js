@@ -11,6 +11,7 @@ import { createEntries } from './lib/createEntries'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
 import { timer } from './lib/timer'
+import { clearMemoryCache } from './load'
 
 const cwd = process.cwd()
 
@@ -51,6 +52,7 @@ export function renderEntries (entries, options, done) {
 
     queue.on('idle', () => {
       y({ allGeneratedFiles })
+      clearMemoryCache()
     })
 
     for (const entry of entries) {

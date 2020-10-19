@@ -9,8 +9,12 @@ import { log } from './lib/log'
 import { fileCache } from './lib/fileCache'
 
 const requests = new Map()
-const memoryCache = {}
+let memoryCache = {}
 const skipLoaders = []
+
+export function clearMemoryCache () {
+  memoryCache = {}
+}
 
 function getFromFileCache (key) {
   const entry = fileCache.getKey(key)
