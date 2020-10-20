@@ -82,7 +82,7 @@ export function renderEntries (entries, options, done) {
               'utf-8'
             )
 
-            log(`  ${c.gray(time())}\t${page}`)
+            log(`  ${c.gray(time().padEnd(8))}${page}`)
           } catch (e) {
             onError(e, { location: page })
           }
@@ -123,7 +123,7 @@ export async function watch (initialConfig) {
           const pagesMismatch =
             definesPages && configFile.pages !== config.pages
           const outputMismatch =
-            definesOutput && configFile.output !== config.output
+            definesOutput && configFile.output !== config.output // TODO abs v rel
 
           if (pagesMismatch || outputMismatch) {
             debug('config file updated, restarting watch process')
