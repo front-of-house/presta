@@ -30,7 +30,7 @@ $ npm i presta
 Don't forget, you can always ask the CLI for help:
 
 ```bash
-$ npx presta help
+$ npx presta -h
 ```
 
 ## Docs
