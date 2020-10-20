@@ -4,7 +4,7 @@ const http = require('http')
 const getPort = require('get-port')
 const c = require('ansi-colors')
 
-module.exports = async (input, noreload) => {
+module.exports = async (input, { noreload, noBanner }) => {
   const serve = require('serve-static')(input)
   const port = await getPort({ port: 4000 })
 
@@ -80,7 +80,7 @@ module.exports = async (input, noreload) => {
 
       const ok = status < 299
 
-      console.log(c.gray(status), ok ? c.blue(url) : c.white(url))
+      console.log(`  ${c[ok ? 'blue' : 'magenta'](`GET`.padEnd(8))}${url}`)
 
       res.writeHead(status, {
         'Content-Type': 'text/html'
@@ -89,11 +89,9 @@ module.exports = async (input, noreload) => {
       res.end()
     })
     .listen(port, () => {
-      console.log(
-        c.gray(`presta`),
-        c.blue(`serving`),
-        `on http://localhost:${port}`
-      )
+      if (!noBanner) {
+        console.log(c.blue(`presta serve`), `– http://localhost:${port}\n`)
+      }
     })
 
   if (!noreload) {

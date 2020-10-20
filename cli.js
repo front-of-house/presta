@@ -62,6 +62,7 @@ prog
 
 prog
   .command('watch [pages] [output]')
+  .option('--serve, -s', 'Serve output directory', false)
   .describe('Watch and build a glob of pages to an output directory.')
   .example(`watch`)
   .example(`watch pages/**/*.js build`)
@@ -75,9 +76,15 @@ prog
       output
     })
 
+    if (opts.serve) serve(config.output, { noBanner: true })
+
     globalConfig.set(config)
 
-    log(`${c.blue('presta watch')}\n`)
+    log(
+      `${c.blue('presta watch')}${
+        opts.serve ? ` – http://localhost:4000` : ''
+      }\n`
+    )
 
     watch(config)
   })
@@ -94,7 +101,7 @@ prog
   .action((dir, opts) => {
     console.clear()
     const config = safeRequire(safeConfigFilepath(opts.config), {})
-    return serve(dir || config.output || 'build')
+    return serve(dir || config.output || 'build', {})
   })
 
 prog
