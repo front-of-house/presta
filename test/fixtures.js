@@ -17,6 +17,12 @@ const fixtures = {
     content: `
       export function getPaths() {};export function Page() {}
     `
+  },
+  pageB: {
+    path: path.join(root, './pages/B.js'),
+    content: `
+      export const route = '/B';export function Page() {}
+    `
   }
 }
 
