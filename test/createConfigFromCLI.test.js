@@ -22,7 +22,6 @@ export default async function (test, assert) {
     })
 
     assert(config.pages.includes(pages))
-    assert(path.isAbsolute(config.baseDir))
     assert(path.isAbsolute(config.output))
     assert(config.configFilepath === null)
   })

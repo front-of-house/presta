@@ -7,13 +7,12 @@ import { createEntries } from '../lib/createEntries'
 export default (test, assert) => {
   test('createEntries', () => {
     const entries = createEntries({
-      pages: 'pages/*.js',
-      baseDir: path.join(CWD, '/pages')
+      pages: 'pages/*.js'
     })
 
     const entry = entries[0]
 
-    assert(entry.id === '@A')
+    assert(entry.id === '@pages@A')
     assert(entry.sourceFile.includes('A.js'))
     assert(entry.generatedFile.includes('A.js'))
     assert(fs.existsSync(entry.generatedFile))
@@ -23,7 +22,6 @@ export default (test, assert) => {
   test('createEntries - config', () => {
     const entry = createEntries({
       pages: 'pages/*.js',
-      baseDir: path.join(CWD, '/pages'),
       configFilepath: 'presta-config.js'
     })[0]
 
