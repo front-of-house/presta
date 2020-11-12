@@ -41,10 +41,6 @@ prog
       output
     })
 
-    // clear cached and generated files
-    fs.emptyDirSync(PRESTA_DIR)
-    fs.emptyDirSync(config.output)
-
     log(`${c.blue('presta build')}\n`)
 
     const time = timer()
