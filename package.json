@@ -37,6 +37,7 @@
     "ansi-colors": "^4.1.1",
     "babel-loader": "^8.1.0",
     "core-js": "^3.6.5",
+    "cosmiconfig": "^7.0.0",
     "debug": "^4.1.1",
     "deepmerge": "^4.2.2",
     "esm": "^3.2.25",
