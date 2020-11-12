@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { createConfigFromCLI } from '../lib/createConfigFromCLI'
+import { create, get } from '../lib/config'
 
 const pages = 'app/**/*.js'
 const output = 'output'
@@ -9,7 +9,7 @@ const c = 'presta.config.js'
 export default async function (test, assert) {
   test('createConfigFromCLI - requires pages', async () => {
     try {
-      createConfigFromCLI({})
+      create({})
       throw new Error('should not execute')
     } catch (e) {
       assert(e.message.includes('please provide'))
@@ -17,7 +17,7 @@ export default async function (test, assert) {
   })
 
   test('createConfigFromCLI - defaults', async () => {
-    const config = createConfigFromCLI({
+    const config = create({
       pages
     })
 
@@ -27,7 +27,7 @@ export default async function (test, assert) {
   })
 
   test('createConfigFromCLI - output', async () => {
-    const config = createConfigFromCLI({
+    const config = create({
       pages,
       output
     })
@@ -36,7 +36,7 @@ export default async function (test, assert) {
   })
 
   test('createConfigFromCLI - config', async () => {
-    const config = createConfigFromCLI({
+    const config = create({
       pages: './pages/**/*.js',
       config: c
     })
@@ -46,7 +46,7 @@ export default async function (test, assert) {
   })
 
   test('createConfigFromCLI - config file', async () => {
-    const config = createConfigFromCLI({
+    const config = create({
       config: c
     })
 
@@ -54,5 +54,14 @@ export default async function (test, assert) {
     assert(!!config.output)
     assert(/dist/.test(config.output)) // from fixtures
     assert(path.isAbsolute(config.output))
+  })
+
+  test('config - get', () => {
+    create({
+      pages: './pages/**/*.js'
+    })
+    const config = get()
+
+    assert(config.pages.includes('./pages/**/*.js'))
   })
 }

@@ -6,7 +6,6 @@ import pkg from './package.json'
 import serve from './serve'
 import { watch, build } from './'
 import { PRESTA_DIR, PRESTA_CONFIG_DEFAULT } from './lib/constants'
-import { createConfigFromCLI } from './lib/createConfigFromCLI'
 import { safeConfigFilepath } from './lib/safeConfigFilepath'
 import { safeRequire } from './lib/safeRequire'
 import { log } from './lib/log'
@@ -36,7 +35,7 @@ prog
   .action(async (pages, output, opts) => {
     console.clear()
 
-    const config = createConfigFromCLI({
+    const config = globalConfig.create({
       ...opts,
       pages,
       output
@@ -45,8 +44,6 @@ prog
     // clear cached and generated files
     fs.emptyDirSync(PRESTA_DIR)
     fs.emptyDirSync(config.output)
-
-    globalConfig.set(config)
 
     log(`${c.blue('presta build')}\n`)
 
@@ -70,15 +67,13 @@ prog
   .action(async (pages, output, opts) => {
     console.clear()
 
-    const config = createConfigFromCLI({
+    const config = globalConfig.create({
       ...opts,
       pages,
       output
     })
 
     if (!opts.n) serve(config.output, { noBanner: true })
-
-    globalConfig.set(config)
 
     log(
       `${c.blue('presta watch')}${!opts.n ? ` – http://localhost:4000` : ''}\n`
