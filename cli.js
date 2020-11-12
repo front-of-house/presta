@@ -93,24 +93,4 @@ prog
     return serve(dir || config.output || 'build', {})
   })
 
-prog
-  .command('clear <keys>')
-  .describe(
-    'Pass a comma separated list to clear specific keys from the loader cache.'
-  )
-  .example(`cache clear pages,photos`)
-  .action(raw => {
-    const keys = raw.split(/,/)
-
-    log(c.blue('presta clear\n'))
-
-    for (const k of keys) {
-      fileCache.removeKey(k)
-      fileCache.save(true)
-      log(`  ${c.gray(k)}`)
-    }
-
-    log(c.blue('\ncleared'))
-  })
-
 prog.parse(process.argv)
