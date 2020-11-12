@@ -12,12 +12,6 @@ const fixtures = {
       export const output = './dist'
     `
   },
-  runtime: {
-    path: path.join(root, 'presta.runtime.js'),
-    content: `
-      export function render() {}
-    `
-  },
   pageA: {
     path: path.join(root, './pages/A.js'),
     content: `
