@@ -1,38 +1,77 @@
 import fs from 'fs-extra'
 import path from 'path'
 
-import { CWD } from '../lib/constants'
-import { isStatic, isDynamic, getFiles } from '../lib/getFiles'
+import * as fixtures from './fixtures'
 
-const A = path.join(CWD, '/pages/getFilesA.js')
-const B = path.join(CWD, '/pages/getFilesB.js')
+import { isStatic, isDynamic, getFiles } from '../lib/getFiles'
 
 export default async function (test, assert) {
   test('getFiles - isStatic', async () => {
-    fs.outputFileSync(A, `export function Page() {}`)
-    fs.outputFileSync(
-      B,
-      `export const route = '/';export function getPaths() {};export function Page() {}`
-    )
+    const files = {
+      A: {
+        url: './getFiles/isStaticA.js',
+        content: `export function Page() {}`,
+      },
+      B: {
+        url: './getFiles/isStaticB.js',
+        content: `export function getPaths() {};export function Page() {}`,
+      },
+      C: {
+        url: './getFiles/isStaticC.js',
+        content: `export const getPaths = () => {};export function Page() {}`,
+      }
+    }
 
-    assert(isStatic(A) === false)
-    assert(isStatic(B) === true)
-    assert(isDynamic(A) === false)
-    assert(isDynamic(B) === true)
+    const cleanup = fixtures.create(files)
 
-    fs.outputFileSync(
-      B,
-      `export const getPaths = () => {};export function Page() {}`
-    )
+    assert(isStatic(files.A.url) === false)
+    assert(isStatic(files.B.url) === true)
+    assert(isStatic(files.C.url) === true)
 
-    assert(isStatic(B) === true)
+    cleanup()
+  })
 
-    fs.removeSync(A)
-    fs.removeSync(B)
+  test('getFiles - isDynamic', async () => {
+    const files = {
+      A: {
+        url: './getFiles/isStaticA.js',
+        content: `export function Page() {}`,
+      },
+      B: {
+        url: './getFiles/isStaticB.js',
+        content: `export const route = '/';export function Page() {}`,
+      },
+    }
+
+    const cleanup = fixtures.create(files)
+
+    assert(isDynamic(files.A.url) === false)
+    assert(isDynamic(files.B.url) === true)
+
+    cleanup()
   })
 
   test('getFiles - getFiles', async () => {
-    const files = getFiles(['./pages/**/*.js'])
-    assert(files.length === 2)
+    const files = {
+      A: {
+        url: './getFiles/A.js',
+        content: `export function Page() {}`,
+      },
+      B: {
+        url: './getFiles/B.js',
+        content: `export const route = '/';export function getPaths() {};export function Page() {}`,
+      },
+      C: {
+        url: './getFiles/C.js',
+        content: `export const getPaths = () => {};export function Page() {}`,
+      }
+    }
+
+    const cleanup = fixtures.create(files)
+
+    const results = getFiles(['./getFiles/*.js'])
+    assert(results.length === 3)
+
+    cleanup()
   })
 }

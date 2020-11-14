@@ -1,33 +1,24 @@
-const path = require('path')
-const fs = require('fs-extra')
+import fs from 'fs-extra'
+import path from 'path'
 
-const cwd = process.cwd()
-const root = path.join(cwd, 'fixtures')
+let root = process.cwd()
 
-const fixtures = {
-  config: {
-    path: path.join(root, 'presta.config.js'),
-    content: `
-      export const pages = './src/**/*.js'
-      export const output = './dist'
-    `
-  },
-  pageA: {
-    path: path.join(root, './pages/A.js'),
-    content: `
-      export function getPaths() {};export function Page() {}
-    `
-  },
-  pageB: {
-    path: path.join(root, './pages/B.js'),
-    content: `
-      export const route = '/B';export function Page() {}
-    `
+export function getRoot() {
+  return root
+}
+
+export function setRoot(r) {
+  root = r
+}
+
+export function create (fixtures) {
+  for (const { url, content } of Object.values(fixtures)) {
+    fs.outputFileSync(path.join(root, url), content)
+  }
+
+  return function cleanup () {
+    for (const { url } of Object.values(fixtures)) {
+      fs.removeSync(path.join(root, url))
+    }
   }
 }
-
-for (const { path, content } of Object.values(fixtures)) {
-  fs.outputFileSync(path, content)
-}
-
-console.log('fixtures complete')

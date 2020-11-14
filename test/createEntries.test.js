@@ -1,30 +1,48 @@
 import fs from 'fs-extra'
 import path from 'path'
 
-import { CWD, PRESTA_WRAPPED_PAGES } from '../lib/constants'
-import { createStaticEntries } from '../lib/createEntries'
+import * as fixtures from './fixtures'
+
+import { PRESTA_WRAPPED_PAGES } from '../lib/constants'
+import { createStaticEntry, createDynamicEntry } from '../lib/createEntries'
 
 export default (test, assert) => {
-  test('createEntries', () => {
-    const entries = createStaticEntries({
-      pages: 'pages/*.js'
-    })
+  test('createStaticEntry', () => {
+    const config = {
+      pages: './createEntries/*.js',
+      configFilepath: path.join(fixtures.getRoot(), 'presta-config.js')
+      // filepath
+    }
 
-    const entry = entries[0]
+    const filepath = path.join(fixtures.getRoot(), '/createEntries/a.js')
 
-    assert(entry.id.includes('@fixtures@pages@A'))
-    assert(entry.sourceFile.includes('A.js'))
-    assert(entry.entryFile.includes('A.js'))
-    assert(fs.existsSync(entry.entryFile))
-    assert(fs.readFileSync(entry.entryFile).includes('A.js'))
+    const entry = createStaticEntry(filepath, config)
+
+    assert(entry.sourceFile.includes('createEntries/a.js'))
+    assert(entry.entryFile.includes('createEntries/a.js'))
+
+    const contents = fs.readFileSync(entry.entryFile)
+    assert(contents.includes('createEntries/a.js'))
+    assert(contents.includes('presta-config.js'))
   })
 
-  test('createEntries - config', () => {
-    const entry = createStaticEntries({
-      pages: 'pages/*.js',
-      configFilepath: 'presta-config.js'
-    })[0]
+  test('createDynamicEntry', () => {
+    const config = {
+      pages: './createEntries/*.js',
+      configFilepath: path.join(fixtures.getRoot(), 'presta-config.js')
+    }
 
-    assert(fs.readFileSync(entry.entryFile).includes('presta-config.js'))
+    const a = path.join(fixtures.getRoot(), '/createEntries/a.js')
+    const b = path.join(fixtures.getRoot(), '/createEntries/b.js')
+
+    const entry = createDynamicEntry([a, b], config)
+
+    assert(entry.includes('presta.js'))
+
+    const contents = fs.readFileSync(entry)
+
+    assert(contents.includes('createEntries/a.js'))
+    assert(contents.includes('createEntries/b.js'))
+    assert(contents.includes('presta-config.js'))
   })
 }

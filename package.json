@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "npm run fixtures && NODE_ENV=test node -r esm test && npm run fixtures:remove",
-    "test:watch": "npm run fixtures && NODE_ENV=test nodemon -i ./fixtures -r esm test",
+    "test:watch": "NODE_ENV=test nodemon -i ./test/fixtures -r esm test",
     "fixtures": "node test/fixtures",
     "fixtures:remove": "rm -rf /fixtures",
     "format": "prettier-standard --format",
@@ -54,7 +54,7 @@
     "pocket.io": "^0.1.4",
     "sade": "^1.7.3",
     "serve-static": "^1.14.1",
-    "watch-dependency-graph": "^1.0.0",
+    "watch-dependency-graph": "^1.1.0",
     "webpack": "^4.44.1"
   },
   "devDependencies": {

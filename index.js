@@ -9,19 +9,18 @@ import { debug } from './lib/debug'
 import {
   CWD,
   PRESTA_CONFIG_DEFAULT,
-  PRESTA_CONFIGS_WITH_EXTENSIONS
 } from './lib/constants'
-import { createStaticEntries, createDynamicEntry } from './lib/createEntries'
+import { createStaticEntry, createDynamicEntry } from './lib/createEntries'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
 import { timer } from './lib/timer'
-import { getFiles } from './lib/getFiles'
+import { getFiles, isStatic, isDynamic } from './lib/getFiles'
 import { safeRequire } from './lib/safeRequire'
 import { clearMemoryCache } from './load'
 
-const cwd = process.cwd()
-
 export async function prepareEntry (entry) {
+  delete require.cache[entry.entryFile]
+
   const { getPaths, render, createDocument } = require(entry.entryFile)
 
   return {
@@ -66,9 +65,12 @@ export function renderStaticEntries (entries, options, done) {
         const p = await prepareEntry(entry)
         preparedEntries.push(p)
       } catch (e) {
-        onError(e, {
-          location: entry.sourceFile.replace(cwd, '') + ' getPaths'
-        })
+        const location = entry.sourceFile.replace(CWD, '')
+        if (e.message.includes(`does not provide an export named 'getPaths'`)) {
+          log(`\n  ${c.yellow('error')} ${location} missing getPaths export\n`)
+        } else {
+          onError(e, { location })
+        }
       }
     }
 
@@ -101,82 +103,147 @@ export function renderStaticEntries (entries, options, done) {
 function initWatch (config, isRestart) {
   debug('watch initialized with config', config)
 
-  const staticEntries = createStaticEntries(config)
+  let staticIds = getFiles(config.pages).filter(isStatic)
+  let dynamicIds = getFiles(config.pages).filter(isDynamic)
 
-  // unused here, but output it every time
-  createDynamicEntry(config)
+  // create initial entries
+  let staticEntries = staticIds.map(id => createStaticEntry(id, config))
+  createDynamicEntry(dynamicIds, config)
 
   if (isRestart) {
-    // rebuild these on every restart
     renderStaticEntries(staticEntries, {
       watch: true,
       output: config.output
     })
-
-    // TODO emit update on restart
   }
 
-  const configWatcher = graph(
-    ...[config.configFilepath || PRESTA_CONFIGS_WITH_EXTENSIONS]
-  )
-  const staticWatcher = graph(staticEntries.map(e => e.entryFile))
-  const dynamicWatcher = graph(path.join(CWD, config.pages))
+  // setup watcher
+  const pageWatcher = graph(path.join(CWD, config.pages))
 
-  async function restart () {
-    const configFile = safeRequire(
-      config.configFilepath || PRESTA_CONFIG_DEFAULT,
-      {}
-    )
+  pageWatcher.on('add', ids => {
+    for (const id of ids) {
+      const isStat = isStatic(id)
+      const isDyn = isDynamic(id)
 
-    await staticWatcher.close()
-    await dynamicWatcher.close()
+      if (isStat) {
+        debug('add static file')
+
+        staticIds.push(id)
+
+        const entry = createStaticEntry(id, config)
+
+        staticEntries.push(entry)
+
+        renderStaticEntries([entry], {
+          watch: true,
+          output: config.output
+        })
+      }
+
+      if (isDyn) {
+        debug('reload dynamic file')
+
+        dynamicIds.push(id)
+
+        createDynamicEntry(dynamicIds, config)
+      }
+    }
+  })
+
+  pageWatcher.on('remove', ids => {
+    for (const id of ids) {
+      const wasStat = !!staticIds.find(e => e === id)
+      const wasDyn = !!dynamicIds.find(e => e === id)
+
+      if (wasStat) {
+        debug('removed static file', id)
+
+        staticIds.splice(staticIds.indexOf(id), 1)
+
+        const index = staticEntries.findIndex(e => e.sourceFile === id)
+
+        staticEntries.splice(index, 1)
+      }
+
+      if (wasDyn) {
+        debug('removed dynamic file', id)
+
+        dynamicIds.splice(dynamicIds.indexOf(id), 1)
+
+        createDynamicEntry(dynamicIds, config)
+      }
+    }
+  })
+
+  pageWatcher.on('update', ids => {
+    for (const id of ids) {
+      const isStat = isStatic(id)
+      const isDyn = isDynamic(id)
+      const wasStat = !!staticIds.find(e => e === id)
+      const wasDyn = !!dynamicIds.find(e => e === id)
+
+      if (isStat && wasStat) {
+        debug('render static file', id)
+
+        const entry = staticEntries.find(e => e.sourceFile === id)
+
+        renderStaticEntries([entry], {
+          watch: true,
+          output: config.output
+        })
+      } else if (!isStat && wasStat) {
+        debug('remove static file', id)
+
+        staticIds.splice(staticIds.indexOf(id), 1)
+
+        const index = staticEntries.findIndex(e => e.sourceFile === id)
+
+        staticEntries.splice(index, 1)
+      } else if (isStat && !wasStat) {
+        debug('add static file', id)
+
+        staticIds.push(id)
+
+        const entry = createStaticEntry(id, config)
+
+        staticEntries.push(entry)
+
+        renderStaticEntries([entry], {
+          watch: true,
+          output: config.output
+        })
+      }
+
+      if (isDyn && wasDyn) {
+        debug('reload dynamic file', id)
+      } else if (!isDyn && wasDyn) {
+        debug('remove dynamic file', id)
+
+        dynamicIds.splice(dynamicIds.indexOf(id), 1)
+      } else if (isDyn && !wasDyn) {
+        debug('add dynamic file', id)
+
+        dynamicIds.push(id)
+      }
+    }
+
+    debug({ staticIds, dynamicIds, staticEntries })
+  })
+
+  const configWatcher = graph(config.configFilepath || path.join(CWD, PRESTA_CONFIG_DEFAULT))
+
+  async function handleConfigUpdate ([ configFile ]) {
+    await pageWatcher.close()
     await configWatcher.close()
+
+    const newConfig = safeRequire(configFile, {})
 
     initWatch({ ...config, ...configFile }, true)
   }
 
-  function writeDynamicEntry (ids) {
-    debug('dynamic watcher updated', ids)
-
-    const configFile = safeRequire(
-      config.configFilepath || PRESTA_CONFIG_DEFAULT,
-      {}
-    )
-
-    // write new entry and clear cache for server
-    delete require.cache[createDynamicEntry({ ...config, ...configFile })]
-  }
-
-  configWatcher.on('update', restart)
-  configWatcher.on('add', restart)
-  configWatcher.on('remove', restart)
-
-  staticWatcher.on('remove', restart)
-  staticWatcher.on('add', restart)
-  staticWatcher.on('update', async ids => {
-    debug('static watcher update', ids)
-
-    let staticEntriesToRender = []
-
-    for (const id of ids) {
-      for (const entry of staticEntries) {
-        if (entry.entryFile === id) staticEntriesToRender.push(entry)
-      }
-    }
-
-    if (staticEntriesToRender.length) {
-      debug('static entries to render', staticEntriesToRender)
-
-      renderStaticEntries(staticEntriesToRender, {
-        watch: true,
-        output: config.output
-      })
-    }
-  })
-
-  dynamicWatcher.on('update', writeDynamicEntry)
-  dynamicWatcher.on('add', writeDynamicEntry)
-  dynamicWatcher.on('remove', writeDynamicEntry)
+  configWatcher.on('add', handleConfigUpdate)
+  configWatcher.on('remove', handleConfigUpdate)
+  configWatcher.on('update', handleConfigUpdate)
 }
 
 export async function watch (initialConfig) {
@@ -184,12 +251,20 @@ export async function watch (initialConfig) {
 }
 
 export async function build (config, options = {}) {
-  const staticEntries = createStaticEntries(config)
+  debug('watch initialized with config', config)
 
-  if (!staticEntries.length) {
+  let staticIds = getFiles(config.pages).filter(isStatic)
+  let dynamicIds = getFiles(config.pages).filter(isDynamic)
+
+  if (!staticIds.length && !dynamicIds.length) {
     log(`  ${c.gray('nothing to build')}\n`)
     exit()
   }
+
+  // create initial entries
+  let staticEntries = staticIds.map(id => createStaticEntry(id, config))
+
+  createDynamicEntry(dynamicIds, config)
 
   options.onRenderStart()
 

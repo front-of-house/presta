@@ -1,67 +1,104 @@
 import path from 'path'
 
-import { create, get } from '../lib/config'
+import * as fixtures from './fixtures'
+import { create } from '../lib/config'
 
 const pages = 'app/**/*.js'
 const output = 'output'
 const c = 'presta.config.js'
 
 export default async function (test, assert) {
-  test('createConfigFromCLI - requires pages', async () => {
+  test('config - requires pages', async () => {
     try {
       create({})
       throw new Error('should not execute')
     } catch (e) {
-      assert(e.message.includes('please provide'))
+      assert(true)
     }
   })
 
-  test('createConfigFromCLI - defaults', async () => {
+  test('config - defaults', async () => {
     const config = create({
       pages
     })
 
     assert(config.pages.includes(pages))
     assert(path.isAbsolute(config.output))
+    assert(config.cwd === fixtures.getRoot())
     assert(config.configFilepath === null)
   })
 
-  test('createConfigFromCLI - output', async () => {
+  test('config - output', async () => {
     const config = create({
       pages,
       output
     })
+
     assert(/\/output/.test(config.output))
     assert(path.isAbsolute(config.output))
   })
 
-  test('createConfigFromCLI - config', async () => {
-    const config = create({
-      pages: './pages/**/*.js',
-      config: c
-    })
+  test('config - picks up default file if present', async () => {
+    const pages = './pages/*.js'
+    const output = 'output'
+    const files = {
+      config: {
+        url: 'presta.config.js',
+        content: `export const pages = '${pages}'; export const output = '${output}'`,
+      },
+    }
+    const cleanup = fixtures.create(files)
 
-    assert(!!config.configFilepath)
+    const config = create({})
+
+    assert(/presta\.config/.test(config.configFilepath))
     assert(path.isAbsolute(config.configFilepath))
+    assert(config.pages === pages)
+    assert(config.output.includes(output))
+
+    cleanup()
   })
 
-  test('createConfigFromCLI - config file', async () => {
+  test('config - picks up custom file if present', async () => {
+    const pages = './pages/*.js'
+    const output = 'output'
+    const files = {
+      config: {
+        url: 'presta-config.js',
+        content: `export const pages = '${pages}'; export const output = '${output}'`,
+      },
+    }
+    const cleanup = fixtures.create(files)
+
     const config = create({
-      config: c
+      config: files.config.url,
     })
 
-    assert(!!config.pages)
-    assert(!!config.output)
-    assert(/dist/.test(config.output)) // from fixtures
-    assert(path.isAbsolute(config.output))
+    assert(/presta-config/.test(config.configFilepath))
+    assert(path.isAbsolute(config.configFilepath))
+    assert(config.pages === pages)
+    assert(config.output.includes(output))
+
+    cleanup()
   })
 
-  test('config - get', () => {
-    create({
-      pages: './pages/**/*.js'
-    })
-    const config = get()
+  test('config - overriden by CLI args', async () => {
+    const files = {
+      config: {
+        url: 'presta.config.js',
+        content: `export const pages = './pages/*.js'; export const output = './output'`,
+      },
+    }
+    const cleanup = fixtures.create(files)
 
-    assert(config.pages.includes('./pages/**/*.js'))
+    const config = create({
+      pages: 'foo',
+      output: 'dist'
+    })
+
+    assert(config.pages === 'foo')
+    assert(config.output.includes('dist'))
+
+    cleanup()
   })
 }
