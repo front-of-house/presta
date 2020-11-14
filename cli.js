@@ -5,7 +5,7 @@ import sade from 'sade'
 import pkg from './package.json'
 import serve from './serve'
 import { watch, build } from './'
-import { PRESTA_DIR, PRESTA_CONFIG_DEFAULT } from './lib/constants'
+import { TMP_DIR, CONFIG_DEFAULT } from './lib/constants'
 import { safeConfigFilepath } from './lib/safeConfigFilepath'
 import { safeRequire } from './lib/safeRequire'
 import { log } from './lib/log'
@@ -17,11 +17,11 @@ const prog = sade('presta')
 
 prog
   .version(pkg.version)
-  .option('--config, -c', 'Path to a config file.', PRESTA_CONFIG_DEFAULT)
+  .option('--config, -c', 'Path to a config file.', CONFIG_DEFAULT)
   .option('--jsx', 'Specify a JSX pragma.', 'h')
 
 // just make sure it's there
-fs.ensureDirSync(PRESTA_DIR)
+fs.ensureDirSync(TMP_DIR)
 
 prog
   .command(
@@ -31,7 +31,7 @@ prog
   )
   .example(`build`)
   .example(`build pages/**/*.js build`)
-  .example(`build -c ${PRESTA_CONFIG_DEFAULT}`)
+  .example(`build -c ${CONFIG_DEFAULT}`)
   .action(async (pages, output, opts) => {
     console.clear()
 
@@ -59,7 +59,7 @@ prog
   .describe('Watch and build a glob of pages to an output directory.')
   .example(`watch`)
   .example(`watch pages/**/*.js build`)
-  .example(`watch -c ${PRESTA_CONFIG_DEFAULT}`)
+  .example(`watch -c ${CONFIG_DEFAULT}`)
   .action(async (pages, output, opts) => {
     console.clear()
 
@@ -86,7 +86,7 @@ prog
   .option('--livereload, -l', 'Only build changed files.', true)
   .example(`serve`)
   .example(`serve build`)
-  .example(`serve -c ${PRESTA_CONFIG_DEFAULT}`)
+  .example(`serve -c ${CONFIG_DEFAULT}`)
   .action((dir, opts) => {
     console.clear()
     const config = safeRequire(safeConfigFilepath(opts.config), {})

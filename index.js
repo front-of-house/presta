@@ -6,10 +6,7 @@ import graph from 'watch-dependency-graph'
 import exit from 'exit'
 
 import { debug } from './lib/debug'
-import {
-  CWD,
-  PRESTA_CONFIG_DEFAULT,
-} from './lib/constants'
+import { CWD, CONFIG_DEFAULT } from './lib/constants'
 import { createStaticEntry, createDynamicEntry } from './lib/createEntries'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
@@ -230,9 +227,11 @@ function initWatch (config, isRestart) {
     debug({ staticIds, dynamicIds, staticEntries })
   })
 
-  const configWatcher = graph(config.configFilepath || path.join(CWD, PRESTA_CONFIG_DEFAULT))
+  const configWatcher = graph(
+    config.configFilepath || path.join(CWD, CONFIG_DEFAULT)
+  )
 
-  async function handleConfigUpdate ([ configFile ]) {
+  async function handleConfigUpdate ([configFile]) {
     await pageWatcher.close()
     await configWatcher.close()
 

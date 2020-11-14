@@ -3,7 +3,6 @@ import path from 'path'
 
 import * as fixtures from './fixtures'
 
-import { PRESTA_WRAPPED_PAGES } from '../lib/constants'
 import { createStaticEntry, createDynamicEntry } from '../lib/createEntries'
 
 export default (test, assert) => {
