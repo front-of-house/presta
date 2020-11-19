@@ -165,7 +165,7 @@ function initWatch (config, isRestart) {
       createDynamicEntry(dynamicIds, config)
     }
 
-    // dynamicWatcher automatically stops watching remove dfiles
+    // dynamicWatcher automatically stops watching deleted files
   })
   dynamicWatcher.on('change', ([id]) => {
     const isDyn = isDynamic(id)
@@ -185,11 +185,7 @@ function initWatch (config, isRestart) {
 
       dynamicWatcher.remove(id) // can be added back by entryWatcher
     } else if (isDyn && !wasDyn) {
-      debug('dynamicWatcher - configured dynamic file', id)
-
-      dynamicIds.push(id)
-
-      createDynamicEntry(dynamicIds, config)
+      debug('dynamicWatcher - re-configured dynamic file', id)
     }
   })
 
@@ -211,6 +207,8 @@ function initWatch (config, isRestart) {
         staticEntries.splice(index, 1)
       }
     }
+
+    // staticWatcher automatically stops watching deleted files
   })
   staticWatcher.on('change', ids => {
     for (const id of ids) {
@@ -240,18 +238,7 @@ function initWatch (config, isRestart) {
 
         staticWatcher.remove(id)
       } else if (isStat && !wasStat) {
-        debug('staticWatcher - add static file', id)
-
-        staticIds.push(id)
-
-        const entry = createStaticEntry(id, config)
-
-        staticEntries.push(entry)
-
-        renderStaticEntries([entry], {
-          watch: true,
-          output: config.output
-        })
+        debug('staticWatcher - re-configured static file', id)
       }
     }
   })
