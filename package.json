@@ -11,7 +11,7 @@
     "test:watch": "NODE_ENV=test nodemon - ./test/fixtures -r esm test",
     "format": "prettier-standard --format",
     "lint": "prettier-standard --lint",
-    "cloc": "npx cloc lib/*.js cli.js presta.js document.js index.js load.js render.js serve.js"
+    "cloc": "npx cloc lib/*.js cli.js presta.js document.js index.js load.js render.js server.js router.js handler.js"
   },
   "husky": {
     "hooks": {
