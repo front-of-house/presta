@@ -18,7 +18,7 @@ import { safeRequire } from './lib/safeRequire'
 import { ignoredFilesArray } from './lib/ignore'
 import { clearMemoryCache } from './load'
 
-export async function prepareEntry (entry) {
+export async function prepareStaticEntry (entry) {
   delete require.cache[entry.entryFile]
 
   const { getPaths, render, createDocument } = require(entry.entryFile)
@@ -62,7 +62,7 @@ export function renderStaticEntries (entries, options, done) {
 
     for (const entry of entries) {
       try {
-        const p = await prepareEntry(entry)
+        const p = await prepareStaticEntry(entry)
         preparedEntries.push(p)
       } catch (e) {
         const location = entry.sourceFile.replace(CWD, '')
@@ -103,15 +103,29 @@ export function renderStaticEntries (entries, options, done) {
 function initWatch (config, isRestart) {
   debug('watch initialized with config', config)
 
+  /*
+   * Either the config the user specified, or the default path in case they
+   * create a file
+   */
   const configPath = config.configFile || path.join(CWD, CONFIG_DEFAULT)
 
+  /*
+   * Get files that match static/dynamic patters at startup
+   */
   let staticIds = getFiles(config.pages).filter(isStatic)
   let dynamicIds = getFiles(config.pages).filter(isDynamic)
 
-  // create initial entries
+  /*
+   * Create initial static and dynamic entries
+   */
   let staticEntries = staticIds.map(id => createStaticEntry(id, config))
   createDynamicEntry(dynamicIds, config)
 
+  /*
+   * if the watch just restarted, rebuild everything
+   *
+   * TODO could avoid this by better confirWatcher
+   */
   if (isRestart) {
     renderStaticEntries(staticEntries, {
       watch: true,
@@ -119,42 +133,59 @@ function initWatch (config, isRestart) {
     })
   }
 
-  // setup watcher
-  const staticWatcher = graph()
-  const dynamicWatcher = graph()
+  /*
+   * Set up all watchers
+   */
+  const staticWatcher = graph() // static pages
+  const dynamicWatcher = graph() // dynamic pages
+  // config file watcher only
   const configWatcher = chokidar.watch(configPath, {
     ignore: ignoredFilesArray,
     ignoreInitial: true
   })
+  // watcher for adding/removing of pages
   const entryWatcher = chokidar.watch(
     config.pages.map(p => path.resolve(CWD, p)).map(globParent),
     { ignore: ignoredFilesArray, ignoreInitial: true }
   )
 
+  /*
+   * dynamicWatcher monitors files that were determined to be dynamic at
+   * startup. If a file is updated to remove the exported route, or the file is
+   * deleted, the watcher stops watching the file and we remove it from the
+   * server. Otherwise, just reload the page if needed.
+   */
   dynamicWatcher.on('remove', ([id]) => {
-    debug('dynamicWatcher - removed dynamic file', id)
+    debug('dynamicWatcher - deleted dynamic file', id)
 
-    dynamicIds.splice(dynamicIds.indexOf(id), 1)
+    // some duplicate events come through, don't want to splice(-1, 1)
+    if (dynamicIds.includes(id)) {
+      dynamicIds.splice(dynamicIds.indexOf(id), 1)
 
-    createDynamicEntry(dynamicIds, config)
+      createDynamicEntry(dynamicIds, config)
+    }
+
+    // dynamicWatcher automatically stops watching remove dfiles
   })
-
   dynamicWatcher.on('change', ([id]) => {
-    debug('dynamicWatcher - reload dynamic file', id)
-
     const isDyn = isDynamic(id)
     const wasDyn = !!dynamicIds.find(i => i === id)
 
     if (isDyn && wasDyn) {
       debug('dynamicWatcher - reload dynamic file', id)
     } else if (!isDyn && wasDyn) {
-      debug('dynamicWatcher - remove dynamic file', id)
+      debug('dynamicWatcher - un-configured dynamic file', id)
 
-      dynamicIds.splice(dynamicIds.indexOf(id), 1)
+      // some duplicate events come through, don't want to splice(-1, 1)
+      if (dynamicIds.includes(id)) {
+        dynamicIds.splice(dynamicIds.indexOf(id), 1)
 
-      createDynamicEntry(dynamicIds, config)
+        createDynamicEntry(dynamicIds, config)
+      }
+
+      dynamicWatcher.remove(id) // can be added back by entryWatcher
     } else if (isDyn && !wasDyn) {
-      debug('dynamicWatcher - add dynamic file', id)
+      debug('dynamicWatcher - configured dynamic file', id)
 
       dynamicIds.push(id)
 
@@ -162,18 +193,25 @@ function initWatch (config, isRestart) {
     }
   })
 
+  /*
+   * staticWatcher, again, monitors only files that matched the required static
+   * exports as startup. Here they can be removed by deletion or un-configuring
+   * the static exports. entryWatcher also manages adding them back when deleted.
+   */
   staticWatcher.on('remove', ids => {
     for (const id of ids) {
-      debug('staticWatcher - removed static file', id)
+      debug('staticWatcher - deleted static file', id)
 
-      staticIds.splice(staticIds.indexOf(id), 1)
+      // some duplicate events come through, don't want to splice(-1, 1)
+      if (staticIds.includes(id)) {
+        staticIds.splice(staticIds.indexOf(id), 1)
 
-      const index = staticEntries.findIndex(e => e.sourceFile === id)
+        const index = staticEntries.findIndex(e => e.sourceFile === id)
 
-      staticEntries.splice(index, 1)
+        staticEntries.splice(index, 1)
+      }
     }
   })
-
   staticWatcher.on('change', ids => {
     for (const id of ids) {
       const isStat = isStatic(id)
@@ -191,11 +229,16 @@ function initWatch (config, isRestart) {
       } else if (!isStat && wasStat) {
         debug('staticWatcher - remove static file', id)
 
-        staticIds.splice(staticIds.indexOf(id), 1)
+        // some duplicate events come through, don't want to splice(-1, 1)
+        if (staticIds.includes(id)) {
+          staticIds.splice(staticIds.indexOf(id), 1)
 
-        const index = staticEntries.findIndex(e => e.sourceFile === id)
+          const index = staticEntries.findIndex(e => e.sourceFile === id)
 
-        staticEntries.splice(index, 1)
+          staticEntries.splice(index, 1)
+        }
+
+        staticWatcher.remove(id)
       } else if (isStat && !wasStat) {
         debug('staticWatcher - add static file', id)
 
@@ -213,6 +256,13 @@ function initWatch (config, isRestart) {
     }
   })
 
+  /*
+   * configWatcher for the moment is very naive. If it changes, we just restart
+   * everything and rebuild all files (since their config might contain
+   * templating).
+   *
+   * TODO In the future we could probably be smarter about this.
+   */
   configWatcher.on('change', async file => {
     debug('configWatcher - config changed', configPath)
 
@@ -220,10 +270,13 @@ function initWatch (config, isRestart) {
     dynamicWatcher.close()
     configWatcher.close()
 
-    // clear for re-require
+    // clear config file for re-require
     delete require.cache[configPath]
 
+    // safe require in case it's been removed
     const newConfig = safeRequire(configPath, {})
+
+    // just continually merge updates, in case a combo of CLI and config options
     const mergedConfig = {
       ...config,
       ...newConfig
@@ -238,6 +291,12 @@ function initWatch (config, isRestart) {
     )
   })
 
+  /*
+   * entryWatcher watches the raw file globs passed to the CLI or as `pages` in
+   * the config. If checks on add/change to see if a file should be upgraded to
+   * a static/dynamic source file, and added to one of those specific
+   * watchers.
+   */
   entryWatcher.on('all', (event, file) => {
     if (!/add|change/.test(event)) return
 
@@ -276,6 +335,9 @@ function initWatch (config, isRestart) {
     }
   })
 
+  /**
+   * Init watching after event subscriptions
+   */
   staticWatcher.add(staticIds)
   dynamicWatcher.add(dynamicIds)
 }
@@ -287,7 +349,7 @@ export async function watch (initialConfig) {
 export async function build (config, options = {}) {
   debug('watch initialized with config', config)
 
-  let staticIds = getFiles(config.pages).filter(isStatic)
+  const staticIds = getFiles(config.pages).filter(isStatic)
   let dynamicIds = getFiles(config.pages).filter(isDynamic)
 
   if (!staticIds.length && !dynamicIds.length) {
