@@ -10,68 +10,68 @@ export default async function (test, assert) {
     const files = {
       A: {
         url: './getFiles/isStaticA.js',
-        content: `export function Page() {}`,
+        content: `export function Page() {}`
       },
       B: {
         url: './getFiles/isStaticB.js',
-        content: `export function getPaths() {};export function Page() {}`,
+        content: `export function getPaths() {};export function Page() {}`
       },
       C: {
         url: './getFiles/isStaticC.js',
-        content: `export const getPaths = () => {};export function Page() {}`,
+        content: `export const getPaths = () => {};export function Page() {}`
       }
     }
 
-    const cleanup = fixtures.create(files)
+    const fsx = fixtures.create(files)
 
     assert(isStatic(files.A.url) === false)
     assert(isStatic(files.B.url) === true)
     assert(isStatic(files.C.url) === true)
 
-    cleanup()
+    fsx.cleanup()
   })
 
   test('getFiles - isDynamic', async () => {
     const files = {
       A: {
         url: './getFiles/isStaticA.js',
-        content: `export function Page() {}`,
+        content: `export function Page() {}`
       },
       B: {
         url: './getFiles/isStaticB.js',
-        content: `export const route = '/';export function Page() {}`,
-      },
+        content: `export const route = '/';export function Page() {}`
+      }
     }
 
-    const cleanup = fixtures.create(files)
+    const fsx = fixtures.create(files)
 
     assert(isDynamic(files.A.url) === false)
     assert(isDynamic(files.B.url) === true)
 
-    cleanup()
+    fsx.cleanup()
   })
 
   test('getFiles - getFiles', async () => {
     const files = {
       A: {
         url: './getFiles/A.js',
-        content: `export function Page() {}`,
+        content: `export function Page() {}`
       },
       B: {
         url: './getFiles/B.js',
-        content: `export const route = '/';export function getPaths() {};export function Page() {}`,
+        content: `export const route = '/';export function getPaths() {};export function Page() {}`
       },
       C: {
         url: './getFiles/C.js',
-        content: `export const getPaths = () => {};export function Page() {}`,
+        content: `export const getPaths = () => {};export function Page() {}`
       }
     }
 
-    const cleanup = fixtures.create(files)
+    const fsx = fixtures.create(files)
 
     const results = getFiles(['./getFiles/*.js'])
     assert(results.length === 3)
 
-    cleanup()
+    fsx.cleanup()
   })
 }

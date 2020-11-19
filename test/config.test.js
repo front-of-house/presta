@@ -25,7 +25,6 @@ export default async function (test, assert) {
     assert(config.pages.includes(pages))
     assert(path.isAbsolute(config.output))
     assert(config.cwd === fixtures.getRoot())
-    assert(config.configFilepath === null)
   })
 
   test('config - output', async () => {
@@ -47,7 +46,7 @@ export default async function (test, assert) {
         content: `export const pages = '${pages}'; export const output = '${output}'`
       }
     }
-    const cleanup = fixtures.create(files)
+    const fsx = fixtures.create(files)
 
     const config = create({})
 
@@ -56,7 +55,7 @@ export default async function (test, assert) {
     assert(config.pages.includes(pages))
     assert(config.output.includes(output))
 
-    cleanup()
+    fsx.cleanup()
   })
 
   test('config - picks up custom file if present', async () => {
@@ -68,7 +67,7 @@ export default async function (test, assert) {
         content: `export const pages = '${pages}'; export const output = '${output}'`
       }
     }
-    const cleanup = fixtures.create(files)
+    const fsx = fixtures.create(files)
 
     const config = create({
       config: files.config.url
@@ -79,7 +78,7 @@ export default async function (test, assert) {
     assert(config.pages.includes(pages))
     assert(config.output.includes(output))
 
-    cleanup()
+    fsx.cleanup()
   })
 
   test('config - overriden by CLI args', async () => {
@@ -89,7 +88,7 @@ export default async function (test, assert) {
         content: `export const pages = './pages/*.js'; export const output = './output'`
       }
     }
-    const cleanup = fixtures.create(files)
+    const fsx = fixtures.create(files)
 
     const config = create({
       pages: 'foo',
@@ -99,6 +98,6 @@ export default async function (test, assert) {
     assert(config.pages.includes('foo'))
     assert(config.output.includes('dist'))
 
-    cleanup()
+    fsx.cleanup()
   })
 }

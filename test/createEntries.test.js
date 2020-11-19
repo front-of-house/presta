@@ -4,44 +4,60 @@ import path from 'path'
 import * as fixtures from './fixtures'
 
 import { createStaticEntry, createDynamicEntry } from '../lib/createEntries'
+import { OUTPUT_DYNAMIC_PAGES_ENTRY } from '../lib/constants'
 
 export default (test, assert) => {
   test('createStaticEntry', () => {
-    const config = {
-      pages: './createEntries/*.js',
-      configFilepath: path.join(fixtures.getRoot(), 'presta-config.js')
-      // filepath
+    const files = {
+      a: {
+        url: './createStaticEntry/a.js',
+        content: ''
+      }
     }
 
-    const filepath = path.join(fixtures.getRoot(), '/createEntries/a.js')
+    const fsx = fixtures.create(files)
 
-    const entry = createStaticEntry(filepath, config)
+    const config = {
+      pages: './createStaticEntry/*.js',
+      configFilepath: path.join(fixtures.getRoot(), 'presta-config.js')
+    }
 
-    assert(entry.sourceFile.includes('createEntries/a.js'))
-    assert(entry.entryFile.includes('createEntries/a.js'))
+    const entry = createStaticEntry(fsx.files.a, config)
+
+    assert(entry.sourceFile.includes('createStaticEntry/a.js'))
+    assert(entry.entryFile.includes('createStaticEntry/a.js'))
 
     const contents = fs.readFileSync(entry.entryFile)
-    assert(contents.includes('createEntries/a.js'))
+    assert(contents.includes('createStaticEntry/a.js'))
     assert(contents.includes('presta-config.js'))
   })
 
   test('createDynamicEntry', () => {
-    const config = {
-      pages: './createEntries/*.js',
-      configFilepath: path.join(fixtures.getRoot(), 'presta-config.js')
+    const files = {
+      a: {
+        url: './createDynamicEntry/a.js',
+        content: ''
+      },
+      b: {
+        url: './createDynamicEntry/b.js',
+        content: ''
+      }
     }
 
-    const a = path.join(fixtures.getRoot(), '/createEntries/a.js')
-    const b = path.join(fixtures.getRoot(), '/createEntries/b.js')
+    const fsx = fixtures.create(files)
 
-    const entry = createDynamicEntry([a, b], config)
+    const config = {
+      pages: './createDynamicEntry/*.js',
+      output: 'output'
+    }
 
-    assert(entry.includes('presta.js'))
+    const entry = createDynamicEntry([fsx.files.a, fsx.files.b], config)
+
+    assert(entry.includes(OUTPUT_DYNAMIC_PAGES_ENTRY))
 
     const contents = fs.readFileSync(entry)
 
-    assert(contents.includes('createEntries/a.js'))
-    assert(contents.includes('createEntries/b.js'))
-    assert(contents.includes('presta-config.js'))
+    assert(contents.includes('createDynamicEntry/a.js'))
+    assert(contents.includes('createDynamicEntry/b.js'))
   })
 }
