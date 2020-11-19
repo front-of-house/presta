@@ -156,10 +156,10 @@ export async function watch (config, options = {}) {
    * server. Otherwise, just reload the page if needed.
    */
   dynamicWatcher.on('remove', ([id]) => {
-    debug('dynamicWatcher - deleted dynamic file', id)
-
     // some duplicate events come through, don't want to splice(-1, 1)
     if (dynamicIds.includes(id)) {
+      debug('dynamicWatcher - deleted dynamic file', id)
+
       dynamicIds.splice(dynamicIds.indexOf(id), 1)
 
       createDynamicEntry(dynamicIds, config)
@@ -174,10 +174,10 @@ export async function watch (config, options = {}) {
     if (isDyn && wasDyn) {
       debug('dynamicWatcher - reload dynamic file', id)
     } else if (!isDyn && wasDyn) {
-      debug('dynamicWatcher - un-configured dynamic file', id)
-
       // some duplicate events come through, don't want to splice(-1, 1)
       if (dynamicIds.includes(id)) {
+        debug('dynamicWatcher - un-configured dynamic file', id)
+
         dynamicIds.splice(dynamicIds.indexOf(id), 1)
 
         createDynamicEntry(dynamicIds, config)
@@ -196,10 +196,10 @@ export async function watch (config, options = {}) {
    */
   staticWatcher.on('remove', ids => {
     for (const id of ids) {
-      debug('staticWatcher - deleted static file', id)
-
       // some duplicate events come through, don't want to splice(-1, 1)
       if (staticIds.includes(id)) {
+        debug('staticWatcher - deleted static file', id)
+
         staticIds.splice(staticIds.indexOf(id), 1)
 
         const index = staticEntries.findIndex(e => e.sourceFile === id)
@@ -225,10 +225,10 @@ export async function watch (config, options = {}) {
           output: config.output
         })
       } else if (!isStat && wasStat) {
-        debug('staticWatcher - remove static file', id)
-
         // some duplicate events come through, don't want to splice(-1, 1)
         if (staticIds.includes(id)) {
+          debug('staticWatcher - remove static file', id)
+
           staticIds.splice(staticIds.indexOf(id), 1)
 
           const index = staticEntries.findIndex(e => e.sourceFile === id)
@@ -290,9 +290,9 @@ export async function watch (config, options = {}) {
     const isStat = isStatic(file)
     const isDyn = isDynamic(file)
 
-    if (isStat) {
-      if (staticIds.includes(file)) return
+    debug(`entryWatcher - ${event}`, { isStat, isDyn })
 
+    if (isStat && !staticIds.includes(file)) {
       debug('entryWatcher - add static file')
 
       staticIds.push(file)
@@ -309,9 +309,7 @@ export async function watch (config, options = {}) {
       staticWatcher.add(file)
     }
 
-    if (isDyn) {
-      if (dynamicIds.includes(file)) return
-
+    if (isDyn && !dynamicIds.includes(file)) {
       debug('entryWatcher - add dynamic file')
 
       dynamicIds.push(file)
