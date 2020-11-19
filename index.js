@@ -100,7 +100,7 @@ export function renderStaticEntries (entries, options, done) {
   })
 }
 
-function initWatch (config, isRestart) {
+export async function watch (config, options = {}) {
   debug('watch initialized with config', config)
 
   /*
@@ -126,7 +126,7 @@ function initWatch (config, isRestart) {
    *
    * TODO could avoid this by better confirWatcher
    */
-  if (isRestart) {
+  if (options.isRestart) {
     renderStaticEntries(staticEntries, {
       watch: true,
       output: config.output
@@ -269,12 +269,12 @@ function initWatch (config, isRestart) {
       ...newConfig
     }
 
-    initWatch(
+    watch(
       {
         ...mergedConfig,
         pages: [].concat(mergedConfig.pages) // always an array
       },
-      true
+      { isRestart: true }
     )
   })
 
@@ -327,10 +327,6 @@ function initWatch (config, isRestart) {
    */
   staticWatcher.add(staticIds)
   dynamicWatcher.add(dynamicIds)
-}
-
-export async function watch (initialConfig) {
-  initWatch(initialConfig)
 }
 
 export async function build (config, options = {}) {
