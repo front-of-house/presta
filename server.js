@@ -7,6 +7,7 @@ import c from 'ansi-colors'
 
 import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './lib/constants'
 
+// TODO pass data through to final handler so we can log what's happening, dont' end() early
 export async function serve (config, { noBanner } = {}) {
   polka({
     onNoMatch (req, res) {
@@ -39,6 +40,13 @@ export async function serve (config, { noBanner } = {}) {
           { path: pathname },
           {}
         )
+
+        const ok = statusCode < 299
+
+        console.log(
+          `  ${c[ok ? 'blue' : 'magenta'](`GET`.padEnd(8))}${pathname}`
+        )
+
         res.writeHead(statusCode, headers)
         res.end(body)
       } else {
