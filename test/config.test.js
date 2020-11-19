@@ -44,8 +44,8 @@ export default async function (test, assert) {
     const files = {
       config: {
         url: 'presta.config.js',
-        content: `export const pages = '${pages}'; export const output = '${output}'`,
-      },
+        content: `export const pages = '${pages}'; export const output = '${output}'`
+      }
     }
     const cleanup = fixtures.create(files)
 
@@ -53,7 +53,7 @@ export default async function (test, assert) {
 
     assert(/presta\.config/.test(config.configFilepath))
     assert(path.isAbsolute(config.configFilepath))
-    assert(config.pages === pages)
+    assert(config.pages.includes(pages))
     assert(config.output.includes(output))
 
     cleanup()
@@ -65,18 +65,18 @@ export default async function (test, assert) {
     const files = {
       config: {
         url: 'presta-config.js',
-        content: `export const pages = '${pages}'; export const output = '${output}'`,
-      },
+        content: `export const pages = '${pages}'; export const output = '${output}'`
+      }
     }
     const cleanup = fixtures.create(files)
 
     const config = create({
-      config: files.config.url,
+      config: files.config.url
     })
 
     assert(/presta-config/.test(config.configFilepath))
     assert(path.isAbsolute(config.configFilepath))
-    assert(config.pages === pages)
+    assert(config.pages.includes(pages))
     assert(config.output.includes(output))
 
     cleanup()
@@ -86,8 +86,8 @@ export default async function (test, assert) {
     const files = {
       config: {
         url: 'presta.config.js',
-        content: `export const pages = './pages/*.js'; export const output = './output'`,
-      },
+        content: `export const pages = './pages/*.js'; export const output = './output'`
+      }
     }
     const cleanup = fixtures.create(files)
 
@@ -96,7 +96,7 @@ export default async function (test, assert) {
       output: 'dist'
     })
 
-    assert(config.pages === 'foo')
+    assert(config.pages.includes('foo'))
     assert(config.output.includes('dist'))
 
     cleanup()
