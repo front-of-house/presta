@@ -8,7 +8,11 @@ import globParent from 'glob-parent'
 import chokidar from 'chokidar'
 
 import { debug } from './lib/debug'
-import { CWD, CONFIG_DEFAULT } from './lib/constants'
+import {
+  CWD,
+  CONFIG_DEFAULT,
+  OUTPUT_DYNAMIC_PAGES_ENTRY
+} from './lib/constants'
 import { createStaticEntry, createDynamicEntry } from './lib/createEntries'
 import { pathnameToHtmlFile } from './lib/pathnameToHtmlFile'
 import { log } from './lib/log'
@@ -16,6 +20,7 @@ import { timer } from './lib/timer'
 import { getFiles, isStatic, isDynamic } from './lib/getFiles'
 import { safeRequire } from './lib/safeRequire'
 import { ignoredFilesArray } from './lib/ignore'
+import { set as setConfig } from './lib/config'
 import { clearMemoryCache } from './load'
 
 export async function prepareStaticEntry (entry) {
@@ -85,7 +90,7 @@ export function renderStaticEntries (entries, options, done) {
             allGeneratedFiles.push(filename)
 
             fs.outputFileSync(
-              path.join(options.output, filename),
+              path.join(options.output, 'static', filename),
               createDocument(result),
               'utf-8'
             )
@@ -102,6 +107,11 @@ export function renderStaticEntries (entries, options, done) {
 
 export async function watch (config, options = {}) {
   debug('watch initialized with config', config)
+
+  /*
+   * Set computed config for later use
+   */
+  setConfig(config)
 
   /*
    * Either the config the user specified, or the default path in case they
@@ -165,6 +175,9 @@ export async function watch (config, options = {}) {
       createDynamicEntry(dynamicIds, config)
     }
 
+    // clear so updates come through
+    delete require.cache[path.join(config.output, OUTPUT_DYNAMIC_PAGES_ENTRY)]
+
     // dynamicWatcher automatically stops watching deleted files
   })
   dynamicWatcher.on('change', ([id]) => {
@@ -187,6 +200,9 @@ export async function watch (config, options = {}) {
     } else if (isDyn && !wasDyn) {
       debug('dynamicWatcher - re-configured dynamic file', id)
     }
+
+    // clear so updates come through
+    delete require.cache[path.join(config.output, OUTPUT_DYNAMIC_PAGES_ENTRY)]
   })
 
   /*
@@ -329,6 +345,11 @@ export async function watch (config, options = {}) {
 
 export async function build (config, options = {}) {
   debug('watch initialized with config', config)
+
+  /*
+   * Set computed config for later use
+   */
+  setConfig(config)
 
   const staticIds = getFiles(config.pages).filter(isStatic)
   let dynamicIds = getFiles(config.pages).filter(isDynamic)

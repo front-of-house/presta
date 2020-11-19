@@ -4,6 +4,7 @@ import sade from 'sade'
 
 import pkg from './package.json'
 import serve from './serve'
+import { serve as server } from './server'
 import { watch, build } from './'
 import { TMP_DIR, CONFIG_DEFAULT } from './lib/constants'
 import { safeConfigFilepath } from './lib/safeConfigFilepath'
@@ -69,7 +70,7 @@ prog
       output
     })
 
-    if (!opts.n) serve(config.output, { noBanner: true })
+    if (!opts.n) server(config, { noBanner: true })
 
     log(
       `${c.blue('presta watch')}${!opts.n ? ` – http://localhost:4000` : ''}\n`
