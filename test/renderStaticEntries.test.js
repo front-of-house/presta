@@ -1,12 +1,21 @@
 import fs from 'fs-extra'
 import path from 'path'
 import proxyquire from 'proxyquire'
+import sinon from 'sinon'
 
 import * as fixtures from './fixtures'
 
 import { OUTPUT_STATIC_DIR } from '../lib/constants'
-import { renderStaticEntries } from '../lib/renderStaticEntries'
+// import { renderStaticEntries } from '../lib/renderStaticEntries'
 import { createStaticEntry } from '../lib/createEntries'
+
+const logSpy = sinon.stub()
+
+const { renderStaticEntries } = proxyquire('../lib/renderStaticEntries', {
+  './log': {
+    log: logSpy
+  }
+})
 
 /*
  * Think of this as basically creating a page/config pair.
@@ -30,6 +39,8 @@ async function createPageFromSourceFile (page, conf = {}) {
   const entries = [entry]
 
   const { allGeneratedFiles } = await renderStaticEntries(entries, config)
+
+  if (!allGeneratedFiles.length) return ''
 
   const contents = fs.readFileSync(
     path.join(outDir, OUTPUT_STATIC_DIR, allGeneratedFiles[0]),
@@ -96,5 +107,39 @@ export default async (test, assert) => {
     )
 
     assert(page === 'page page rendered cd')
+  })
+
+  test('renderStaticEntries - entry prep errors', async () => {
+    await createPageFromSourceFile({
+      url: 'syntax',
+      content: `
+        export const getPaths = () => ([ 'path' ]
+        export const Page = () => 'page'
+      `
+    })
+
+    assert(logSpy.called)
+
+    await createPageFromSourceFile({
+      url: 'syntax',
+      content: `
+        export const Page = () => 'page'
+      `
+    })
+
+    assert(logSpy.called)
+  })
+
+  test('renderStaticEntries - render errors', async () => {
+    await createPageFromSourceFile({
+      url: 'syntax',
+      content: `
+        export const getPaths = () => ([ 'path' ])
+        export const Page = () => 'page'
+        export const render = () => { throw 'error' }
+      `
+    })
+
+    assert(logSpy.called)
   })
 }
