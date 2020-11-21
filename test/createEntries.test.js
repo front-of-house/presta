@@ -8,32 +8,33 @@ import { OUTPUT_DYNAMIC_PAGES_ENTRY } from '../lib/constants'
 
 export default (test, assert) => {
   test('createStaticEntry', () => {
-    const files = {
+    const fsx = fixtures.create({
       a: {
         url: './createStaticEntry/a.js',
         content: ''
       }
-    }
-
-    const fsx = fixtures.create(files)
-
+    })
     const config = {
-      pages: './createStaticEntry/*.js',
-      configFilepath: path.join(fixtures.getRoot(), 'presta-config.js')
+      pages: 'placeholder',
+      configFilepath: path.join(fixtures.getRoot(), 'placeholder')
     }
 
-    const entry = createStaticEntry(fsx.files.a, config)
+    const entry = createStaticEntry(
+      fsx.files.a,
+      path.join(fixtures.getRoot(), 'createStaticEntry-dist'),
+      config
+    )
 
     assert(entry.sourceFile.includes('createStaticEntry/a.js'))
-    assert(entry.entryFile.includes('createStaticEntry/a.js'))
+    assert(
+      entry.entryFile.includes('createStaticEntry-dist/createStaticEntry/a.js')
+    )
 
-    const contents = fs.readFileSync(entry.entryFile)
-    assert(contents.includes('createStaticEntry/a.js'))
-    assert(contents.includes('presta-config.js'))
+    fsx.cleanup()
   })
 
   test('createDynamicEntry', () => {
-    const files = {
+    const fsx = fixtures.create({
       a: {
         url: './createDynamicEntry/a.js',
         content: ''
@@ -42,10 +43,7 @@ export default (test, assert) => {
         url: './createDynamicEntry/b.js',
         content: ''
       }
-    }
-
-    const fsx = fixtures.create(files)
-
+    })
     const config = {
       pages: './createDynamicEntry/*.js',
       output: 'output'
@@ -53,11 +51,9 @@ export default (test, assert) => {
 
     const entry = createDynamicEntry([fsx.files.a, fsx.files.b], config)
 
+    assert(entry.includes(config.output))
     assert(entry.includes(OUTPUT_DYNAMIC_PAGES_ENTRY))
 
-    const contents = fs.readFileSync(entry)
-
-    assert(contents.includes('createDynamicEntry/a.js'))
-    assert(contents.includes('createDynamicEntry/b.js'))
+    fsx.cleanup()
   })
 }
