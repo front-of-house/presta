@@ -3,9 +3,7 @@ import c from 'ansi-colors'
 import sade from 'sade'
 
 import pkg from './package.json'
-import serve from './serve'
-import { serve as server } from './server'
-import { watch, build } from './'
+
 import { TMP_DIR, CONFIG_DEFAULT } from './lib/constants'
 import { safeConfigFilepath } from './lib/safeConfigFilepath'
 import { safeRequire } from './lib/safeRequire'
@@ -13,6 +11,11 @@ import { log } from './lib/log'
 import { fileCache } from './lib/fileCache'
 import * as globalConfig from './lib/config'
 import { timer } from './lib/timer'
+import { watch } from './lib/watch'
+import { build } from './lib/build'
+
+import serve from './serve'
+import { serve as server } from './server'
 
 const prog = sade('presta')
 
