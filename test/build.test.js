@@ -1,7 +1,5 @@
 import fs from 'fs-extra'
 import path from 'path'
-import sinon from 'sinon'
-import proxyquire from 'proxyquire'
 
 import * as fixtures from './fixtures'
 

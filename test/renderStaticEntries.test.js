@@ -1,21 +1,12 @@
 import fs from 'fs-extra'
 import path from 'path'
-import proxyquire from 'proxyquire'
-import sinon from 'sinon'
 
 import * as fixtures from './fixtures'
 
 import { OUTPUT_STATIC_DIR } from '../lib/constants'
-// import { renderStaticEntries } from '../lib/renderStaticEntries'
+import { renderStaticEntries } from '../lib/renderStaticEntries'
 import { createStaticEntry } from '../lib/createEntries'
-
-const logSpy = sinon.stub()
-
-const { renderStaticEntries } = proxyquire('../lib/renderStaticEntries', {
-  './log': {
-    log: logSpy
-  }
-})
+import { getLogs } from '../lib/log'
 
 /*
  * Think of this as basically creating a page/config pair.
@@ -118,28 +109,28 @@ export default async (test, assert) => {
       `
     })
 
-    assert(logSpy.called)
+    assert(getLogs().includes('SyntaxError'))
 
     await createPageFromSourceFile({
-      url: 'syntax',
+      url: 'getPaths',
       content: `
         export const Page = () => 'page'
       `
     })
 
-    assert(logSpy.called)
+    assert(getLogs().includes('getPaths'))
   })
 
   test('renderStaticEntries - render errors', async () => {
     await createPageFromSourceFile({
-      url: 'syntax',
+      url: 'renderError',
       content: `
         export const getPaths = () => ([ 'path' ])
         export const Page = () => 'page'
-        export const render = () => { throw 'error' }
+        export const render = () => { throw 'render error' }
       `
     })
 
-    assert(logSpy.called)
+    assert(getLogs().includes('render error'))
   })
 }
