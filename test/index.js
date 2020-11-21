@@ -14,7 +14,7 @@ const assert = require('assert')
 
 const fixtures = require('./fixtures')
 
-export const root = path.join(__dirname, 'fixtures')
+export const root = path.join(__dirname, '../fixtures')
 
 fs.ensureDirSync(root)
 process.chdir(root)

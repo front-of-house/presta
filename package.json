@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "NODE_ENV=test node -r esm test",
-    "test:watch": "NODE_ENV=test nodemon -i ./test/fixtures -r esm test",
+    "test:watch": "NODE_ENV=test nodemon --ignore fixtures/ -r esm test",
     "format": "prettier-standard --format",
     "lint": "prettier-standard --lint",
     "cloc": "npx cloc lib/*.js cli.js presta.js document.js index.js load.js render.js server.js router.js handler.js"
