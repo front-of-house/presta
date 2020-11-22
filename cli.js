@@ -21,8 +21,8 @@ const prog = sade('presta')
 prog
   .version(pkg.version)
   .option('--config, -c', 'Path to a config file.', './' + CONFIG_DEFAULT)
-  .option('--jsx', 'Specify a JSX pragma.', 'h')
   .option('--assets, -a', 'Specify static asset directory.', './public')
+  .option('--jsx', 'Specify a JSX pragma.', 'h')
 
 // just make sure it's there
 fs.ensureDirSync(TMP_DIR)
@@ -86,21 +86,6 @@ prog
     }
 
     watch(config)
-  })
-
-prog
-  .command('serve [dir]')
-  .describe(
-    'Serve a directory of files. By default serves the output specified in your presta config file.'
-  )
-  .option('--livereload, -l', 'Only build changed files.', true)
-  .example(`serve`)
-  .example(`serve build`)
-  .example(`serve -c ${CONFIG_DEFAULT}`)
-  .action((dir, opts) => {
-    console.clear()
-    const config = safeRequire(safeConfigFilepath(opts.config), {})
-    return serve(dir || config.output || 'build', {})
   })
 
 prog.parse(process.argv)
