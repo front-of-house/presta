@@ -5,8 +5,9 @@ import getPort from 'get-port'
 import c from 'ansi-colors'
 import sirv from 'sirv'
 
-import { createDevClient } from './lib/devClient'
 import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './lib/constants'
+import { createDevClient } from './lib/devClient'
+import * as events from './lib/events'
 
 const fallbackPage = fs.readFileSync(
   path.join(__dirname, './lib/404.html'),
@@ -98,9 +99,10 @@ export async function serve (config, { noBanner }) {
     serveClient: false
   })
 
-  // fs.watch(input, { persistent: true, recursive: true }, (event, file) => {
-  //   socket.emit('refresh', file)
-  // })
+  events.on('refresh', route => {
+    socket.emit('refresh', route)
+  })
+
   return {
     port
   }
