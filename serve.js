@@ -9,7 +9,7 @@ import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './lib/constants'
 import { createDevClient } from './lib/devClient'
 import * as events from './lib/events'
 
-const fallbackPage = fs.readFileSync(
+const default404 = fs.readFileSync(
   path.join(__dirname, './lib/404.html'),
   'utf8'
 )
@@ -37,54 +37,81 @@ export async function serve (config, { noBanner }) {
     .createServer(async (req, res) => {
       const { url } = req
 
-      // static assets
+      /*
+       * If this is an asset other than HTML files, just serve it
+       */
       if (/^.+\..+$/.test(url) && !/\.html?$/.test(url)) {
         sirv(staticDir, { dev: true })(req, res, () => {
           console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
 
           res.writeHead(404, defaultHeaders)
-          res.write(fallbackPage + devClient)
+          res.write(default404 + devClient)
           res.end()
         })
       } else {
+        /*
+         * Try to resolve a static route normally
+         */
         try {
           const file = resolveHTML(staticDir, url) + devClient
 
           console.log(`  ${c.blue(`GET`.padEnd(8))}${url}`)
 
-          res.writeHead(200, { 'Content-Type': 'text/html' })
+          res.writeHead(200, defaultHeaders)
           res.write(file)
           res.end()
         } catch (e) {
-          const { router, handler } = require(path.join(
-            config.output,
-            OUTPUT_DYNAMIC_PAGES_ENTRY
-          ))
-          const match = router(url)
+          /*
+           * Try to fall back to a static 404 page
+           */
+          try {
+            const file = resolveHTML(staticDir, '404') + devClient
 
-          if (match) {
-            const { statusCode, headers, body } = await handler(
-              { path: url },
-              {}
-            )
-
-            const ok = statusCode < 299
-
-            console.log(
-              `  ${c[ok ? 'blue' : 'magenta'](`GET`.padEnd(8))}${url}`
-            )
-
-            res.writeHead(statusCode, {
-              ...defaultHeaders,
-              ...headers
-            })
-            res.end(body + devClient)
-          } else {
             console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
 
             res.writeHead(404, defaultHeaders)
-            res.write(fallbackPage + devClient)
+            res.write(file)
             res.end()
+          } catch (e) {
+            /*
+             * Fall back to serverless dynamic rendering
+             */
+            const { router, handler } = require(path.join(
+              config.output,
+              OUTPUT_DYNAMIC_PAGES_ENTRY
+            ))
+            const match = router(url)
+
+            /*
+             * If route match, render route
+             */
+            if (match) {
+              const { statusCode, headers, body } = await handler(
+                { path: url },
+                {}
+              )
+
+              const ok = statusCode < 299
+
+              console.log(
+                `  ${c[ok ? 'blue' : 'magenta'](`GET`.padEnd(8))}${url}`
+              )
+
+              res.writeHead(statusCode, {
+                ...defaultHeaders,
+                ...headers
+              })
+              res.end(body + devClient)
+            } else {
+              /*
+               * If not router match, show default 404
+               */
+              console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
+
+              res.writeHead(404, defaultHeaders)
+              res.write(default404 + devClient)
+              res.end()
+            }
           }
         }
       }
@@ -95,15 +122,11 @@ export async function serve (config, { noBanner }) {
       }
     })
 
-  const socket = require('pocket.io')(server, {
-    serveClient: false
-  })
+  const socket = require('pocket.io')(server, { serveClient: false })
 
   events.on('refresh', route => {
     socket.emit('refresh', route)
   })
 
-  return {
-    port
-  }
+  return { port }
 }
