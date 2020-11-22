@@ -14,8 +14,7 @@ import { timer } from './lib/timer'
 import { watch } from './lib/watch'
 import { build } from './lib/build'
 
-import serve from './serve'
-import { serve as server } from './server'
+import { serve } from './serve'
 
 const prog = sade('presta')
 
@@ -73,11 +72,17 @@ prog
       output
     })
 
-    if (!opts.n) server(config, { noBanner: true })
+    if (!opts.n) {
+      const server = await serve(config, { noBanner: true })
 
-    log(
-      `${c.blue('presta watch')}${!opts.n ? ` – http://localhost:4000` : ''}\n`
-    )
+      log(
+        `${c.blue('presta watch')}${
+          !opts.n ? ` – http://localhost:${server.port}` : ''
+        }\n`
+      )
+    } else {
+      log(`${c.blue('presta watch')}\n`)
+    }
 
     watch(config)
   })

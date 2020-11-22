@@ -1,92 +1,92 @@
-const fs = require('fs')
-const path = require('path')
-const http = require('http')
-const getPort = require('get-port')
-const c = require('ansi-colors')
+import fs from 'fs'
+import path from 'path'
+import http from 'http'
+import getPort from 'get-port'
+import c from 'ansi-colors'
+import sirv from 'sirv'
 
-module.exports = async (input, { noreload, noBanner }) => {
-  const serve = require('serve-static')(input)
+import { createDevClient } from './lib/devClient'
+import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './lib/constants'
+
+const fallbackPage = fs.readFileSync(
+  path.join(__dirname, './lib/404.html'),
+  'utf8'
+)
+
+const defaultHeaders = {
+  'content-type': 'text/html; charset=utf-8'
+}
+
+function resolveHTML (dir, url) {
+  let file = path.join(dir, url)
+
+  if (!/\.html?$/.test(url)) {
+    file = path.join(dir, url, 'index.html')
+  }
+
+  return fs.readFileSync(file, 'utf8')
+}
+
+export async function serve (config, { noBanner }) {
   const port = await getPort({ port: 4000 })
+  const devClient = createDevClient({ port })
+  const staticDir = path.join(config.output, 'static')
 
   const server = http
-    .createServer((req, res) => {
+    .createServer(async (req, res) => {
       const { url } = req
 
       // static assets
-      if (/^.+\..+$/.test(url)) {
-        return serve(req, res, require('finalhandler')(req, res))
-      }
+      if (/^.+\..+$/.test(url) && !/\.html?$/.test(url)) {
+        sirv(staticDir, { dev: true })(req, res, () => {
+          console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
 
-      let status = 200
-      let file = ''
-
-      try {
-        file = fs.readFileSync(path.join(input, url + '/index.html'), 'utf8')
-      } catch (e) {
-        status = 404
+          res.writeHead(404, defaultHeaders)
+          res.write(fallbackPage + devClient)
+          res.end()
+        })
+      } else {
         try {
-          file = fs.readFileSync(path.join(input, '/not-found.html'), 'utf8')
-        } catch (e) {}
+          const file = resolveHTML(staticDir, url) + devClient
+
+          console.log(`  ${c.blue(`GET`.padEnd(8))}${url}`)
+
+          res.writeHead(200, { 'Content-Type': 'text/html' })
+          res.write(file)
+          res.end()
+        } catch (e) {
+          const { router, handler } = require(path.join(
+            config.output,
+            OUTPUT_DYNAMIC_PAGES_ENTRY
+          ))
+          const match = router(url)
+
+          if (match) {
+            const { statusCode, headers, body } = await handler(
+              { path: url },
+              {}
+            )
+
+            const ok = statusCode < 299
+
+            console.log(
+              `  ${c[ok ? 'blue' : 'magenta'](`GET`.padEnd(8))}${url}`
+            )
+
+            res.writeHead(statusCode, {
+              ...defaultHeaders,
+              ...headers
+            })
+            res.end(body + devClient)
+          } else {
+            console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
+
+            res.writeHead(404, defaultHeaders)
+            res.write(fallbackPage + devClient)
+            res.end()
+          }
+        }
       }
-
-      if (!noreload) {
-        file += `
-        <script>
-          (function (global) {
-            try {
-              const socketio = document.createElement('script')
-              socketio.src = 'https://unpkg.com/pocket.io@0.1.4/min.js'
-              socketio.onload = function init () {
-                var disconnected = false
-                var socket = io('http://localhost:${port}', {
-                  reconnectionAttempts: 3
-                })
-                socket.on('connect', function() { console.log('presta connected') })
-                socket.on('refresh', function(file) {
-                  const normal = file.replace(/^\\//, '');
-                  const pathname = window.location.pathname;
-
-                  let pathToMatch;
-
-                  if (/\.html$/.test(normal)) {
-                    if (normal === 'index.html') {
-                      pathToMatch = '/';
-                    } else {
-                      const [_, pathname] = normal.match(/(.+)\\/.+\\.html$/) || [];
-                      pathToMatch = '/' + pathname;
-                    }
-                  }
-
-                  if (pathToMatch && pathToMatch === pathname) {
-                    global.location.reload()
-                  } else if (!pathToMatch) {
-                    global.location.reload()
-                  }
-                })
-                socket.on('disconnect', function() {
-                  disconnected = true
-                })
-                socket.on('reconnect_failed', function(e) {
-                  if (disconnected) return
-                  console.error("presta - connection to server on :${port} failed")
-                })
-              }
-              document.head.appendChild(socketio)
-            } catch (e) {}
-          })(this);
-        </script>
-      `
-      }
-
-      const ok = status < 299
-
-      console.log(`  ${c[ok ? 'blue' : 'magenta'](`GET`.padEnd(8))}${url}`)
-
-      res.writeHead(status, {
-        'Content-Type': 'text/html'
-      })
-      res.write(file)
-      res.end()
     })
     .listen(port, () => {
       if (!noBanner) {
@@ -94,13 +94,14 @@ module.exports = async (input, { noreload, noBanner }) => {
       }
     })
 
-  if (!noreload) {
-    const socket = require('pocket.io')(server, {
-      serveClient: false
-    })
+  const socket = require('pocket.io')(server, {
+    serveClient: false
+  })
 
-    fs.watch(input, { persistent: true, recursive: true }, (event, file) => {
-      socket.emit('refresh', file)
-    })
+  // fs.watch(input, { persistent: true, recursive: true }, (event, file) => {
+  //   socket.emit('refresh', file)
+  // })
+  return {
+    port
   }
 }

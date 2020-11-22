@@ -26,4 +26,8 @@ require('module-alias').addAliases({
   '@': process.cwd()
 })
 
-require('./cli')
+try {
+  require('./cli')
+} catch (e) {
+  console.error(e)
+}
