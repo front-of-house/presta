@@ -20,8 +20,9 @@ const prog = sade('presta')
 
 prog
   .version(pkg.version)
-  .option('--config, -c', 'Path to a config file.', CONFIG_DEFAULT)
+  .option('--config, -c', 'Path to a config file.', './' + CONFIG_DEFAULT)
   .option('--jsx', 'Specify a JSX pragma.', 'h')
+  .option('--assets, -a', 'Specify static asset directory.', './public')
 
 // just make sure it's there
 fs.ensureDirSync(TMP_DIR)

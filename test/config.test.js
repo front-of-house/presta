@@ -5,6 +5,7 @@ import { create } from '../lib/config'
 
 const pages = 'app/**/*.js'
 const output = 'output'
+const assets = 'assets'
 const c = 'presta.config.js'
 
 export default async function (test, assert) {
@@ -35,6 +36,17 @@ export default async function (test, assert) {
 
     assert(/\/output/.test(config.output))
     assert(path.isAbsolute(config.output))
+  })
+
+  test('config - assets', async () => {
+    const config = create({
+      pages,
+      output,
+      assets
+    })
+
+    assert(/\/assets/.test(config.assets))
+    assert(path.isAbsolute(config.assets))
   })
 
   test('config - picks up default file if present', async () => {

@@ -29,9 +29,11 @@ function resolveHTML (dir, url) {
 }
 
 export async function serve (config, { noBanner }) {
+  console.log(config)
   const port = await getPort({ port: 4000 })
   const devClient = createDevClient({ port })
   const staticDir = path.join(config.output, 'static')
+  const assetDir = config.assets
 
   const server = http
     .createServer(async (req, res) => {
@@ -42,11 +44,13 @@ export async function serve (config, { noBanner }) {
        */
       if (/^.+\..+$/.test(url) && !/\.html?$/.test(url)) {
         sirv(staticDir, { dev: true })(req, res, () => {
-          console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
+          sirv(assetDir, { dev: true })(req, res, () => {
+            console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
 
-          res.writeHead(404, defaultHeaders)
-          res.write(default404 + devClient)
-          res.end()
+            res.writeHead(404, defaultHeaders)
+            res.write(default404 + devClient)
+            res.end()
+          })
         })
       } else {
         /*
