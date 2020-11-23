@@ -4,6 +4,7 @@ import http from 'http'
 import getPort from 'get-port'
 import c from 'ansi-colors'
 import sirv from 'sirv'
+import chokidar from 'chokidar'
 
 import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './lib/constants'
 import { createDevClient } from './lib/devClient'
@@ -29,7 +30,6 @@ function resolveHTML (dir, url) {
 }
 
 export async function serve (config, { noBanner }) {
-  console.log(config)
   const port = await getPort({ port: 4000 })
   const devClient = createDevClient({ port })
   const staticDir = path.join(config.output, 'static')
@@ -130,6 +130,10 @@ export async function serve (config, { noBanner }) {
 
   events.on('refresh', route => {
     socket.emit('refresh', route)
+  })
+
+  chokidar.watch(config.assets, { ignoreInitial: true }).on('all', () => {
+    socket.emit('refresh')
   })
 
   return { port }
