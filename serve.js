@@ -1,106 +1,186 @@
-const fs = require('fs')
-const path = require('path')
-const http = require('http')
-const getPort = require('get-port')
-const c = require('ansi-colors')
+import fs from 'fs'
+import path from 'path'
+import http from 'http'
+import getPort from 'get-port'
+import c from 'ansi-colors'
+import sirv from 'sirv'
+import chokidar from 'chokidar'
 
-module.exports = async (input, { noreload, noBanner }) => {
-  const serve = require('serve-static')(input)
+import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './lib/constants'
+import { createDevClient } from './lib/devClient'
+import * as events from './lib/events'
+import { debug } from './lib/debug'
+import { timer } from './lib/timer'
+import { log, formatLog } from './lib/log'
+
+const default404 = fs.readFileSync(
+  path.join(__dirname, './lib/404.html'),
+  'utf8'
+)
+
+const defaultHeaders = {
+  'content-type': 'text/html; charset=utf-8'
+}
+
+function resolveHTML (dir, url) {
+  let file = path.join(dir, url)
+
+  if (!/\.html?$/.test(url)) {
+    file = path.join(dir, url, 'index.html')
+  }
+
+  return fs.readFileSync(file, 'utf8')
+}
+
+export async function serve (config, { noBanner }) {
   const port = await getPort({ port: 4000 })
+  const devClient = createDevClient({ port })
+  const staticDir = path.join(config.output, 'static')
+  const assetDir = config.assets
 
   const server = http
-    .createServer((req, res) => {
+    .createServer(async (req, res) => {
       const { url } = req
 
-      // static assets
-      if (/^.+\..+$/.test(url)) {
-        return serve(req, res, require('finalhandler')(req, res))
-      }
+      /*
+       * If this is an asset other than HTML files, just serve it
+       */
+      if (/^.+\..+$/.test(url) && !/\.html?$/.test(url)) {
+        debug('serve', `attempt to serve asset ${url}`)
 
-      let status = 200
-      let file = ''
+        sirv(staticDir, { dev: true })(req, res, () => {
+          sirv(assetDir, { dev: true })(req, res, () => {
+            formatLog({
+              color: 'magenta',
+              action: 'serve',
+              meta: '⚠︎',
+              description: url
+            })
 
-      try {
-        file = fs.readFileSync(path.join(input, url + '/index.html'), 'utf8')
-      } catch (e) {
-        status = 404
+            res.writeHead(404, defaultHeaders)
+            res.write(default404 + devClient)
+            res.end()
+          })
+        })
+      } else {
+        debug('serve', `attempt to serve static page ${url}`)
+
+        /*
+         * Try to resolve a static route normally
+         */
         try {
-          file = fs.readFileSync(path.join(input, '/not-found.html'), 'utf8')
-        } catch (e) {}
-      }
+          const file = resolveHTML(staticDir, url) + devClient
 
-      if (!noreload) {
-        file += `
-        <script>
-          (function (global) {
+          res.writeHead(200, defaultHeaders)
+          res.write(file)
+          res.end()
+
+          formatLog({
+            action: 'serve',
+            meta: '•',
+            description: url
+          })
+        } catch (e) {
+          if (!e.message.includes('ENOENT')) {
+            console.error(e)
+          }
+
+          debug('serve', `attempt to serve dynamic page ${url}`)
+
+          const time = timer()
+
+          /*
+           * Fall back to serverless dynamic rendering
+           */
+          const { router, handler } = require(path.join(
+            config.output,
+            OUTPUT_DYNAMIC_PAGES_ENTRY
+          ))
+          const match = router(url)
+
+          /*
+           * If route match, render route
+           */
+          if (match) {
+            const { statusCode, headers, body } = await handler(
+              { path: url },
+              {}
+            )
+
+            const ok = statusCode < 299
+
+            res.writeHead(statusCode, {
+              ...defaultHeaders,
+              ...headers
+            })
+            res.end(body + devClient)
+
+            formatLog({
+              color: ok ? 'blue' : 'magenta',
+              action: 'serve',
+              meta: '⚡︎' + time(),
+              description: url
+            })
+          } else {
+            debug('serve', `attempt to serve static 404 page ${url}`)
+
+            /*
+             * Try to fall back to a static 404 page
+             */
             try {
-              const socketio = document.createElement('script')
-              socketio.src = 'https://unpkg.com/pocket.io@0.1.4/min.js'
-              socketio.onload = function init () {
-                var disconnected = false
-                var socket = io('http://localhost:${port}', {
-                  reconnectionAttempts: 3
-                })
-                socket.on('connect', function() { console.log('presta connected') })
-                socket.on('refresh', function(file) {
-                  const normal = file.replace(/^\\//, '');
-                  const pathname = window.location.pathname;
+              const file = resolveHTML(staticDir, '404') + devClient
 
-                  let pathToMatch;
+              formatLog({
+                color: 'magenta',
+                action: 'serve',
+                meta: '•',
+                description: url
+              })
 
-                  if (/\.html$/.test(normal)) {
-                    if (normal === 'index.html') {
-                      pathToMatch = '/';
-                    } else {
-                      const [_, pathname] = normal.match(/(.+)\\/.+\\.html$/) || [];
-                      pathToMatch = '/' + pathname;
-                    }
-                  }
-
-                  if (pathToMatch && pathToMatch === pathname) {
-                    global.location.reload()
-                  } else if (!pathToMatch) {
-                    global.location.reload()
-                  }
-                })
-                socket.on('disconnect', function() {
-                  disconnected = true
-                })
-                socket.on('reconnect_failed', function(e) {
-                  if (disconnected) return
-                  console.error("presta - connection to server on :${port} failed")
-                })
+              res.writeHead(404, defaultHeaders)
+              res.write(file)
+              res.end()
+            } catch (e) {
+              if (!e.message.includes('ENOENT')) {
+                console.error(e)
               }
-              document.head.appendChild(socketio)
-            } catch (e) {}
-          })(this);
-        </script>
-      `
+
+              debug('serve', `serve default 404 page ${url}`)
+
+              /*
+               * If no static 404, show default 404
+               */
+              formatLog({
+                color: 'magenta',
+                action: 'serve',
+                meta: '⚠︎ ',
+                description: url
+              })
+
+              res.writeHead(404, defaultHeaders)
+              res.write(default404 + devClient)
+              res.end()
+            }
+          }
+        }
       }
-
-      const ok = status < 299
-
-      console.log(`  ${c[ok ? 'blue' : 'magenta'](`GET`.padEnd(8))}${url}`)
-
-      res.writeHead(status, {
-        'Content-Type': 'text/html'
-      })
-      res.write(file)
-      res.end()
     })
     .listen(port, () => {
       if (!noBanner) {
-        console.log(c.blue(`presta serve`), `– http://localhost:${port}\n`)
+        log(c.blue(`presta serve`), `– http://localhost:${port}\n`)
       }
     })
 
-  if (!noreload) {
-    const socket = require('pocket.io')(server, {
-      serveClient: false
-    })
+  const socket = require('pocket.io')(server, { serveClient: false })
 
-    fs.watch(input, { persistent: true, recursive: true }, (event, file) => {
-      socket.emit('refresh', file)
-    })
-  }
+  events.on('refresh', route => {
+    debug('serve', `refresh event received`)
+    socket.emit('refresh', route)
+  })
+
+  chokidar.watch(config.assets, { ignoreInitial: true }).on('all', () => {
+    socket.emit('refresh')
+  })
+
+  return { port }
 }

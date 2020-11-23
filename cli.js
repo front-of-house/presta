@@ -3,26 +3,29 @@ import c from 'ansi-colors'
 import sade from 'sade'
 
 import pkg from './package.json'
-import serve from './serve'
-import { watch, build } from './'
-import { PRESTA_DIR, PRESTA_CONFIG_DEFAULT } from './lib/constants'
-import { createConfigFromCLI } from './lib/createConfigFromCLI'
+
+import { TMP_DIR, CONFIG_DEFAULT } from './lib/constants'
 import { safeConfigFilepath } from './lib/safeConfigFilepath'
 import { safeRequire } from './lib/safeRequire'
 import { log } from './lib/log'
 import { fileCache } from './lib/fileCache'
 import * as globalConfig from './lib/config'
 import { timer } from './lib/timer'
+import { watch } from './lib/watch'
+import { build } from './lib/build'
+
+import { serve } from './serve'
 
 const prog = sade('presta')
 
 prog
   .version(pkg.version)
-  .option('--config, -c', 'Path to a config file.', PRESTA_CONFIG_DEFAULT)
+  .option('--config, -c', 'Path to a config file.', './' + CONFIG_DEFAULT)
+  .option('--assets, -a', 'Specify static asset directory.', './public')
   .option('--jsx', 'Specify a JSX pragma.', 'h')
 
 // just make sure it's there
-fs.ensureDirSync(PRESTA_DIR)
+fs.ensureDirSync(TMP_DIR)
 
 prog
   .command(
@@ -32,32 +35,27 @@ prog
   )
   .example(`build`)
   .example(`build pages/**/*.js build`)
-  .example(`build -c ${PRESTA_CONFIG_DEFAULT}`)
+  .example(`build -c ${CONFIG_DEFAULT}`)
   .action(async (pages, output, opts) => {
     console.clear()
 
-    const config = createConfigFromCLI({
+    const time = timer()
+
+    const config = globalConfig.create({
       ...opts,
       pages,
       output
     })
 
-    // clear cached and generated files
-    fs.emptyDirSync(PRESTA_DIR)
-    fs.emptyDirSync(config.output)
-
-    globalConfig.set(config)
-
     log(`${c.blue('presta build')}\n`)
 
-    const time = timer()
+    await build(config)
 
-    await build(config, {
-      onRenderStart () {},
-      onRenderEnd ({ count }) {
-        log(`\n${c.blue('built')} ${count} files ${c.gray(`in ${time()}`)}\n`)
-      }
-    })
+    log('') // leave a 1-line buffer
+
+    log(`  ${c.blue(`build complete`)} ${c.gray(`in ${time()}`)}`)
+
+    log('') // leave a 1-line buffer
   })
 
 prog
@@ -66,60 +64,29 @@ prog
   .describe('Watch and build a glob of pages to an output directory.')
   .example(`watch`)
   .example(`watch pages/**/*.js build`)
-  .example(`watch -c ${PRESTA_CONFIG_DEFAULT}`)
+  .example(`watch -c ${CONFIG_DEFAULT}`)
   .action(async (pages, output, opts) => {
     console.clear()
 
-    const config = createConfigFromCLI({
+    const config = globalConfig.create({
       ...opts,
       pages,
       output
     })
 
-    if (!opts.n) serve(config.output, { noBanner: true })
+    if (!opts.n) {
+      const server = await serve(config, { noBanner: true })
 
-    globalConfig.set(config)
-
-    log(
-      `${c.blue('presta watch')}${!opts.n ? ` – http://localhost:4000` : ''}\n`
-    )
-
-    watch(config)
-  })
-
-prog
-  .command('serve [dir]')
-  .describe(
-    'Serve a directory of files. By default serves the output specified in your presta config file.'
-  )
-  .option('--livereload, -l', 'Only build changed files.', true)
-  .example(`serve`)
-  .example(`serve build`)
-  .example(`serve -c ${PRESTA_CONFIG_DEFAULT}`)
-  .action((dir, opts) => {
-    console.clear()
-    const config = safeRequire(safeConfigFilepath(opts.config), {})
-    return serve(dir || config.output || 'build', {})
-  })
-
-prog
-  .command('clear <keys>')
-  .describe(
-    'Pass a comma separated list to clear specific keys from the loader cache.'
-  )
-  .example(`cache clear pages,photos`)
-  .action(raw => {
-    const keys = raw.split(/,/)
-
-    log(c.blue('presta clear\n'))
-
-    for (const k of keys) {
-      fileCache.removeKey(k)
-      fileCache.save(true)
-      log(`  ${c.gray(k)}`)
+      log(
+        `${c.blue('presta watch')}${
+          !opts.n ? ` – http://localhost:${server.port}` : ''
+        }\n`
+      )
+    } else {
+      log(`${c.blue('presta watch')}\n`)
     }
 
-    log(c.blue('\ncleared'))
+    watch(config)
   })
 
 prog.parse(process.argv)

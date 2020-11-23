@@ -5,5 +5,6 @@ export default async function (test, assert) {
     assert(pathnameToHtmlFile('/foo') === '/foo/index.html')
     assert(pathnameToHtmlFile('/foo/bar') === '/foo/bar/index.html')
     assert(pathnameToHtmlFile('/baz.html') === '/baz.html')
+    assert(pathnameToHtmlFile('/baz.xml') === '/baz.xml')
   })
 }
