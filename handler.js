@@ -2,8 +2,8 @@ import { render } from './load'
 import { document } from './document'
 
 export function createHandler (router, userConfig) {
-  return async (ev, ctx) => {
-    const page = router(ev.path)
+  return async (event, context) => {
+    const page = router(event.path)
 
     if (!page)
       return {
@@ -13,7 +13,7 @@ export function createHandler (router, userConfig) {
 
     const result = await render(
       page.Page,
-      { pathname: ev.path },
+      { pathname: event.path, event, context },
       page.render || userConfig.render
     )
     const body = await (
@@ -21,13 +21,19 @@ export function createHandler (router, userConfig) {
       userConfig.createDocument ||
       document
     )(result)
+    const createResponse =
+      page.createResponse || userConfig.createResponse || (c => c.result)
 
-    return {
-      statusCode: 200,
-      body,
-      headers: {
-        'content-type': 'text/html'
+    return createResponse({
+      event,
+      context,
+      result: {
+        statusCode: 200,
+        body,
+        headers: {
+          'content-type': 'text/html; charset=utf-8'
+        }
       }
-    }
+    })
   }
 }

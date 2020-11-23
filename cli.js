@@ -49,12 +49,13 @@ prog
 
     const time = timer()
 
-    await build(config, {
-      onRenderStart () {},
-      onRenderEnd ({ count }) {
-        log(`\n${c.blue('built')} ${count} files ${c.gray(`in ${time()}`)}\n`)
-      }
-    })
+    await build(config)
+
+    console.log('') // leave a 1-line buffer
+
+    log(`  ${c.blue(`build complete`)} ${c.gray(`in ${time()}`)}`)
+
+    console.log('') // leave a 1-line buffer
   })
 
 prog
