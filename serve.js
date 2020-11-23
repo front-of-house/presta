@@ -9,6 +9,7 @@ import chokidar from 'chokidar'
 import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './lib/constants'
 import { createDevClient } from './lib/devClient'
 import * as events from './lib/events'
+import { debug } from './lib/debug'
 
 const default404 = fs.readFileSync(
   path.join(__dirname, './lib/404.html'),
@@ -43,6 +44,8 @@ export async function serve (config, { noBanner }) {
        * If this is an asset other than HTML files, just serve it
        */
       if (/^.+\..+$/.test(url) && !/\.html?$/.test(url)) {
+        debug('serve', `attempt to serve asset ${url}`)
+
         sirv(staticDir, { dev: true })(req, res, () => {
           sirv(assetDir, { dev: true })(req, res, () => {
             console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
@@ -53,6 +56,8 @@ export async function serve (config, { noBanner }) {
           })
         })
       } else {
+        debug('serve', `attempt to serve static page ${url}`)
+
         /*
          * Try to resolve a static route normally
          */
@@ -65,50 +70,64 @@ export async function serve (config, { noBanner }) {
           res.write(file)
           res.end()
         } catch (e) {
+          if (!e.message.includes('ENOENT')) {
+            console.error(e)
+          }
+
+          debug('serve', `attempt to serve dynamic page ${url}`)
+
           /*
-           * Try to fall back to a static 404 page
+           * Fall back to serverless dynamic rendering
            */
-          try {
-            const file = resolveHTML(staticDir, '404') + devClient
+          const { router, handler } = require(path.join(
+            config.output,
+            OUTPUT_DYNAMIC_PAGES_ENTRY
+          ))
+          const match = router(url)
 
-            console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
+          /*
+           * If route match, render route
+           */
+          if (match) {
+            const { statusCode, headers, body } = await handler(
+              { path: url },
+              {}
+            )
 
-            res.writeHead(404, defaultHeaders)
-            res.write(file)
-            res.end()
-          } catch (e) {
+            const ok = statusCode < 299
+
+            console.log(
+              `  ${c[ok ? 'blue' : 'magenta'](`GET ⚡︎`.padEnd(8))}${url}`
+            )
+
+            res.writeHead(statusCode, {
+              ...defaultHeaders,
+              ...headers
+            })
+            res.end(body + devClient)
+          } else {
+            debug('serve', `attempt to serve static 404 page ${url}`)
+
             /*
-             * Fall back to serverless dynamic rendering
+             * Try to fall back to a static 404 page
              */
-            const { router, handler } = require(path.join(
-              config.output,
-              OUTPUT_DYNAMIC_PAGES_ENTRY
-            ))
-            const match = router(url)
+            try {
+              const file = resolveHTML(staticDir, '404') + devClient
 
-            /*
-             * If route match, render route
-             */
-            if (match) {
-              const { statusCode, headers, body } = await handler(
-                { path: url },
-                {}
-              )
+              console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
 
-              const ok = statusCode < 299
+              res.writeHead(404, defaultHeaders)
+              res.write(file)
+              res.end()
+            } catch (e) {
+              if (!e.message.includes('ENOENT')) {
+                console.error(e)
+              }
 
-              console.log(
-                `  ${c[ok ? 'blue' : 'magenta'](`GET`.padEnd(8))}${url}`
-              )
+              debug('serve', `serve default 404 page ${url}`)
 
-              res.writeHead(statusCode, {
-                ...defaultHeaders,
-                ...headers
-              })
-              res.end(body + devClient)
-            } else {
               /*
-               * If not router match, show default 404
+               * If no static 404, show default 404
                */
               console.log(`  ${c.magenta(`GET`.padEnd(8))}${url}`)
 
@@ -129,6 +148,7 @@ export async function serve (config, { noBanner }) {
   const socket = require('pocket.io')(server, { serveClient: false })
 
   events.on('refresh', route => {
+    debug('serve', `refresh event received`)
     socket.emit('refresh', route)
   })
 
