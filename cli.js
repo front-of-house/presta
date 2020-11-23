@@ -39,6 +39,8 @@ prog
   .action(async (pages, output, opts) => {
     console.clear()
 
+    const time = timer()
+
     const config = globalConfig.create({
       ...opts,
       pages,
@@ -46,8 +48,6 @@ prog
     })
 
     log(`${c.blue('presta build')}\n`)
-
-    const time = timer()
 
     await build(config)
 

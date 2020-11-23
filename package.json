@@ -33,7 +33,7 @@
     "@babel/preset-react": "^7.10.4",
     "@babel/register": "^7.11.5",
     "ansi-colors": "^4.1.1",
-    "babel-loader": "^8.1.0",
+    "babel-loader": "^8.2.1",
     "chokidar": "^3.4.3",
     "core-js": "^3.6.5",
     "cosmiconfig": "^7.0.0",
@@ -57,7 +57,7 @@
     "sade": "^1.7.3",
     "sirv": "^1.0.7",
     "watch-dependency-graph": "^2.0.0-beta.3",
-    "webpack": "^4.44.1"
+    "webpack": "^4.44.2"
   },
   "devDependencies": {
     "baretest": "^2.0.0",
