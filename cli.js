@@ -51,11 +51,11 @@ prog
 
     await build(config)
 
-    console.log('') // leave a 1-line buffer
+    log('') // leave a 1-line buffer
 
     log(`  ${c.blue(`build complete`)} ${c.gray(`in ${time()}`)}`)
 
-    console.log('') // leave a 1-line buffer
+    log('') // leave a 1-line buffer
   })
 
 prog
