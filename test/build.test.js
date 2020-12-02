@@ -39,7 +39,7 @@ export default async (test, assert) => {
       b: {
         url: './build/b.js',
         content: `
-          export const route = 'path'
+          export const path = 'path'
           export const Page = () => 'page'
         `
       }

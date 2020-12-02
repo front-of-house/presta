@@ -39,7 +39,7 @@ export default async function (test, assert) {
       },
       B: {
         url: './getFiles/isStaticB.js',
-        content: `export const route = '/';export function Page() {}`
+        content: `export const path = '/';export function Page() {}`
       }
     }
 
@@ -59,7 +59,7 @@ export default async function (test, assert) {
       },
       B: {
         url: './getFiles/B.js',
-        content: `export const route = '/';export function getPaths() {};export function Page() {}`
+        content: `export const path = '/';export function getPaths() {};export function Page() {}`
       },
       C: {
         url: './getFiles/C.js',
