@@ -26,6 +26,7 @@ const defaultHeaders = {
   'content-type': 'text/html; charset=utf-8'
 }
 
+// @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
 function shouldBase64Encode (contentType) {
   return Boolean(contentType) && BASE_64_MIME_REGEXP.test(contentType)
 }
@@ -108,15 +109,36 @@ export async function serve (config, { noBanner }) {
            * If route match, render route
            */
           if (match) {
+            // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L208
+            const remoteAddress =
+              req.headers['x-forwarded-for'] || req.connection.remoteAddress
+            const ip = remoteAddress
+              .split(remoteAddress.includes('.') ? ':' : ',')
+              .pop()
+              .trim()
             const isBase64Encoded = shouldBase64Encode(
               req.headers['content-type']
             )
-            const { statusCode, headers, body } = await handler(
+            const response = await handler(
               {
                 path: req.url,
                 httpMethod: req.method,
-                headers: req.headers,
+                headers: {
+                  ...req.headers,
+                  'client-ip': ip
+                },
+                multiValueHeaders: Object.keys(req.headers).reduce(
+                  (headers, key) => {
+                    if (!req.headers[key].includes(',')) return headers // only include multi-value headers here
+                    return {
+                      ...headers,
+                      [key]: req.headers[key].split(',')
+                    }
+                  },
+                  {}
+                ),
                 queryStringParameters: parseQuery(parseUrl(req.url).query),
+                multiValueQueryStringParameters: {},
                 body: req.headers['content-length']
                   ? req.body.toString(isBase64Encoded ? 'base64' : 'utf8')
                   : undefined,
@@ -125,13 +147,19 @@ export async function serve (config, { noBanner }) {
               {}
             )
 
-            const ok = statusCode < 299
+            const ok = response.statusCode < 299
 
-            res.writeHead(statusCode, {
+            // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L73
+            for (const key in response.multiValueHeaders) {
+              res.setHeader(key, response.multiValueHeaders[key])
+            }
+
+            res.writeHead(response.statusCode, {
               ...defaultHeaders,
-              ...headers
+              ...response.headers
             })
-            res.end(body + devClient)
+
+            res.end(response.body + devClient)
 
             formatLog({
               color: ok ? 'blue' : 'magenta',
