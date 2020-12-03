@@ -69,7 +69,7 @@ export default async (test, assert) => {
         url: 'overrides.config',
         content: `
         export const render = (page, context) => page(' rendered')
-        export const formatContent = (context) => context.body
+        export const createContent = (context) => context.body
       `
       }
     )
@@ -85,14 +85,14 @@ export default async (test, assert) => {
         export const getStaticPaths = () => ([ 'path.json' ])
         export const Page = (prop = '') => 'page' + prop
         export const render = (page, context) => page(' page rendered')
-        export const formatContent = (context) => context.body + ' cd'
+        export const createContent = (context) => context.body + ' cd'
       `
       },
       {
         url: 'overrides-page-level.config',
         content: `
         export const render = (page, context) => page(' rendered')
-        export const formatContent = (context) => context.body
+        export const createContent = (context) => context.body
       `
       }
     )
