@@ -14,8 +14,8 @@ export default async (test, assert) => {
       a: {
         url: './build/a.js',
         content: `
-          export const getPaths = () => ([ 'path' ])
-          export const Page = () => 'page'
+          export const getStaticPaths = () => ([ 'path' ])
+          export const template = () => 'page'
         `
       }
     })
@@ -40,7 +40,7 @@ export default async (test, assert) => {
         url: './build/b.js',
         content: `
           export const route = 'path'
-          export const Page = () => 'page'
+          export const template = () => 'page'
         `
       }
     })

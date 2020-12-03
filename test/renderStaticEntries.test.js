@@ -48,8 +48,8 @@ export default async (test, assert) => {
     const page = await createPageFromSourceFile({
       url: 'a',
       content: `
-        export const getPaths = () => ([ 'path' ])
-        export const Page = () => 'page'
+        export const getStaticPaths = () => ([ 'path' ])
+        export const template = () => 'page'
       `
     })
 
@@ -61,15 +61,15 @@ export default async (test, assert) => {
       {
         url: 'b',
         content: `
-        export const getPaths = () => ([ 'path.json' ])
-        export const Page = (prop = '') => 'page' + prop
+        export const getStaticPaths = () => ([ 'path.json' ])
+        export const template = (prop = '') => 'page' + prop
       `
       },
       {
         url: 'overrides.config',
         content: `
         export const render = (page, context) => page(' rendered')
-        export const createDocument = (context) => context.body
+        export const createContent = (context) => context.body
       `
       }
     )
@@ -82,17 +82,17 @@ export default async (test, assert) => {
       {
         url: 'c',
         content: `
-        export const getPaths = () => ([ 'path.json' ])
-        export const Page = (prop = '') => 'page' + prop
+        export const getStaticPaths = () => ([ 'path.json' ])
+        export const template = (prop = '') => 'page' + prop
         export const render = (page, context) => page(' page rendered')
-        export const createDocument = (context) => context.body + ' cd'
+        export const createContent = (context) => context.body + ' cd'
       `
       },
       {
         url: 'overrides-page-level.config',
         content: `
         export const render = (page, context) => page(' rendered')
-        export const createDocument = (context) => context.body
+        export const createContent = (context) => context.body
       `
       }
     )
@@ -104,29 +104,29 @@ export default async (test, assert) => {
     await createPageFromSourceFile({
       url: 'syntax',
       content: `
-        export const getPaths = () => ([ 'path' ]
-        export const Page = () => 'page'
+        export const getStaticPaths = () => ([ 'path' ]
+        export const template = () => 'page'
       `
     })
 
     assert(getLogs().includes('SyntaxError'))
 
     await createPageFromSourceFile({
-      url: 'getPaths',
+      url: 'getStaticPaths',
       content: `
-        export const Page = () => 'page'
+        export const template = () => 'page'
       `
     })
 
-    assert(getLogs().includes('getPaths'))
+    assert(getLogs().includes('getStaticPaths'))
   })
 
   test('renderStaticEntries - render errors', async () => {
     await createPageFromSourceFile({
       url: 'renderError',
       content: `
-        export const getPaths = () => ([ 'path' ])
-        export const Page = () => 'page'
+        export const getStaticPaths = () => ([ 'path' ])
+        export const template = () => 'page'
         export const render = () => { throw 'render error' }
       `
     })
