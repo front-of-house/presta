@@ -49,7 +49,7 @@ export default async (test, assert) => {
       url: 'a',
       content: `
         export const getStaticPaths = () => ([ 'path' ])
-        export const Page = () => 'page'
+        export const template = () => 'page'
       `
     })
 
@@ -62,7 +62,7 @@ export default async (test, assert) => {
         url: 'b',
         content: `
         export const getStaticPaths = () => ([ 'path.json' ])
-        export const Page = (prop = '') => 'page' + prop
+        export const template = (prop = '') => 'page' + prop
       `
       },
       {
@@ -83,7 +83,7 @@ export default async (test, assert) => {
         url: 'c',
         content: `
         export const getStaticPaths = () => ([ 'path.json' ])
-        export const Page = (prop = '') => 'page' + prop
+        export const template = (prop = '') => 'page' + prop
         export const render = (page, context) => page(' page rendered')
         export const createContent = (context) => context.body + ' cd'
       `
@@ -105,7 +105,7 @@ export default async (test, assert) => {
       url: 'syntax',
       content: `
         export const getStaticPaths = () => ([ 'path' ]
-        export const Page = () => 'page'
+        export const template = () => 'page'
       `
     })
 
@@ -114,7 +114,7 @@ export default async (test, assert) => {
     await createPageFromSourceFile({
       url: 'getStaticPaths',
       content: `
-        export const Page = () => 'page'
+        export const template = () => 'page'
       `
     })
 
@@ -126,7 +126,7 @@ export default async (test, assert) => {
       url: 'renderError',
       content: `
         export const getStaticPaths = () => ([ 'path' ])
-        export const Page = () => 'page'
+        export const template = () => 'page'
         export const render = () => { throw 'render error' }
       `
     })

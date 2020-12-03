@@ -10,15 +10,15 @@ export default async function (test, assert) {
     const files = {
       A: {
         url: './getFiles/isStaticA.js',
-        content: `export function Page() {}`
+        content: `export function template() {}`
       },
       B: {
         url: './getFiles/isStaticB.js',
-        content: `export function getStaticPaths() {};export function Page() {}`
+        content: `export function getStaticPaths() {};export function template() {}`
       },
       C: {
         url: './getFiles/isStaticC.js',
-        content: `export const getStaticPaths = () => {};export function Page() {}`
+        content: `export const getStaticPaths = () => {};export function template() {}`
       }
     }
 
@@ -35,11 +35,11 @@ export default async function (test, assert) {
     const files = {
       A: {
         url: './getFiles/isStaticA.js',
-        content: `export function Page() {}`
+        content: `export function template() {}`
       },
       B: {
         url: './getFiles/isStaticB.js',
-        content: `export const route = '/';export function Page() {}`
+        content: `export const route = '/';export function template() {}`
       }
     }
 
@@ -55,15 +55,15 @@ export default async function (test, assert) {
     const files = {
       A: {
         url: './getFiles/A.js',
-        content: `export function Page() {}`
+        content: `export function template() {}`
       },
       B: {
         url: './getFiles/B.js',
-        content: `export const route = '/';export function getStaticPaths() {};export function Page() {}`
+        content: `export const route = '/';export function getStaticPaths() {};export function template() {}`
       },
       C: {
         url: './getFiles/C.js',
-        content: `export const getStaticPaths = () => {};export function Page() {}`
+        content: `export const getStaticPaths = () => {};export function template() {}`
       }
     }
 
