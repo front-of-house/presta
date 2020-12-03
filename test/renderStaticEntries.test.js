@@ -48,7 +48,7 @@ export default async (test, assert) => {
     const page = await createPageFromSourceFile({
       url: 'a',
       content: `
-        export const getPaths = () => ([ 'path' ])
+        export const getStaticPaths = () => ([ 'path' ])
         export const Page = () => 'page'
       `
     })
@@ -61,7 +61,7 @@ export default async (test, assert) => {
       {
         url: 'b',
         content: `
-        export const getPaths = () => ([ 'path.json' ])
+        export const getStaticPaths = () => ([ 'path.json' ])
         export const Page = (prop = '') => 'page' + prop
       `
       },
@@ -82,7 +82,7 @@ export default async (test, assert) => {
       {
         url: 'c',
         content: `
-        export const getPaths = () => ([ 'path.json' ])
+        export const getStaticPaths = () => ([ 'path.json' ])
         export const Page = (prop = '') => 'page' + prop
         export const render = (page, context) => page(' page rendered')
         export const createDocument = (context) => context.body + ' cd'
@@ -104,7 +104,7 @@ export default async (test, assert) => {
     await createPageFromSourceFile({
       url: 'syntax',
       content: `
-        export const getPaths = () => ([ 'path' ]
+        export const getStaticPaths = () => ([ 'path' ]
         export const Page = () => 'page'
       `
     })
@@ -112,20 +112,20 @@ export default async (test, assert) => {
     assert(getLogs().includes('SyntaxError'))
 
     await createPageFromSourceFile({
-      url: 'getPaths',
+      url: 'getStaticPaths',
       content: `
         export const Page = () => 'page'
       `
     })
 
-    assert(getLogs().includes('getPaths'))
+    assert(getLogs().includes('getStaticPaths'))
   })
 
   test('renderStaticEntries - render errors', async () => {
     await createPageFromSourceFile({
       url: 'renderError',
       content: `
-        export const getPaths = () => ([ 'path' ])
+        export const getStaticPaths = () => ([ 'path' ])
         export const Page = () => 'page'
         export const render = () => { throw 'render error' }
       `

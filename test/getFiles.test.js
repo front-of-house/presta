@@ -14,11 +14,11 @@ export default async function (test, assert) {
       },
       B: {
         url: './getFiles/isStaticB.js',
-        content: `export function getPaths() {};export function Page() {}`
+        content: `export function getStaticPaths() {};export function Page() {}`
       },
       C: {
         url: './getFiles/isStaticC.js',
-        content: `export const getPaths = () => {};export function Page() {}`
+        content: `export const getStaticPaths = () => {};export function Page() {}`
       }
     }
 
@@ -59,11 +59,11 @@ export default async function (test, assert) {
       },
       B: {
         url: './getFiles/B.js',
-        content: `export const route = '/';export function getPaths() {};export function Page() {}`
+        content: `export const route = '/';export function getStaticPaths() {};export function Page() {}`
       },
       C: {
         url: './getFiles/C.js',
-        content: `export const getPaths = () => {};export function Page() {}`
+        content: `export const getStaticPaths = () => {};export function Page() {}`
       }
     }
 
