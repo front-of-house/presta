@@ -52,6 +52,8 @@
     "ms": "^2.1.2",
     "p-queue": "^6.6.1",
     "pocket.io": "^0.1.4",
+    "query-string": "^6.13.7",
+    "query-strings": "0.0.1",
     "regexparam": "^1.3.0",
     "route-sort": "^1.0.0",
     "sade": "^1.7.3",
