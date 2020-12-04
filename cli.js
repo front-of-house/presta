@@ -1,20 +1,27 @@
 import fs from 'fs-extra'
 import c from 'ansi-colors'
 import sade from 'sade'
+import exit from 'exit'
 
 import pkg from './package.json'
 
 import { TMP_DIR, CONFIG_DEFAULT } from './lib/constants'
-import { safeConfigFilepath } from './lib/safeConfigFilepath'
-import { safeRequire } from './lib/safeRequire'
 import { log } from './lib/log'
-import { fileCache } from './lib/fileCache'
 import * as globalConfig from './lib/config'
 import { timer } from './lib/timer'
 import { watch } from './lib/watch'
 import { build } from './lib/build'
 
 import { serve } from './serve'
+
+function warnOnBadGlob (output) {
+  if (/\.(js|jsx|ts|tsx)$/.test(output)) {
+    const msg = `  Your specified output '${output}' looks like a file. Maybe you need surround your file glob with quotes?`
+    const issue = `  More info here: https://github.com/sure-thing/presta/issues/15`
+    log(`${c.yellow(`presta`)}\n\n${msg}\n\n${issue}\n`)
+    exit()
+  }
+}
 
 const prog = sade('presta')
 
@@ -38,6 +45,8 @@ prog
   .example(`build -c ${CONFIG_DEFAULT}`)
   .action(async (pages, output, opts) => {
     console.clear()
+
+    warnOnBadGlob(output)
 
     const time = timer()
 
@@ -67,6 +76,8 @@ prog
   .example(`watch -c ${CONFIG_DEFAULT}`)
   .action(async (pages, output, opts) => {
     console.clear()
+
+    warnOnBadGlob(output)
 
     const config = globalConfig.create({
       ...opts,
