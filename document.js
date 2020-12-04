@@ -1,22 +1,4 @@
-import merge from 'deepmerge'
-
 import { createHeadTags, createFootTags } from './lib/createHeadTags'
-
-const defaults = {
-  head: {
-    meta: [
-      { charset: 'UTF-8' },
-      { name: 'viewport', content: 'width=device-width,initial-scale=1' }
-    ],
-    link: [
-      {
-        rel: 'icon',
-        type: 'image/svg+xml',
-        href: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' style='color: white'><text x='0' y='14'>◊</text></svg>`
-      }
-    ]
-  }
-}
 
 export function document ({
   body,
@@ -25,7 +7,24 @@ export function document ({
   htmlAttributes = {},
   bodyAttributes = {}
 }) {
-  const headTags = createHeadTags(merge(defaults.head, head))
+  if (!head.link.find(m => m.rel === 'icon')) {
+    head.link.push({
+      rel: 'icon',
+      type: 'image/svg+xml',
+      href: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' style='color: white'><text x='0' y='14'>◊</text></svg>`
+    })
+  }
+  if (!head.meta.find(m => !!m.charset)) {
+    head.meta.push({ charset: 'UTF-8' })
+  }
+  if (!head.meta.find(m => m.name === 'viewport')) {
+    head.meta.push({
+      name: 'viewport',
+      content: 'width=device-width,initial-scale=1'
+    })
+  }
+
+  const headTags = createHeadTags(head)
   const footTags = createFootTags(foot)
   const htmlAttr = Object.keys(htmlAttributes).reduce((attr, key) => {
     return (attr += `${key}="${htmlAttributes[key]}"`)
