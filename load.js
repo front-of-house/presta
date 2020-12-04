@@ -156,7 +156,7 @@ export async function render (
     }
   }
 
-  const body = renderer(component, context)
+  const content = renderer(component, context)
 
   if (!!requests.size) {
     await Promise.allSettled(Array.from(requests.values()))
@@ -174,11 +174,10 @@ export async function render (
   return {
     ...context,
     head: internals.headCache,
-    body: body + (context.body || ''),
+    content: content,
     data: {
       ...memoryCache,
-      ...fileCache.all(),
-      ...(context.data || {})
+      ...fileCache.all()
     }
   }
 }

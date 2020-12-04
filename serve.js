@@ -14,6 +14,7 @@ import * as events from './lib/events'
 import { debug } from './lib/debug'
 import { timer } from './lib/timer'
 import { log, formatLog } from './lib/log'
+import { devServerIcon } from './lib/devServerIcon'
 
 const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
 
@@ -65,7 +66,7 @@ export async function serve (config, { noBanner }) {
             })
 
             res.writeHead(404, defaultHeaders)
-            res.write(default404 + devClient)
+            res.write(default404 + devClient + devServerIcon)
             res.end()
           })
         })
@@ -76,7 +77,8 @@ export async function serve (config, { noBanner }) {
          * Try to resolve a static route normally
          */
         try {
-          const file = resolveHTML(staticDir, req.url) + devClient
+          const file =
+            resolveHTML(staticDir, req.url) + devClient + devServerIcon
 
           res.writeHead(200, defaultHeaders)
           res.write(file)
@@ -159,7 +161,7 @@ export async function serve (config, { noBanner }) {
               ...response.headers
             })
 
-            res.end(response.body + devClient)
+            res.end(response.body + devClient + devServerIcon)
 
             formatLog({
               color: ok ? 'blue' : 'magenta',
@@ -174,7 +176,8 @@ export async function serve (config, { noBanner }) {
              * Try to fall back to a static 404 page
              */
             try {
-              const file = resolveHTML(staticDir, '404') + devClient
+              const file =
+                resolveHTML(staticDir, '404') + devClient + devServerIcon
 
               formatLog({
                 color: 'magenta',
@@ -204,7 +207,7 @@ export async function serve (config, { noBanner }) {
               })
 
               res.writeHead(404, defaultHeaders)
-              res.write(default404 + devClient)
+              res.write(default404 + devClient + devServerIcon)
               res.end()
             }
           }
