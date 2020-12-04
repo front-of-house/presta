@@ -28,10 +28,10 @@ export function document ({
   const headTags = createHeadTags(merge(defaults.head, head))
   const footTags = createFootTags(foot)
   const htmlAttr = Object.keys(htmlAttributes).reduce((attr, key) => {
-    return (attr += htmlAttributes[key])
+    return (attr += `${key}="${htmlAttributes[key]}"`)
   }, '')
   const bodyAttr = Object.keys(bodyAttributes).reduce((attr, key) => {
-    return (attr += bodyAttributes[key])
+    return (attr += `${key}="${bodyAttributes[key]}"`)
   }, '')
 
   return `<!-- built with presta https://npm.im/presta --><!DOCTYPE html><html ${htmlAttr}><head>${headTags}</head><body ${bodyAttr}>${body}${footTags}</body></html>`

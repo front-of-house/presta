@@ -44,8 +44,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { body } = await render(comp, {})
-    const json = JSON.parse(body)
+    const { content } = await render(comp, {})
+    const json = JSON.parse(content)
 
     assert(json.a)
     assert(loads === 1)
@@ -61,8 +61,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { body } = await render(comp, { children: comp })
-    const json = JSON.parse(body)
+    const { content } = await render(comp, { children: comp })
+    const json = JSON.parse(content)
 
     assert(json.b)
 
@@ -87,8 +87,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { body } = await render(c, { children: d })
-    const json = JSON.parse(body)
+    const { content } = await render(c, { children: d })
+    const json = JSON.parse(content)
 
     assert(json.c)
     assert(json.children)
@@ -110,8 +110,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { body } = await render(comp, { children: comp })
-    const json = JSON.parse(body)
+    const { content } = await render(comp, { children: comp })
+    const json = JSON.parse(content)
 
     assert(json.disk)
     assert(loads === 1)
@@ -179,8 +179,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { body } = await render(comp, { children: comp })
-    const json = JSON.parse(body)
+    const { content } = await render(comp, { children: comp })
+    const json = JSON.parse(content)
 
     assert(json.memory)
     assert(loads === 0)
@@ -201,8 +201,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { body } = await render(comp, { children: comp })
-    const json = JSON.parse(body)
+    const { content } = await render(comp, { children: comp })
+    const json = JSON.parse(content)
 
     assert(json.disk)
     assert(loads === 0)

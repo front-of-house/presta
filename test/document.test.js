@@ -10,26 +10,26 @@ export default async (test, assert) => {
     })
 
     assert(/<title>original<\/title>/.test(doc))
-    assert(/<body>original/.test(doc))
+    assert(/<body.+original/.test(doc))
   })
 
-  test('document - merges contexts correctly', async () => {
-    const doc = document(
-      {
-        body: 'original',
-        head: {
-          title: 'original'
-        }
+  test('document - attributes work', async () => {
+    const doc = document({
+      body: 'original',
+      head: {
+        title: 'original'
       },
-      {
-        body: '<div id="root">original</div>',
-        head: {
-          title: 'override'
-        }
+      bodyAttributes: {
+        class: 'foo'
+      },
+      htmlAttributes: {
+        lang: 'en'
       }
-    )
+    })
 
-    assert(/<title>override<\/title>/.test(doc))
-    assert(/<div id="root">original<\/div>/.test(doc))
+    assert(/<title>original<\/title>/.test(doc))
+    assert(/<body.+original/.test(doc))
+    assert(/<body.+class="foo"/.test(doc))
+    assert(/<html lang="en"/.test(doc))
   })
 }
