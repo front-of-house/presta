@@ -83,4 +83,13 @@ export default async function (test, assert) {
     assert(/og:image/.test(head))
     assert(/twitter:image/.test(head))
   })
+
+  test('url shorthand', async () => {
+    const head = createHeadTags({
+      url: 'foo'
+    })
+
+    assert(/og:url/.test(head))
+    assert(/twitter:url/.test(head))
+  })
 }
