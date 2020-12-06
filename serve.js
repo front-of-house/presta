@@ -94,60 +94,88 @@ export async function serve (config, { noBanner }) {
             console.error(e)
           }
 
-          debug('serve', `attempt to serve dynamic page ${req.url}`)
-
+          // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L208
+          const remoteAddress =
+            req.headers['x-forwarded-for'] || req.connection.remoteAddress
+          const ip = remoteAddress
+            .split(remoteAddress.includes('.') ? ':' : ',')
+            .pop()
+            .trim()
+          const isBase64Encoded = shouldBase64Encode(
+            req.headers['content-type']
+          )
+          const event = {
+            path: req.url,
+            httpMethod: req.method,
+            headers: {
+              ...req.headers,
+              'client-ip': ip
+            },
+            multiValueHeaders: Object.keys(req.headers).reduce(
+              (headers, key) => {
+                if (!req.headers[key].includes(',')) return headers // only include multi-value headers here
+                return {
+                  ...headers,
+                  [key]: req.headers[key].split(',')
+                }
+              },
+              {}
+            ),
+            queryStringParameters: parseQuery(parseUrl(req.url).query),
+            multiValueQueryStringParameters: {},
+            body: req.headers['content-length']
+              ? req.body.toString(isBase64Encoded ? 'base64' : 'utf8')
+              : undefined,
+            isBase64Encoded
+          }
+          const context = {}
           const time = timer()
 
           /*
            * Fall back to serverless dynamic rendering
            */
-          const { router, handler } = require(path.join(
+          const { router, handler, config: userConfig } = require(path.join(
             config.output,
             OUTPUT_DYNAMIC_PAGES_ENTRY
           ))
+
+          /*
+           * Hit user config onRequest first no matter what
+           */
+          if (userConfig.onRequest) {
+            debug('serve', `process userConfig.onRequest`)
+
+            const response = userConfig.onRequest(event, context)
+
+            if (response) {
+              // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L73
+              for (const key in response.multiValueHeaders) {
+                res.setHeader(key, response.multiValueHeaders[key])
+              }
+
+              res.writeHead(response.statusCode, {
+                ...defaultHeaders,
+                ...response.headers
+              })
+              res.write(response.body + devClient + devServerIcon)
+              res.end()
+
+              return
+            }
+          }
+
+          debug('serve', `attempt to serve dynamic page ${req.url}`)
+
+          /*
+           * Try to match a route
+           */
           const match = router(req.url)
 
           /*
            * If route match, render route
            */
           if (match) {
-            // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L208
-            const remoteAddress =
-              req.headers['x-forwarded-for'] || req.connection.remoteAddress
-            const ip = remoteAddress
-              .split(remoteAddress.includes('.') ? ':' : ',')
-              .pop()
-              .trim()
-            const isBase64Encoded = shouldBase64Encode(
-              req.headers['content-type']
-            )
-            const response = await handler(
-              {
-                path: req.url,
-                httpMethod: req.method,
-                headers: {
-                  ...req.headers,
-                  'client-ip': ip
-                },
-                multiValueHeaders: Object.keys(req.headers).reduce(
-                  (headers, key) => {
-                    if (!req.headers[key].includes(',')) return headers // only include multi-value headers here
-                    return {
-                      ...headers,
-                      [key]: req.headers[key].split(',')
-                    }
-                  },
-                  {}
-                ),
-                queryStringParameters: parseQuery(parseUrl(req.url).query),
-                multiValueQueryStringParameters: {},
-                body: req.headers['content-length']
-                  ? req.body.toString(isBase64Encoded ? 'base64' : 'utf8')
-                  : undefined,
-                isBase64Encoded
-              },
-              {}
-            )
+            const response = await handler(event, context)
 
             const ok = response.statusCode < 299
 
@@ -160,8 +188,8 @@ export async function serve (config, { noBanner }) {
               ...defaultHeaders,
               ...response.headers
             })
-
-            res.end(response.body + devClient + devServerIcon)
+            res.write(response.body + devClient + devServerIcon)
+            res.end()
 
             formatLog({
               color: ok ? 'blue' : 'magenta',
@@ -227,7 +255,7 @@ export async function serve (config, { noBanner }) {
     socket.emit('refresh', route)
   })
 
-  chokidar.watch(config.assets, { ignoreInitial: true }).on('all', () => {
+  chokidar.watch(assetDir, { ignoreInitial: true }).on('all', () => {
     socket.emit('refresh')
   })
 
