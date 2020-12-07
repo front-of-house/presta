@@ -1,11 +1,10 @@
-import fs from 'fs-extra'
 import c from 'ansi-colors'
 import sade from 'sade'
 import exit from 'exit'
 
 import pkg from './package.json'
 
-import { TMP_DIR, CONFIG_DEFAULT } from './lib/constants'
+import { CONFIG_DEFAULT } from './lib/constants'
 import { log } from './lib/log'
 import * as globalConfig from './lib/config'
 import { timer } from './lib/timer'
@@ -30,9 +29,6 @@ prog
   .option('--config, -c', 'Path to a config file.', './' + CONFIG_DEFAULT)
   .option('--assets, -a', 'Specify static asset directory.', './public')
   .option('--jsx', 'Specify a JSX pragma.', 'h')
-
-// just make sure it's there
-fs.ensureDirSync(TMP_DIR)
 
 prog
   .command(
