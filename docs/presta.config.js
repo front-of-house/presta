@@ -18,7 +18,7 @@ export function createContent (ctx) {
       og: {
         site_name: name,
         image,
-        url: `https://sure-thing.net${ctx.pathname}`
+        url: `https://sure-thing.net${ctx.path}`
       },
       twitter: {
         site_name: name,
