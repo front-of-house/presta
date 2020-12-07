@@ -39,14 +39,3 @@ export function createContent (ctx) {
     }
   })
 }
-
-export function onRequest (event) {
-  if (event.path === '/docs') {
-    return {
-      statusCode: 302,
-      headers: {
-        Location: '/docs/overview'
-      }
-    }
-  }
-}

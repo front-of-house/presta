@@ -1,0 +1,7 @@
+[build]
+  publish = "./build/static"
+
+[[redirects]]
+  from = "/docs"
+  to = "/docs/overview"
+  status = 302
