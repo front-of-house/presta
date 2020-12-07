@@ -1,6 +1,6 @@
 {
   "name": "presta",
-  "version": "0.20.1",
+  "version": "0.21.0",
   "description": "The simple way to build the modern web.",
   "main": "presta.js",
   "bin": {
