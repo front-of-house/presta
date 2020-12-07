@@ -7,6 +7,7 @@ export function document ({
   htmlAttributes = {},
   bodyAttributes = {}
 }) {
+  // insert favicon during dev, if not otherwise specified
   if (head.link && !head.link.find(m => m.rel === 'icon')) {
     head.link.push({
       rel: 'icon',
@@ -14,6 +15,8 @@ export function document ({
       href: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' style='color: white'><text x='0' y='14'>◊</text></svg>`
     })
   }
+
+  // insert default charset and viewport, if not otherwise specified
   if (head.meta) {
     if (!head.meta.find(m => !!m.charset)) {
       head.meta.push({ charset: 'UTF-8' })
@@ -29,11 +32,11 @@ export function document ({
   const headTags = createHeadTags(head)
   const footTags = createFootTags(foot)
   const htmlAttr = Object.keys(htmlAttributes).reduce((attr, key) => {
-    return (attr += `${key}="${htmlAttributes[key]}"`)
+    return (attr += ` ${key}="${htmlAttributes[key]}"`)
   }, '')
   const bodyAttr = Object.keys(bodyAttributes).reduce((attr, key) => {
-    return (attr += `${key}="${bodyAttributes[key]}"`)
+    return (attr += ` ${key}="${bodyAttributes[key]}"`)
   }, '')
 
-  return `<!-- built with presta https://npm.im/presta --><!DOCTYPE html><html ${htmlAttr}><head>${headTags}</head><body ${bodyAttr}>${body}${footTags}</body></html>`
+  return `<!-- built with presta https://npm.im/presta --><!DOCTYPE html><html${htmlAttr}><head>${headTags}</head><body${bodyAttr}>${body}${footTags}</body></html>`
 }
