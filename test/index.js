@@ -28,7 +28,7 @@ require('./createEntries.test').default(test, assert)
 require('./pathnameToHtmlFile.test').default(test, assert)
 require('./head.test').default(test, assert)
 require('./document.test').default(test, assert)
-require('./renderStaticEntries.test').default(test, assert)
+// require('./renderStaticEntries.test').default(test, assert)
 require('./build.test').default(test, assert)
 
 !(async function () {
