@@ -1,6 +1,6 @@
-import c from 'ansi-colors'
 import sade from 'sade'
 import exit from 'exit'
+import c from 'ansi-colors'
 
 import pkg from './package.json'
 
@@ -66,7 +66,7 @@ prog
 prog
   .command('watch [pages] [output]')
   .option('--no-serve, -n', `Don't serve output directory`, false)
-  .describe('Watch and build a glob of pages to an output directory.')
+  .describe('Watch and build page(s) to output directory')
   .example(`watch`)
   .example(`watch pages/**/*.js build`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
