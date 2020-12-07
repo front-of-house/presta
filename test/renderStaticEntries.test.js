@@ -53,7 +53,7 @@ export default async (test, assert) => {
       `
     })
 
-    assert(page.includes('<body>page</body>'))
+    assert(page.includes('page</body>'))
   })
 
   test('renderStaticEntries - user config overrides', async () => {
