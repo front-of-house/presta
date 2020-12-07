@@ -1,5 +1,4 @@
-.presta
-/demo
 /fixtures
 /test/fixtures
-/site/build
+/docs/.presta
+/docs/build
