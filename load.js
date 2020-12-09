@@ -91,7 +91,7 @@ export async function cache (loading, options) {
 
 export function load (loader, options = {}) {
   const { key, duration } = options
-  const cacheToFile = !!duration
+  const cacheToFile = !!duration && process.env.PRESTA_ENV === 'development'
 
   assert(!!key, 'presta/load cache expects a key')
 

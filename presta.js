@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+process.env.PRESTA_ENV = 'development'
+
 require = require('esm')(module)
 
 const path = require('path')
