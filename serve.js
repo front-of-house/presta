@@ -15,17 +15,10 @@ import { debug } from './lib/debug'
 import { timer } from './lib/timer'
 import { log, formatLog } from './lib/log'
 import { devServerIcon } from './lib/devServerIcon'
+import { default404 } from './lib/default404'
+import { defaultResponseHeaders } from './lib/defaultResponseHeaders'
 
 const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
-
-const default404 = fs.readFileSync(
-  path.join(__dirname, './lib/404.html'),
-  'utf8'
-)
-
-const defaultHeaders = {
-  'content-type': 'text/html; charset=utf-8'
-}
 
 // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
 function shouldBase64Encode (contentType) {
@@ -65,7 +58,7 @@ export async function serve (config, { noBanner }) {
               description: req.url
             })
 
-            res.writeHead(404, defaultHeaders)
+            res.writeHead(404, defaultResponseHeaders)
             res.write(default404 + devClient + devServerIcon)
             res.end()
           })
@@ -80,7 +73,7 @@ export async function serve (config, { noBanner }) {
           const file =
             resolveHTML(staticDir, req.url) + devClient + devServerIcon
 
-          res.writeHead(200, defaultHeaders)
+          res.writeHead(200, defaultResponseHeaders)
           res.write(file)
           res.end()
 
@@ -155,7 +148,7 @@ export async function serve (config, { noBanner }) {
             }
 
             res.writeHead(response.statusCode, {
-              ...defaultHeaders,
+              ...defaultResponseHeaders,
               ...response.headers
             })
             res.write(response.body + devClient + devServerIcon)
@@ -184,7 +177,7 @@ export async function serve (config, { noBanner }) {
                 description: req.url
               })
 
-              res.writeHead(404, defaultHeaders)
+              res.writeHead(404, defaultResponseHeaders)
               res.write(file)
               res.end()
             } catch (e) {
@@ -204,7 +197,7 @@ export async function serve (config, { noBanner }) {
                 description: req.url
               })
 
-              res.writeHead(404, defaultHeaders)
+              res.writeHead(404, defaultResponseHeaders)
               res.write(default404 + devClient + devServerIcon)
               res.end()
             }
