@@ -1,6 +1,6 @@
 ![presta](https://user-images.githubusercontent.com/4732330/96394098-cdbdf400-1186-11eb-8930-21748099a039.png)
 
-### The hyper minimal web framework for developers.
+### Hyper minimal framework for the modern web.
 
 > `presta` is in active beta. Questions, comments, ideas? Open an issue or PR!
 
@@ -13,7 +13,7 @@ Use any JS templating language (yes, React) and bring your own directory structu
 - 0kb runtime\*
 - Runs ES modules natively in Node with no pre-compilation
 - Generate any file format. Seriously. Easily nest microsites.
-- Go read the source (and contribute!): atm it's only about 700 loc.
+- Go read the source (and contribute!): atm it's only about 1200 loc.
 - Get started in seconds, right from the command line. Scale to thousands of pages.
 - There's no magic, only strings. Bring back the document web.
 

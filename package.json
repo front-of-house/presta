@@ -1,7 +1,7 @@
 {
   "name": "presta",
   "version": "0.21.1",
-  "description": "The simple way to build the modern web.",
+  "description": "Hyper minimal framework for the modern web.",
   "main": "presta.js",
   "bin": {
     "presta": "presta.js"
@@ -11,7 +11,7 @@
     "test:watch": "NODE_ENV=test nodemon --ignore fixtures/ -r esm test",
     "format": "prettier-standard --format",
     "lint": "prettier-standard --lint",
-    "cloc": "npx cloc lib/*.js cli.js presta.js document.js index.js load.js render.js serve.js router.js"
+    "cloc": "npx cloc lib/*.js utils/*.js cli.js presta.js document.js load.js serve.js router.js"
   },
   "husky": {
     "hooks": {
