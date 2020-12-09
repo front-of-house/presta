@@ -2,6 +2,7 @@ console.time('test')
 
 const path = require('path')
 
+// proxy self back to self
 require('module-alias').addAliases({
   'presta/load': path.join(__dirname, '../load'),
   'presta/document': path.join(__dirname, '../document'),
@@ -31,6 +32,7 @@ require('./document.test').default(test, assert)
 // require('./renderStaticEntries.test').default(test, assert)
 require('./build.test').default(test, assert)
 require('./router.test').default(test, assert)
+require('./defaultCreateContent.test').default(test, assert)
 
 !(async function () {
   await test.run()
