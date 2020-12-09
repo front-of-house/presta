@@ -32,6 +32,7 @@ require('./document.test').default(test, assert)
 // require('./renderStaticEntries.test').default(test, assert)
 require('./build.test').default(test, assert)
 require('./router.test').default(test, assert)
+require('./getRouteParams.test').default(test, assert)
 require('./defaultCreateContent.test').default(test, assert)
 
 !(async function () {
