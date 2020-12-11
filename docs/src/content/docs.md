@@ -25,7 +25,6 @@
 - [Roadmap](#roadmap)
 
 <br />
-<br />
 
 Presta is an alternative to all-in-one web frameworks. You can use Presta to
 render a single file, or many. You can integrate it as a small part of existing

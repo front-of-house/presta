@@ -123,6 +123,22 @@ h6 {
   line-height: 24px;
   font-weight: bold;
 }
+.wysiwyg h1 a,
+.wysiwyg h2 a,
+.wysiwyg h3 a,
+.wysiwyg h4 a,
+.wysiwyg h5 a,
+.wysiwyg h6 a {
+  opacity: 0;
+}
+.wysiwyg h1:hover a,
+.wysiwyg h2:hover a,
+.wysiwyg h3:hover a,
+.wysiwyg h4:hover a,
+.wysiwyg h5:hover a,
+.wysiwyg h6:hover a {
+  opacity: 1;
+}
 pre,
 code {
   font-family: 'Roboto Mono', monospace;
