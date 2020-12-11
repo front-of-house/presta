@@ -25,7 +25,7 @@
     "@babel/core": "^7.11.6",
     "@babel/preset-react": "^7.10.4",
     "babel-loader": "^8.1.0",
-    "presta": "^0.21.3",
+    "presta": "^0.21.4",
     "prettier-standard": "^16.4.1",
     "webpack-cli": "^3.3.12"
   }
