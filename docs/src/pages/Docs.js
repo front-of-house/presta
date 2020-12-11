@@ -10,17 +10,6 @@ import { Github } from '@/src/icons/Github'
 import { Markdown } from '@/src/components/Markdown'
 import { Logo } from '@/src/components/Logo'
 
-const orderedDocs = [
-  { slug: 'overview' },
-  { slug: 'getting-started' },
-  { slug: 'configuration' },
-  { slug: 'pages' },
-  { slug: 'development' },
-  { slug: 'data-loading' },
-  { slug: 'templating' },
-  { slug: 'roadmap' }
-]
-
 export async function getStaticPaths () {
   return ['/docs']
 }
@@ -32,9 +21,8 @@ export function template (context) {
   )
 
   context.head({
-    title: title(['Docs', 'Presta']),
-    description: 'Docs',
-    image: ''
+    title: title(['Documentation', 'Presta']),
+    description: 'Hyper minimal framework for the modern web.'
   })
 
   return (

@@ -16,8 +16,7 @@ export function getStaticPaths () {
 export function template ({ head }) {
   head({
     title: title('Presta'),
-    description: 'Hyper minimal web framework for the modern web.',
-    image: ''
+    description: 'Hyper minimal framework for the modern web.'
   })
 
   return (
@@ -51,7 +50,7 @@ export function template ({ head }) {
           <Box pt={80} pb={[8, 8, 12]}>
             <Box f aic jcb fw>
               <Box as='h2' fs={2} w={[1, 1, 3 / 5]}>
-                Hyper minimal web framework for the modern web.
+                Hyper minimal framework for the modern web.
               </Box>
 
               <Box w={[1, 1, 2 / 5]} pt={[8, 8, 0]} pl={[0, 0, 8]}>
