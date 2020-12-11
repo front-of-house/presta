@@ -1,30 +1,23 @@
-import path from 'path'
 import { h } from 'hyposcript'
 import { Box } from 'hypobox'
 
 import { title } from '@/src/lib/title'
-import { getFiles } from '@/src/lib/getFiles'
 
 import { Gutter } from '@/src/components/Gutter'
 import { Alert } from '@/src/components/Alert'
 import { Github } from '@/src/icons/Github'
 import { Button } from '@/src/components/Button'
-import { SectionButton } from '@/src/components/SectionButton'
+import { Logo } from '@/src/components/Logo'
 
 export function getStaticPaths () {
   return ['/']
 }
 
 export function template ({ head }) {
-  const firstDoc = getFiles(
-    path.resolve(__dirname, '../content/docs/*.md')
-  ).find(doc => doc.slug === 'overview')
-
   head({
     title: title('Presta'),
-    description: 'The hyper minimal web framework for developers.',
-    image: '',
-    link: [{ rel: 'icon', type: 'image/png', href: '/presta-favicon.png' }]
+    description: 'Hyper minimal web framework for the modern web.',
+    image: ''
   })
 
   return (
@@ -32,9 +25,7 @@ export function template ({ head }) {
       <Gutter withVertical>
         <Box mx='auto' mw='1100px'>
           <Box f aic jcb>
-            <Box as='h1' c='b'>
-              <Box as='img' src='/presta-mark.png' w='40px' />
-            </Box>
+            <Logo />
 
             <Box as='ul' f aic>
               <Box as='li' db>
@@ -60,21 +51,21 @@ export function template ({ head }) {
           <Box pt={80} pb={[8, 8, 12]}>
             <Box f aic jcb fw>
               <Box as='h2' fs={2} w={[1, 1, 3 / 5]}>
-                The hyper minimal web framework for developers.
+                Hyper minimal web framework for the modern web.
               </Box>
 
               <Box w={[1, 1, 2 / 5]} pt={[8, 8, 0]} pl={[0, 0, 8]}>
                 <Box
                   c='white'
-                  bg='d'
+                  bg='dark'
                   p={6}
                   pt={6}
                   pb={7}
                   ff='mono'
                   fs={6}
                   css={{
-                    borderRadius: '6px',
-                    boxShadow: 'var(--shadow)'
+                    boxShadow: 'var(--shadow)',
+                    borderRadius: '6px'
                   }}
                 >
                   <Box f aic mb={4}>
@@ -114,7 +105,7 @@ export function template ({ head }) {
 
           <Alert>
             <Box f aic fw jcb>
-              <Box w={[1, 1, 'auto']} c='d'>
+              <Box w={[1, 1, 'auto']} c='dark'>
                 Presta is in active beta. Questions, comments, ideas? Open an
                 issue or PR!
               </Box>
@@ -151,7 +142,7 @@ export function template ({ head }) {
             {[
               {
                 title: `0kb runtime*`,
-                description: `*There is no runtime. Pulled a sneaky on ya.`
+                description: `*There is no runtime. Pulled a sneaky on ya. But don't worry, you can bring your own.`
               },
               {
                 title: `Fast`,
@@ -163,7 +154,7 @@ export function template ({ head }) {
               },
               {
                 title: `Familiar`,
-                description: `Go read the source (and contribute!): atm it's only about 700 loc.`
+                description: `Go read the source (and contribute!): atm it's only about 1300 loc.`
               },
               {
                 title: `Easy`,
@@ -174,10 +165,10 @@ export function template ({ head }) {
                 description: `There's no magic, only strings. Bring back the document web.`
               }
             ].map(f => (
-              <Box as='li' db p={1} w={[1, 1 / 2, 1 / 3]}>
-                <Box h='100%' bg='dAlpha' css={{ borderRadius: '6px' }}>
-                  <Box p={5}>
-                    <Box as='h5' mb={3} c='b'>
+              <Box as='li' db p={1} w={[1, 1 / 2, 1 / 3]} mb={5}>
+                <Box h='100%' css={{ borderLeft: '4px solid var(--pink)' }}>
+                  <Box px={5} py={1}>
+                    <Box as='h5' mb={3}>
                       {f.title}
                     </Box>
                     <Box as='p' fs={6}>
@@ -187,16 +178,6 @@ export function template ({ head }) {
                 </Box>
               </Box>
             ))}
-          </Box>
-
-          <Box f aic jce pt={12}>
-            <SectionButton
-              right
-              as='a'
-              href={`/docs/${firstDoc.slug}`}
-              title={firstDoc.linkTitle}
-              description={firstDoc.linkDescription}
-            />
           </Box>
         </Box>
       </Gutter>

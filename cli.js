@@ -52,7 +52,7 @@ prog
       output
     })
 
-    log(`${c.blue('◊ presta build')}\n`)
+    log(`${c.blue('~ presta build')}\n`)
 
     await build(config)
 
@@ -85,12 +85,12 @@ prog
       const server = await serve(config, { noBanner: true })
 
       log(
-        `${c.blue('◊ presta watch')}${
+        `${c.blue('~ presta watch')}${
           !opts.n ? ` – http://localhost:${server.port}` : ''
         }\n`
       )
     } else {
-      log(`${c.blue('◊ presta watch')}\n`)
+      log(`${c.blue('~ presta watch')}\n`)
     }
 
     watch(config)

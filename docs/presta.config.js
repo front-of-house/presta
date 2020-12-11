@@ -28,7 +28,7 @@ export function createContent (ctx) {
       },
       meta: [{ name: 'author', content: '@estrattonbailey' }],
       link: [
-        { rel: 'icon', type: 'image/png', href: '/presta-favicon.png' },
+        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
         { rel: 'stylesheet', href: '/style.css' }
       ],
       style: [{ id: 'style', children: getCss() }]

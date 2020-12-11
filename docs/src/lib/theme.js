@@ -1,11 +1,12 @@
 export const theme = {
   space: [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64],
   color: {
-    d: 'var(--d)',
-    dAlpha: 'var(--dAlpha)',
-    dLight: 'var(--dLight)',
-    b: 'blue',
-    y: 'var(--yellow)'
+    dark: 'var(--dark)',
+    light: 'var(--light)',
+    blue: 'var(--blue)',
+    pink: 'var(--pink)',
+    green: 'var(--green)',
+    yellow: 'var(--yellow)'
   },
   width: {
     s: '400px',

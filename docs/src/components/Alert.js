@@ -11,10 +11,13 @@ export function Alert ({ children, ...rest }) {
         fw
         aic
         c='b'
-        bg='white'
         px={6}
         py={6}
-        css={{ borderRadius: '6px', boxShadow: 'var(--shadow)' }}
+        css={{
+          border: '2px solid var(--dark)',
+          borderRadius: '6px',
+          boxShadow: 'var(--shadow)'
+        }}
       >
         <Box w={[1, 32]} h='24'>
           <Info w={32} h={32} />

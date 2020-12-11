@@ -8,7 +8,7 @@ export function Button ({ children, ...props }) {
       py={2}
       px={4}
       c='b'
-      bg='transparent'
+      bg='pink'
       fs={6}
       fe={4}
       css={{
