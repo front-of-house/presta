@@ -1,4 +1,4 @@
-![presta](https://user-images.githubusercontent.com/4732330/96394098-cdbdf400-1186-11eb-8930-21748099a039.png)
+<img alt="~ Presta" src="https://user-images.githubusercontent.com/4732330/101865148-1c5e8d80-3b3b-11eb-99d8-1ebe02b47b10.png" width="50px" />
 
 ### Hyper minimal framework for the modern web.
 
@@ -13,7 +13,7 @@ Use any JS templating language (yes, React) and bring your own directory structu
 - 0kb runtime\*
 - Runs ES modules natively in Node with no pre-compilation
 - Generate any file format. Seriously. Easily nest microsites.
-- Go read the source (and contribute!): atm it's only about 1200 loc.
+- Go read the source (and contribute!): atm it's only about 1300 loc.
 - Get started in seconds, right from the command line. Scale to thousands of pages.
 - There's no magic, only strings. Bring back the document web.
 
@@ -39,4 +39,4 @@ Head over to [the docs site](https://sure-thing.net/presta) to get started.
 
 ### License
 
-MIT License © [Eric Bailey](https://estrattonbailey.com)
+MIT License © [Sure Thing](https://github.com/sure-thing)
