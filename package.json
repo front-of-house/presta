@@ -1,6 +1,6 @@
 {
   "name": "presta",
-  "version": "0.21.3",
+  "version": "0.21.4",
   "description": "Hyper minimal framework for the modern web.",
   "main": "presta.js",
   "bin": {
