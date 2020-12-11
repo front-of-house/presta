@@ -10,12 +10,12 @@
     "test": "NODE_ENV=test node -r esm test",
     "test:watch": "NODE_ENV=test nodemon --ignore fixtures/ -r esm test",
     "format": "prettier-standard --format",
-    "lint": "prettier-standard --lint",
     "cloc": "npx cloc lib/*.js utils/*.js cli.js presta.js document.js load.js serve.js router.js"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "prettier-standard --format --staged && npm run test"
+      "pre-commit": "prettier-standard --format --staged && npm run test",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
     }
   },
   "repository": {
@@ -63,8 +63,11 @@
   },
   "devDependencies": {
     "baretest": "^2.0.0",
+    "commitizen": "^4.2.2",
+    "cz-conventional-changelog": "^3.3.0",
     "husky": "^4.3.0",
     "nodemon": "^2.0.4",
-    "prettier-standard": "^16.4.1"
+    "prettier-standard": "^16.4.1",
+    "semantic-release": "^17.3.0"
   }
 }
