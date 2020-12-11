@@ -70,15 +70,22 @@ h6 {
   margin-bottom: 16px;
 }
 .wysiwyg ul {
+  font-size: inherit;
   margin: 16px 0;
   list-style: disc outside;
   padding-left: 16px;
+  line-height: 1.5;
 }
 .wysiwyg li {
   margin-bottom: 8px;
 }
 .wysiwyg li:last-child {
   margin-bottom: 0;
+}
+.wysiwyg ul ul {
+  margin: 8px 0;
+  list-style: disc outside;
+  padding-left: 24px;
 }
 .wysiwyg h1,
 .wysiwyg h2,
