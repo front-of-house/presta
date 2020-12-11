@@ -4,11 +4,9 @@ import { h } from 'hyposcript'
 import { Box } from 'hypobox'
 
 import { title } from '@/src/lib/title'
-import { getFiles } from '@/src/lib/getFiles'
 
 import { Gutter } from '@/src/components/Gutter'
 import { Github } from '@/src/icons/Github'
-import { SectionButton } from '@/src/components/SectionButton'
 import { Markdown } from '@/src/components/Markdown'
 import { Logo } from '@/src/components/Logo'
 

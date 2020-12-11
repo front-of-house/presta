@@ -21,6 +21,8 @@
 - [Utilities](#utilities)
   - [presta/document](#prestadocument)
   - [presta/utils/merge](#prestautilsmerge)
+- [Examples](#examples)
+- [Roadmap](#roadmap)
 
 <br />
 <br />
@@ -585,7 +587,30 @@ export function template () {
 }
 ```
 
-## Recipes: coming soon!
+## Examples
 
-Looking for a specific stack? [Drop us a
-line.](https://github.com/sure-thing/presta/issues/new/choose)
+Check out our [repo of examples](https://github.com/sure-thing/presta-examples).
+If you'd like a different example, shoot us a PR or [open a new
+issue](https://github.com/sure-thing/presta-examples/issues/new/choose) there.
+
+## Roadmap
+
+> Presta is in active development, but still in the early stages. If you've got
+> ideas or suggestions for where it should go, [drop us a
+> line.](https://github.com/sure-thing/presta/issues/new/choose)
+
+#### Next up
+
+- Webpack and Babel extension
+- Typescript
+- serverless API routes
+
+#### Future plans
+
+Since Presta is extremely small, it's got room to grow. Future looking features
+will be built in a way that they can be _layered_ or _composed_, instead of
+opting into the full feature set for every project like some larger frameworks
+do.
+
+> However, Presta is small and aims to stay small. Look for it to be used a
+> single tool inside a larger abstraction or framework.
