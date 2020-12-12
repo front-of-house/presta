@@ -12,10 +12,6 @@ const { config: userBabelConfig } = cosmiconfigSync('babel').search() || {}
 
 require('@babel/register')(userBabelConfig || defaultBabelConfig)
 
-require('module-alias').addAliases({
-  '@': process.cwd()
-})
-
 try {
   require('./cli')
 } catch (e) {
