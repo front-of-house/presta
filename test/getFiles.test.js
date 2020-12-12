@@ -69,7 +69,7 @@ export default async function (test, assert) {
 
     const fsx = fixtures.create(files)
 
-    const results = getFiles(['./getFiles/*.js'])
+    const results = getFiles({ cwd: process.cwd(), pages: ['./getFiles/*.js'] })
     assert(results.length === 3)
 
     fsx.cleanup()

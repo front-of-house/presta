@@ -29,6 +29,7 @@ prog
   .option('--config, -c', 'Path to a config file.', './' + CONFIG_DEFAULT)
   .option('--assets, -a', 'Specify static asset directory.', './public')
   .option('--jsx', 'Specify a JSX pragma.', 'h')
+  .option('--cwd', 'Set the current working directory.', 'process.cwd()')
 
 prog
   .command(
