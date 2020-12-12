@@ -20,6 +20,7 @@ export default async (test, assert) => {
       }
     })
     const config = {
+      cwd: process.cwd(),
       pages: fsx.files.a,
       output: outDir
     }
@@ -45,6 +46,7 @@ export default async (test, assert) => {
       }
     })
     const config = {
+      cwd: process.cwd(),
       pages: fsx.files.b,
       output: outDir
     }

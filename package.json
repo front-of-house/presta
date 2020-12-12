@@ -46,7 +46,6 @@
     "fs-extra": "^9.0.1",
     "get-port": "^5.1.1",
     "glob-parent": "^5.1.1",
-    "ignore": "^5.1.8",
     "matched": "^5.0.0",
     "module-alias": "^2.2.2",
     "ms": "^2.1.2",
