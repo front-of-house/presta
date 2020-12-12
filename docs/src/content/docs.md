@@ -108,15 +108,11 @@ For dynamic files, it looks like this:
   headers: {}, // lambda headers
   params: {}, // route params
   query: {}, // query params
-  lambdaEvent: {}, // full lambda event
-  lambdaContext: {}, // full lambda context
+  plugins: {},
+  props: {},
+  lambda: { event, context } // the raw lambda objects
 }
 ```
-
-> This object will change. Namely, we need to determine how to attach
-> utilities/plugins, and let them add values. Also, Presta currently relies on
-> `content` and `head` objects to generate files, which kinda ruins the purity of
-> this object.
 
 ## Configuration
 
@@ -162,8 +158,8 @@ import { document } from 'presta/document'
 
 export function createContent (context) {
   return document({
-    head: context.head,
-    body: context.content
+    head: context.props.head,
+    body: context.props.content
   })
 }
 ```
@@ -294,8 +290,7 @@ like this:
   params: { slug: 'about' },
   query: { foo: 'abc' },
   headers: { ... },
-  lambdaEvent: { ... },
-  lambdaContext: { ... },
+  lambda: { ... },
 }
 ```
 
@@ -337,11 +332,11 @@ set up correctly.
 #### Page Head Metadata
 
 You'll probably want to manage your `<head>` metadata at a page level. Presta
-provides a simple utility on its context for this:
+by default includes a simple plugin on its context for this:
 
 ```js
-export function template ({ head }) {
-  head({ title: 'My Page Title' })
+export function template ({ plugins }) {
+  plugins.head({ title: 'My Page Title' })
 
   return `<div>...</div>`
 }
@@ -503,9 +498,9 @@ customize their documents, so it's exposed for easy access. Full example below:
 import { document } from 'presta/document'
 import { merge } from 'presta/utils/merge'
 
-export function createContent (ctx) {
+export function createContent (context) {
   return document({
-    head: merge(ctx.head, {
+    head: merge(context.props.head, {
       title: 'My Site',
       image: '/social-image.png',
       meta: [{ name: 'description', content: 'My SEO description' }],
@@ -518,7 +513,7 @@ export function createContent (ctx) {
       ],
       script: [{ src: '/analytics.js' }]
     }),
-    body: `<div id="root">${ctx.content}</div>`,
+    body: `<div id="root">${context.props.content}</div>`,
     foot: {
       script: [{ src: '/app.js' }]
     }
