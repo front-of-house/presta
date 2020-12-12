@@ -15,23 +15,29 @@ export default async (test, assert) => {
     })
 
     queue.add(async () => {
-      one = await render(({ head }) => {
-        head({ title: 'title' })
-        return 'component'
-      }, {})
+      one = await render(
+        ({ plugins }) => {
+          plugins.head({ title: 'title' })
+          return 'component'
+        },
+        { plugins: {}, props: {} }
+      )
     })
     queue.add(async () => {
-      two = await render(({ head }) => {
-        head({ description: 'description' })
-        return 'component'
-      }, {})
+      two = await render(
+        ({ plugins }) => {
+          plugins.head({ description: 'description' })
+          return 'component'
+        },
+        { plugins: {}, props: {} }
+      )
     })
 
     await t
 
-    assert(one.head.title)
-    assert(!one.head.description)
-    assert(!two.head.title)
-    assert(two.head.description)
+    assert(one.props.head.title)
+    assert(!one.props.head.description)
+    assert(!two.props.head.title)
+    assert(two.props.head.description)
   })
 }
