@@ -150,8 +150,9 @@ export async function render (
   renderer = (fn, context) => fn(context), // for a custom render, like React
   internals = { headCache: {} } // internal, don't use this elsewhere
 ) {
-  if (!context.head) {
-    context.head = obj => {
+  if (!context.plugins.head) {
+    // TODO attach this better elsewhere
+    context.plugins.head = obj => {
       Object.assign(internals.headCache, merge(internals.headCache, obj))
     }
   }
@@ -173,11 +174,14 @@ export async function render (
 
   return {
     ...context,
-    head: internals.headCache,
-    content: content,
-    data: {
-      ...memoryCache,
-      ...fileCache.all()
+    props: {
+      ...context.props,
+      content,
+      head: internals.headCache,
+      data: {
+        ...memoryCache,
+        ...fileCache.all()
+      }
     }
   }
 }

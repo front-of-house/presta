@@ -3,9 +3,11 @@ import { defaultCreateContent } from '../lib/defaultCreateContent'
 export default async (test, assert) => {
   test('defaultCreateContent - basic', async () => {
     const doc = defaultCreateContent({
-      content: 'original',
-      head: {
-        title: 'original'
+      props: {
+        content: 'original',
+        head: {
+          title: 'original'
+        }
       }
     })
 

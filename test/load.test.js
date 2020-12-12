@@ -20,6 +20,14 @@ function createComponent ({ key, duration, loadCb }) {
   }
 }
 
+function createContext (obj) {
+  return {
+    ...obj,
+    plugins: {},
+    props: {}
+  }
+}
+
 export default async (test, assert) => {
   test('requires a key', async () => {
     function component () {
@@ -28,7 +36,7 @@ export default async (test, assert) => {
     }
 
     try {
-      await render(component, {})
+      await render(component, createContext({}))
     } catch (e) {
       assert(!!e)
     }
@@ -44,8 +52,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { content } = await render(comp, {})
-    const json = JSON.parse(content)
+    const { props } = await render(comp, createContext({}))
+    const json = JSON.parse(props.content)
 
     assert(json.a)
     assert(loads === 1)
@@ -61,8 +69,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { content } = await render(comp, { children: comp })
-    const json = JSON.parse(content)
+    const { props } = await render(comp, createContext({ children: comp }))
+    const json = JSON.parse(props.content)
 
     assert(json.b)
 
@@ -87,8 +95,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { content } = await render(c, { children: d })
-    const json = JSON.parse(content)
+    const { props } = await render(c, createContext({ children: d }))
+    const json = JSON.parse(props.content)
 
     assert(json.c)
     assert(json.children)
@@ -110,8 +118,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { content } = await render(comp, { children: comp })
-    const json = JSON.parse(content)
+    const { props } = await render(comp, createContext({ children: comp }))
+    const json = JSON.parse(props.content)
 
     assert(json.disk)
     assert(loads === 1)
@@ -135,7 +143,7 @@ export default async (test, assert) => {
     }
 
     try {
-      await render(component, {})
+      await render(component, createContext({}))
       throw 'unreachable'
     } catch (e) {
       assert((loads = 1))
@@ -160,7 +168,7 @@ export default async (test, assert) => {
     }
 
     try {
-      await render(component, {})
+      await render(component, createContext({}))
       throw 'unreachable'
     } catch (e) {
       assert((loads = 1))
@@ -179,8 +187,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { content } = await render(comp, { children: comp })
-    const json = JSON.parse(content)
+    const { props } = await render(comp, createContext({ children: comp }))
+    const json = JSON.parse(props.content)
 
     assert(json.memory)
     assert(loads === 0)
@@ -201,8 +209,8 @@ export default async (test, assert) => {
       }
     })
 
-    const { content } = await render(comp, { children: comp })
-    const json = JSON.parse(content)
+    const { props } = await render(comp, createContext({ children: comp }))
+    const json = JSON.parse(props.content)
 
     assert(json.disk)
     assert(loads === 0)
@@ -226,7 +234,7 @@ export default async (test, assert) => {
     }
 
     try {
-      await render(component, {})
+      await render(component, createContext({}))
       throw 'unreachable'
     } catch (e) {
       assert((loads = 1))
@@ -251,7 +259,7 @@ export default async (test, assert) => {
     }
 
     try {
-      await render(component, {})
+      await render(component, createContext({}))
       throw 'unreachable'
     } catch (e) {
       assert((loads = 1))
