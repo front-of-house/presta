@@ -11,14 +11,14 @@ const image = `/og.png`
 
 export const pages = 'src/pages/**/*.js'
 
-export function createContent (ctx) {
+export function createContent (context) {
   return document({
-    head: merge(ctx.head, {
+    head: merge(context.props.head, {
       image,
       og: {
         site_name: name,
         image,
-        url: `https://sure-thing.net${ctx.path}`
+        url: `https://sure-thing.net${context.path}`
       },
       twitter: {
         site_name: name,
@@ -33,7 +33,7 @@ export function createContent (ctx) {
       ],
       style: [{ id: 'style', children: getCss() }]
     }),
-    body: `<div id="bg"></div><div id="root">${ctx.content}</div>`,
+    body: `<div id="bg"></div><div id="root">${context.props.content}</div>`,
     foot: {
       script: [{ src: '/client.js' }]
     }

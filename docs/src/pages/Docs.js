@@ -20,7 +20,7 @@ export function template (context) {
     'utf-8'
   )
 
-  context.head({
+  context.plugins.head({
     title: title(['Documentation', 'Presta']),
     description: 'Hyper minimal framework for the modern web.'
   })

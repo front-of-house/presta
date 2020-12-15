@@ -13,8 +13,8 @@ export function getStaticPaths () {
   return ['/']
 }
 
-export function template ({ head }) {
-  head({
+export function template (context) {
+  context.plugins.head({
     title: title('Presta'),
     description: 'Hyper minimal framework for the modern web.'
   })
