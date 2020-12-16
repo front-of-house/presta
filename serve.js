@@ -49,8 +49,14 @@ export async function serve (config, { noBanner }) {
       if (/^.+\..+$/.test(req.url) && !/\.html?$/.test(req.url)) {
         debug('serve', `serve asset ${req.url}`)
 
-        sirv(staticDir, { dev: true })(req, res, () => {
-          sirv(assetDir, { dev: true })(req, res, () => {
+        /*
+         * first check the vcs-tracked static folder,
+         * then check the presta-built static folder
+         *
+         * @see https://github.com/sure-thing/presta/issues/30
+         */
+        sirv(assetDir, { dev: true })(req, res, () => {
+          sirv(staticDir, { dev: true })(req, res, () => {
             formatLog({
               color: 'magenta',
               action: 'serve',
