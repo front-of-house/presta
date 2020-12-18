@@ -1,7 +1,7 @@
 import path from 'path'
 
 import * as fixtures from './fixtures'
-import { create } from '../lib/config'
+import { create, unmerge } from '../lib/config'
 
 const pages = 'app/**/*.js'
 const output = 'output'
@@ -9,15 +9,6 @@ const assets = 'assets'
 const c = 'presta.config.js'
 
 export default async function (test, assert) {
-  test('config - requires pages', async () => {
-    try {
-      create({})
-      throw new Error('should not execute')
-    } catch (e) {
-      assert(true)
-    }
-  })
-
   test('config - defaults', async () => {
     const config = create({
       pages
@@ -109,6 +100,59 @@ export default async function (test, assert) {
 
     assert(config.pages.includes('foo'))
     assert(config.output.includes('dist'))
+
+    // should merge pages
+    assert(config.pages.includes('./pages/*.js'))
+
+    fsx.cleanup()
+  })
+
+  test('config - file is merged with internal config', async () => {
+    const files = {
+      config: {
+        url: 'presta.merged.config.js',
+        content: `export function createContent(context) {}`
+      }
+    }
+    const fsx = fixtures.create(files)
+
+    const config = create({
+      pages: 'foo',
+      output: 'dist',
+      config: 'presta.merged.config.js'
+    })
+
+    assert(!!config.createContent)
+
+    fsx.cleanup()
+  })
+
+  test('config - unmerge', async () => {
+    const files = {
+      config: {
+        url: 'presta.unmerged.config.js',
+        content: `
+          export const pages = 'foo'
+          export const output = 'output'
+          export function createContent(context) {}
+        `
+      }
+    }
+    const fsx = fixtures.create(files)
+
+    const curr = create({
+      pages: 'bar',
+      config: 'presta.unmerged.config.js'
+    })
+    const prev = require(fsx.files.config)
+
+    assert(curr.pages.length === 2)
+    assert(curr.output.includes('output'))
+
+    const unmerged = unmerge(curr, prev)
+
+    assert(unmerged.pages.length === 1)
+    assert(unmerged.output.includes('build'))
 
     fsx.cleanup()
   })
