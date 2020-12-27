@@ -9,14 +9,15 @@ export default async function (test, assert) {
     const cli = { pages }
     const config = create(cli)
 
-    assert.deepEqual(config._cli, cli)
+    assert(Array.isArray(config._cli.pages))
     assert.deepEqual(config._config, {})
 
-    assert(config.pages.includes(pages))
+    assert(config.pages[0].includes(pages))
     assert(path.isAbsolute(config.output))
     assert(path.isAbsolute(config.assets))
     assert(path.isAbsolute(config.cwd))
     assert(config.configFilepath === undefined)
+    assert(config.dynamicEntryFilepath.includes(config.output))
   })
 
   test('config - no pages', async () => {
@@ -48,7 +49,7 @@ export default async function (test, assert) {
   })
 
   test('config - picks up default file if present', async () => {
-    const pages = './pages/*.js'
+    const pages = 'pages/*.js'
     const output = 'output'
     const fsx = fixtures.create({
       config: {
@@ -60,14 +61,14 @@ export default async function (test, assert) {
     const config = create({})
 
     assert(path.isAbsolute(config.configFilepath))
-    assert(config.pages.includes(pages))
+    assert(config.pages[0].includes(pages))
     assert(config.output.includes(output))
 
     fsx.cleanup()
   })
 
   test('config - picks up custom file if present', async () => {
-    const pages = './pages/*.js'
+    const pages = 'pages/*.js'
     const output = 'output'
     const fsx = fixtures.create({
       config: {
@@ -82,7 +83,7 @@ export default async function (test, assert) {
 
     assert(config.configFilepath.includes(fsx.files.config))
     assert(path.isAbsolute(config.configFilepath))
-    assert(config.pages.includes(pages))
+    assert(config.pages[0].includes(pages))
     assert(config.output.includes(output))
 
     fsx.cleanup()
@@ -101,11 +102,11 @@ export default async function (test, assert) {
       output: 'dist'
     })
 
-    assert(config.pages.includes('foo'))
+    assert(config.pages.find(p => p.includes('foo')))
     assert(config.output.includes('dist'))
 
     // should merge pages
-    assert(config.pages.includes('./pages/*.js'))
+    assert(config.pages.find(p => p.includes('pages/*.js')))
 
     fsx.cleanup()
   })
@@ -125,6 +126,7 @@ export default async function (test, assert) {
     })
 
     assert(!!config.createContent)
+    assert(config.dynamicEntryFilepath.includes(config.output))
 
     fsx.cleanup()
   })
@@ -149,12 +151,14 @@ export default async function (test, assert) {
 
     assert(curr.pages.length === 2) // merged
     assert(curr.output.includes('output'))
+    assert(curr.dynamicEntryFilepath.includes(curr.output))
 
     const unmerged = unmerge(curr, prev)
 
     assert(unmerged.pages.length === 1)
-    assert(unmerged.pages[0] === 'bar')
+    assert(unmerged.pages[0].includes('bar'))
     assert(unmerged.output.includes('build'))
+    assert(unmerged.dynamicEntryFilepath.includes(unmerged.output))
 
     fsx.cleanup()
   })
