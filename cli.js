@@ -26,8 +26,11 @@ const prog = sade('presta')
 
 prog
   .version(pkg.version)
-  .option('--config, -c', 'Path to a config file.', './' + CONFIG_DEFAULT)
-  .option('--assets, -a', 'Specify static asset directory.', './public')
+  .option(
+    '--config, -c',
+    `Path to a config file.  (default /${CONFIG_DEFAULT})`
+  )
+  .option('--assets, -a', `Specify static asset directory.  (default /public)`)
   .option('--jsx', 'Specify a JSX pragma.', 'h')
   .option('--cwd, -d', 'Set the current working directory.')
 
