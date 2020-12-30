@@ -101,8 +101,11 @@ export function load (loader, options = {}) {
   }
 
   const entry = cacheToFile ? getFromFileCache(key) : memoryCache[key]
+  const hasEntry = Boolean(
+    cacheToFile ? fileCache.getKey(key) : memoryCache.hasOwnProperty(key)
+  )
 
-  if (entry) {
+  if (entry || hasEntry) {
     if (cacheToFile && duration !== entry.duration) {
       prime(entry.value, { key, duration })
     }
