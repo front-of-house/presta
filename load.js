@@ -150,21 +150,13 @@ export function load (loader, options = {}) {
 export async function render (
   component,
   context,
-  renderer = (fn, context) => fn(context), // for a custom render, like React
-  internals = { headCache: {} } // internal, don't use this elsewhere
+  renderer = (fn, context) => fn(context) // for a custom render, like React
 ) {
-  if (!context.plugins.head) {
-    // TODO attach this better elsewhere
-    context.plugins.head = obj => {
-      Object.assign(internals.headCache, merge(internals.headCache, obj))
-    }
-  }
-
   const content = renderer(component, context)
 
   if (!!requests.size) {
     await Promise.allSettled(Array.from(requests.values()))
-    return render(component, context, renderer, internals)
+    return render(component, context, renderer)
   }
 
   if (requests.size) {
@@ -180,7 +172,6 @@ export async function render (
     props: {
       ...context.props,
       content,
-      head: internals.headCache,
       data: {
         ...memoryCache,
         ...fileCache.all()

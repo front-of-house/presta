@@ -1,6 +1,7 @@
 import PQueue from 'p-queue'
 
 import { render } from '../load'
+import { head } from '../lib/pluginHead'
 
 export default async (test, assert) => {
   test('head - separate objects', async () => {
@@ -15,22 +16,24 @@ export default async (test, assert) => {
     })
 
     queue.add(async () => {
-      one = await render(
-        ({ plugins }) => {
-          plugins.head({ title: 'title' })
-          return 'component'
-        },
-        { plugins: {}, props: {} }
-      )
+      const context = { plugins: {}, props: {} }
+
+      context.plugins.head = head()(context)
+
+      one = await render(({ plugins }) => {
+        plugins.head({ title: 'title' })
+        return 'component'
+      }, context)
     })
     queue.add(async () => {
-      two = await render(
-        ({ plugins }) => {
-          plugins.head({ description: 'description' })
-          return 'component'
-        },
-        { plugins: {}, props: {} }
-      )
+      const context = { plugins: {}, props: {} }
+
+      context.plugins.head = head()(context)
+
+      two = await render(({ plugins }) => {
+        plugins.head({ description: 'description' })
+        return 'component'
+      }, context)
     })
 
     await t
