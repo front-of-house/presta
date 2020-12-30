@@ -1,9 +1,9 @@
 import { createHeadTags, createFootTags } from './lib/createHeadTags'
 
 export function document ({
-  body,
-  head,
-  foot,
+  body = '',
+  head = {},
+  foot = {},
   htmlAttributes = {},
   bodyAttributes = {}
 }) {
