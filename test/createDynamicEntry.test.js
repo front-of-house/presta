@@ -3,7 +3,7 @@ import path from 'path'
 
 import * as fixtures from './fixtures'
 
-import { createDynamicEntry } from '../lib/createEntries'
+import { createDynamicEntry } from '../lib/createDynamicEntry'
 import { OUTPUT_DYNAMIC_PAGES_ENTRY } from '../lib/constants'
 
 export default (test, assert) => {
