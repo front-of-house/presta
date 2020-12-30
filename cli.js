@@ -9,8 +9,7 @@ import { log } from './lib/log'
 import * as globalConfig from './lib/config'
 import { watch } from './lib/watch'
 import { build } from './lib/build'
-
-import { serve } from './serve'
+import { serve } from './lib/serve'
 
 function warnOnBadGlob (output) {
   if (/\.(js|jsx|ts|tsx)$/.test(output)) {
