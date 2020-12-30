@@ -7,7 +7,6 @@ import pkg from './package.json'
 import { CONFIG_DEFAULT } from './lib/constants'
 import { log } from './lib/log'
 import * as globalConfig from './lib/config'
-import { timer } from './lib/timer'
 import { watch } from './lib/watch'
 import { build } from './lib/build'
 
@@ -48,8 +47,6 @@ prog
 
     warnOnBadGlob(output)
 
-    const time = timer()
-
     const config = globalConfig.create({
       ...opts,
       pages,
@@ -59,12 +56,6 @@ prog
     log(`${c.blue('~ presta build')}\n`)
 
     await build(config)
-
-    log('') // leave a 1-line buffer
-
-    log(`  ${c.blue(`build complete`)} ${c.gray(`in ${time()}`)}`)
-
-    log('') // leave a 1-line buffer
   })
 
 prog
