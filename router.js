@@ -6,7 +6,7 @@ import toRegExp from 'regexparam'
  *
  * @see https://github.com/lukeed/regexparam#usage
  */
-export function createRouter (pages, userConfig) {
+export function createRouter (pages, config) {
   // get route paths
   const routes = rsort(pages.map(p => p.route))
 
