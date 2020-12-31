@@ -1,4 +1,5 @@
 import assert from 'assert'
+import ms from 'ms'
 import flatCache from 'flat-cache'
 import c from 'ansi-colors'
 
@@ -12,7 +13,6 @@ let memory = {}
 const requests = {}
 const persistent = flatCache.load('.presta', cwd)
 
-// TODO ensure this is done everywhere
 export function clearMemoryCache () {
   memory = {}
 }
