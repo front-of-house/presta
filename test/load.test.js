@@ -1,5 +1,10 @@
-import { prime, load, render, expire, clearMemoryCache } from '../load'
+import { prime, load, render, persistent } from '../load'
 import { createContext } from '../lib/createContext'
+
+function expire (key) {
+  persistent.removeKey(key)
+  persistent.save(true)
+}
 
 function createComponent ({ key, duration, loadCb }) {
   return ({ children }) => {

@@ -11,15 +11,11 @@ const { PRESTA_ENV } = process.env
 
 let memory = {}
 const requests = {}
-const persistent = flatCache.load('.presta', cwd)
+
+export const persistent = flatCache.load('.presta', cwd)
 
 export function clearMemoryCache () {
   memory = {}
-}
-
-export function expire (key) {
-  persistent.removeKey(key)
-  persistent.save(true)
 }
 
 export function prime (value, { key, duration } = {}) {
