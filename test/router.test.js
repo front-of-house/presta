@@ -1,4 +1,4 @@
-import { createRouter } from '../router'
+import { createRouter } from '../lib/router'
 
 export default async (test, assert) => {
   const router = createRouter([
