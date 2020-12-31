@@ -1,4 +1,5 @@
-import { prime, cache, load, render, expire } from '../load'
+import { prime, load, render, expire, clearMemoryCache } from '../load'
+import { createContext } from '../lib/createContext'
 
 function createComponent ({ key, duration, loadCb }) {
   return ({ children }) => {
@@ -20,14 +21,6 @@ function createComponent ({ key, duration, loadCb }) {
   }
 }
 
-function createContext (obj) {
-  return {
-    ...obj,
-    plugins: {},
-    props: {}
-  }
-}
-
 export default async (test, assert) => {
   test('requires a key', async () => {
     function component () {
@@ -38,7 +31,7 @@ export default async (test, assert) => {
     try {
       await render(component, createContext({}))
     } catch (e) {
-      assert(!!e)
+      assert(e.message.includes('requires a key'))
     }
   })
 
@@ -142,12 +135,8 @@ export default async (test, assert) => {
       return 'component'
     }
 
-    try {
-      await render(component, createContext({}))
-      throw 'unreachable'
-    } catch (e) {
-      assert((loads = 1))
-    }
+    await render(component, createContext({}))
+    assert(loads === 2)
   })
 
   test('disk - no recursion on error', async () => {

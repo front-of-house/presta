@@ -1,181 +1,137 @@
-import path from 'path'
-import ms from 'ms'
 import assert from 'assert'
+import flatCache from 'flat-cache'
 import c from 'ansi-colors'
-import merge from 'deepmerge'
 
 import { debug } from './lib/debug'
 import { log } from './lib/log'
-import { fileCache } from './lib/fileCache'
 
-const requests = new Map()
-let memoryCache = {}
-const skipLoaders = []
+const cwd = process.cwd()
+const { PRESTA_ENV } = process.env
 
+let memory = {}
+const requests = {}
+const persistent = flatCache.load('.presta', cwd)
+
+// TODO ensure this is done everywhere
 export function clearMemoryCache () {
-  memoryCache = {}
-}
-
-function getFromFileCache (key) {
-  const entry = fileCache.getKey(key)
-  const now = Date.now()
-
-  if (entry) {
-    const { expires } = entry
-
-    if (now > expires) {
-      debug(`{ ${key} } has expired on disk`)
-      fileCache.removeKey(key)
-      return undefined
-    } else {
-      debug(`{ ${key} } is cached to disk`)
-      return entry
-    }
-  }
-}
-
-export function prime (value, options) {
-  const { key, duration } = options
-
-  assert(!!key, 'prime requires a key')
-
-  if (duration) {
-    const interval = ms(duration)
-    const now = Date.now()
-
-    fileCache.setKey(key, {
-      value,
-      expires: now + interval,
-      duration
-    })
-
-    //fileCache.save(true) // TODO will this break?
-
-    debug(`{ ${key} } has been primed to disk for ${duration}`)
-  } else {
-    memoryCache[key] = value
-    debug(`{ ${key} } has been primed to memory`)
-  }
+  memory = {}
 }
 
 export function expire (key) {
-  fileCache.removeKey(key)
-  fileCache.save(true)
+  persistent.removeKey(key)
+  persistent.save(true)
 }
 
-export async function cache (loading, options) {
-  const { key, duration } = options
+export function prime (value, { key, duration } = {}) {
+  assert(!!key, 'presta/load requires a key')
 
-  assert(!!key, 'presta/load cache expects a key')
-  assert(duration !== undefined, 'presta/load cache expects a duration')
+  const persist = !!duration && PRESTA_ENV === 'development'
 
-  const interval = ms(duration)
+  if (persist) {
+    const interval = ms(duration)
 
-  const entry = getFromFileCache(key)
-  if (entry) return entry.value
+    persistent.setKey(key, {
+      value,
+      expires: Date.now() + interval,
+      duration
+    })
 
-  const value = await (typeof loading === 'function' ? loading() : loading)
-
-  fileCache.setKey(key, {
-    value,
-    expires: Date.now() + parseInt(interval),
-    duration
-  })
-
-  fileCache.save(true)
-
-  debug(`{ ${key} } has been cached to disk for ${duration}`)
-
-  return value
-}
-
-export function load (loader, options = {}) {
-  const { key, duration } = options
-  const cacheToFile = !!duration && process.env.PRESTA_ENV === 'development'
-
-  assert(!!key, 'presta/load cache expects a key')
-
-  if (skipLoaders.indexOf(key) > -1) {
-    debug(`{ ${key} } threw on last render, skipping...`)
-    return null
+    persistent.save(true)
+  } else {
+    memory[key] = value
   }
 
-  const entry = cacheToFile ? getFromFileCache(key) : memoryCache[key]
-  const hasEntry = Boolean(
-    cacheToFile ? fileCache.getKey(key) : memoryCache.hasOwnProperty(key)
+  debug(
+    `{ ${key} } has been cached ${
+      persist ? `to disk for ${duration}` : 'in memory'
+    }`
   )
+}
 
-  if (entry || hasEntry) {
-    if (cacheToFile && duration !== entry.duration) {
-      prime(entry.value, { key, duration })
-    }
+export function cache (loader, { key, duration } = {}) {
+  const persist = !!duration && PRESTA_ENV === 'development'
 
-    return cacheToFile ? entry.value : entry
-  }
+  // try in-memory first
+  let entry = memory[key]
+  let hasEntry = memory.hasOwnProperty(key)
 
-  async function run () {
-    try {
-      const loading = loader()
-      requests.set(key, loading)
+  // try file cache
+  if (persist) {
+    const cached = persistent.getKey(key)
 
-      if (cacheToFile) {
-        cache(loading, { key, duration })
+    if (cached) {
+      if (Date.now() > cached.expires || duration !== cached.duration) {
+        debug(`{ ${key} } has expired on disk`)
+
+        persistent.removeKey(key)
+      } else {
+        debug(`{ ${key} } is cached on disk`)
+
+        entry = cached.value
+        hasEntry = true
       }
-
-      const res = await loading
-
-      requests.delete(key)
-
-      if (!cacheToFile) {
-        memoryCache[key] = res
-        debug(`{ ${key} } has been cached in memory`)
-      }
-    } catch (e) {
-      debug(`{ ${key} } threw an error: ${e.message}`)
-      requests.delete(key)
-
-      skipLoaders.push(key)
-
-      if (cacheToFile) {
-        expire(key)
-      }
-
-      log(`\n  ${c.red('error')} load { ${key} }\n\n${e}\n`)
     }
   }
 
-  run()
+  if (hasEntry) return entry
+
+  return (typeof loader === 'function' ? loader() : loader).then(res => {
+    prime(res, { key, duration })
+    return res
+  })
+}
+
+export function load (loader, { key, duration } = {}) {
+  function error (e) {
+    log(`\n  ${c.red('error')} load { ${key} }\n\n${e}\n`)
+
+    // reset
+    delete requests[key]
+
+    // fallback or set to error object
+    memory[key] = memory[key] || e
+
+    const cached = persistent.getKey(key)
+
+    // use previous responses or return error
+    return cached ? cached.value : memory[key]
+  }
+
+  try {
+    if (!memory.hasOwnProperty(key)) requests[key] = loader()
+
+    const res = cache(requests[key], { key, duration })
+
+    if (res.then) {
+      res.catch(error)
+      return undefined
+    } else {
+      // done loading
+      delete requests[key]
+      return res
+    }
+  } catch (e) {
+    error(e)
+  }
 }
 
 export async function render (
-  component,
+  template,
   context,
   renderer = (fn, context) => fn(context) // for a custom render, like React
 ) {
-  const content = renderer(component, context)
+  const content = renderer(template, context)
 
-  if (!!requests.size) {
-    await Promise.allSettled(Array.from(requests.values()))
-    return render(component, context, renderer)
+  if (Object.keys(requests).length) {
+    await Promise.allSettled(Object.values(requests))
+    return render(template, context, renderer)
   }
 
-  if (requests.size) {
-    throw new Error(
-      `presta/load - unresolved requests: ${JSON.stringify(
-        Array.from(requests.keys())
-      )}`
-    )
+  context.props.content = content
+  context.props.data = {
+    ...memory,
+    ...persistent.all()
   }
 
-  return {
-    ...context,
-    props: {
-      ...context.props,
-      content,
-      data: {
-        ...memoryCache,
-        ...fileCache.all()
-      }
-    }
-  }
+  return context
 }
