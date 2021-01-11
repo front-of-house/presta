@@ -2,15 +2,37 @@
 
 process.env.PRESTA_ENV = 'development'
 
-require = require('esm')(module)
+const { addHook } = require('sucrase/dist/register')
 
-const path = require('path')
-const { cosmiconfigSync } = require('cosmiconfig')
-const { config: defaultBabelConfig } = require('./lib/babel')
+const [_, jsx = 'h'] = process.argv.join(' ').match(/--jsx[\s|=]([^-]+)/) || []
 
-const { config: userBabelConfig } = cosmiconfigSync('babel').search() || {}
+const jsxPresets = {
+  h: {
+    jsxPragma: 'h',
+    jsxFragmentPragma: 'h'
+  },
+  react: {
+    jsxPragma: 'React.createElement',
+    jsxFragmentPragma: 'React.Fragment'
+  }
+}
 
-require('@babel/register')(userBabelConfig || defaultBabelConfig)
+addHook('.js', {
+  transforms: ['imports', 'flow', 'jsx'],
+  ...jsxPresets[jsx]
+})
+addHook('.jsx', {
+  transforms: ['imports', 'flow', 'jsx'],
+  ...jsxPresets[jsx]
+})
+addHook('.ts', {
+  transforms: ['imports', 'typescript'],
+  ...jsxPresets[jsx]
+})
+addHook('.tsx', {
+  transforms: ['imports', 'typescript', 'jsx'],
+  ...jsxPresets[jsx]
+})
 
 try {
   require('./cli')

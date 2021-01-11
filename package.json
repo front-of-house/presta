@@ -31,7 +31,6 @@
   "dependencies": {
     "@babel/core": "^7.11.1",
     "@babel/preset-react": "^7.10.4",
-    "@babel/register": "^7.11.5",
     "ansi-colors": "^4.1.1",
     "babel-loader": "^8.2.1",
     "chokidar": "^3.4.3",
@@ -55,6 +54,7 @@
     "route-sort": "^1.0.0",
     "sade": "^1.7.3",
     "sirv": "^1.0.7",
+    "sucrase": "^3.17.0",
     "watch-dependency-graph": "^2.1.0-beta.2",
     "webpack": "^4.44.2"
   },
