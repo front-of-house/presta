@@ -17,22 +17,46 @@ const jsxPresets = {
   }
 }
 
-addHook('.js', {
-  transforms: ['imports', 'flow', 'jsx'],
-  ...jsxPresets[jsx]
-})
-addHook('.jsx', {
-  transforms: ['imports', 'flow', 'jsx'],
-  ...jsxPresets[jsx]
-})
-addHook('.ts', {
-  transforms: ['imports', 'typescript'],
-  ...jsxPresets[jsx]
-})
-addHook('.tsx', {
-  transforms: ['imports', 'typescript', 'jsx'],
-  ...jsxPresets[jsx]
-})
+addHook(
+  '.js',
+  {
+    transforms: ['imports', 'flow', 'jsx'],
+    ...jsxPresets[jsx]
+  },
+  {
+    ignoreNodeModules: false
+  }
+)
+addHook(
+  '.jsx',
+  {
+    transforms: ['imports', 'flow', 'jsx'],
+    ...jsxPresets[jsx]
+  },
+  {
+    ignoreNodeModules: false
+  }
+)
+addHook(
+  '.ts',
+  {
+    transforms: ['imports', 'typescript'],
+    ...jsxPresets[jsx]
+  },
+  {
+    ignoreNodeModules: false
+  }
+)
+addHook(
+  '.tsx',
+  {
+    transforms: ['imports', 'typescript', 'jsx'],
+    ...jsxPresets[jsx]
+  },
+  {
+    ignoreNodeModules: false
+  }
+)
 
 try {
   require('./cli')
