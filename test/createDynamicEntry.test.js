@@ -20,7 +20,12 @@ export default (test, assert) => {
     })
     const config = {
       pages: './createDynamicEntry/*.js',
-      output: 'output'
+      output: 'output',
+      dynamicEntryFilepath: path.join(
+        fixtures.getRoot(),
+        'output',
+        OUTPUT_DYNAMIC_PAGES_ENTRY
+      )
     }
 
     const entry = createDynamicEntry([fsx.files.a, fsx.files.b], config)

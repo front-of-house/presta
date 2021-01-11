@@ -48,7 +48,8 @@ export default async (test, assert) => {
     const config = {
       cwd: process.cwd(),
       pages: fsx.files.b,
-      output: outDir
+      output: outDir,
+      dynamicEntryFilepath: path.join(outDir, OUTPUT_DYNAMIC_PAGES_ENTRY)
     }
 
     await build(config)
