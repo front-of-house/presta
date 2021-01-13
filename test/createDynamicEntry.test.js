@@ -1,12 +1,12 @@
-import fs from 'fs-extra'
-import path from 'path'
+const fs = require('fs-extra')
+const path = require('path')
 
-import * as fixtures from './fixtures'
+const fixtures = require('./fixtures')
 
-import { createDynamicEntry } from '../lib/createDynamicEntry'
-import { OUTPUT_DYNAMIC_PAGES_ENTRY } from '../lib/constants'
+const { createDynamicEntry } = require('../lib/createDynamicEntry')
+const { OUTPUT_DYNAMIC_PAGES_ENTRY } = require('../lib/constants')
 
-export default (test, assert) => {
+module.exports = (test, assert) => {
   test('createDynamicEntry', () => {
     const fsx = fixtures.create({
       a: {

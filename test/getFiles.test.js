@@ -1,11 +1,11 @@
-import fs from 'fs-extra'
-import path from 'path'
+const fs = require('fs-extra')
+const path = require('path')
 
-import * as fixtures from './fixtures'
+const fixtures = require('./fixtures')
 
-import { isStatic, isDynamic, getFiles } from '../lib/getFiles'
+const { isStatic, isDynamic, getFiles } = require('../lib/getFiles')
 
-export default async function (test, assert) {
+module.exports = async function (test, assert) {
   test('getFiles - isStatic', async () => {
     const files = {
       A: {

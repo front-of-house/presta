@@ -1,10 +1,10 @@
-import assert from 'assert'
-import ms from 'ms'
-import flatCache from 'flat-cache'
-import c from 'ansi-colors'
+const assert = require('assert')
+const ms = require('ms')
+const flatCache = require('flat-cache')
+const c = require('ansi-colors')
 
-import { debug } from './lib/debug'
-import { log } from './lib/log'
+const { debug } = require('./lib/debug')
+const { log } = require('./lib/log')
 
 const cwd = process.cwd()
 const { PRESTA_ENV } = process.env
@@ -12,13 +12,13 @@ const { PRESTA_ENV } = process.env
 let memory = {}
 const requests = {}
 
-export const persistent = flatCache.load('.presta', cwd)
+const persistent = flatCache.load('.presta', cwd)
 
-export function clearMemoryCache () {
+function clearMemoryCache () {
   memory = {}
 }
 
-export function prime (value, { key, duration } = {}) {
+function prime (value, { key, duration } = {}) {
   assert(!!key, 'presta/load requires a key')
 
   const persist = !!duration && PRESTA_ENV === 'development'
@@ -44,7 +44,7 @@ export function prime (value, { key, duration } = {}) {
   )
 }
 
-export function cache (loader, { key, duration } = {}) {
+function cache (loader, { key, duration } = {}) {
   const persist = !!duration && PRESTA_ENV === 'development'
 
   // try in-memory first
@@ -77,7 +77,7 @@ export function cache (loader, { key, duration } = {}) {
   })
 }
 
-export function load (loader, { key, duration } = {}) {
+function load (loader, { key, duration } = {}) {
   function error (e) {
     log(`\n  ${c.red('error')} load { ${key} }\n\n${e}\n`)
 
@@ -111,7 +111,7 @@ export function load (loader, { key, duration } = {}) {
   }
 }
 
-export async function render (
+async function render (
   template,
   context,
   renderer = (fn, context) => fn(context) // for a custom render, like React
@@ -130,4 +130,13 @@ export async function render (
   }
 
   return context
+}
+
+module.exports = {
+  persistent,
+  clearMemoryCache,
+  prime,
+  cache,
+  load,
+  render
 }

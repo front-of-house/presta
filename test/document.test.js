@@ -1,6 +1,6 @@
-import { document } from '../document'
+const { document } = require('../document')
 
-export default async (test, assert) => {
+module.exports = async (test, assert) => {
   test('document - works on its own', async () => {
     const doc = document({
       body: 'original',

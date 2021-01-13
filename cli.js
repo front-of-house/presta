@@ -1,15 +1,15 @@
-import sade from 'sade'
-import exit from 'exit'
-import c from 'ansi-colors'
+const sade = require('sade')
+const exit = require('exit')
+const c = require('ansi-colors')
 
-import pkg from './package.json'
+const pkg = require('./package.json')
 
-import { CONFIG_DEFAULT } from './lib/constants'
-import { log } from './lib/log'
-import * as globalConfig from './lib/config'
-import { watch } from './lib/watch'
-import { build } from './lib/build'
-import { serve } from './lib/serve'
+const { CONFIG_DEFAULT } = require('./lib/constants')
+const { log } = require('./lib/log')
+const globalConfig = require('./lib/config')
+const { watch } = require('./lib/watch')
+const { build } = require('./lib/build')
+const { serve } = require('./lib/serve')
 
 function warnOnBadGlob (output) {
   if (/\.(js|jsx|ts|tsx)$/.test(output)) {

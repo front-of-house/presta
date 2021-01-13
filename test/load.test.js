@@ -1,5 +1,5 @@
-import { prime, load, render, persistent } from '../load'
-import { createContext } from '../lib/createContext'
+const { prime, load, render, persistent } = require('../load')
+const { createContext } = require('../lib/createContext')
 
 function expire (key) {
   persistent.removeKey(key)
@@ -26,7 +26,7 @@ function createComponent ({ key, duration, loadCb }) {
   }
 }
 
-export default async (test, assert) => {
+module.exports = async (test, assert) => {
   test('requires a key', async () => {
     function component () {
       load(async () => ({ component: true }))

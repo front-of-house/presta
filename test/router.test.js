@@ -1,6 +1,6 @@
-import { createRouter } from '../lib/router'
+const { createRouter } = require('../lib/router')
 
-export default async (test, assert) => {
+module.exports = async (test, assert) => {
   const router = createRouter([
     { route: '*' },
     { route: '/:slug' },

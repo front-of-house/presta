@@ -1,9 +1,9 @@
-import PQueue from 'p-queue'
+const PQueue = require('p-queue').default
 
-import { render } from '../load'
-import { head } from '../lib/pluginHead'
+const { render } = require('../load')
+const { head } = require('../lib/pluginHead')
 
-export default async (test, assert) => {
+module.exports = async (test, assert) => {
   test('head - separate objects', async () => {
     // to mimic render
     const queue = new PQueue({ concurrency: 2 })

@@ -1,17 +1,17 @@
-import fs from 'fs-extra'
-import path from 'path'
+const fs = require('fs-extra')
+const path = require('path')
 
 let root = process.cwd()
 
-export function getRoot () {
+function getRoot () {
   return root
 }
 
-export function setRoot (r) {
+function setRoot (r) {
   root = r
 }
 
-export function create (files) {
+function create (files) {
   const outputFiles = {}
 
   for (const key of Object.keys(files)) {
@@ -33,4 +33,10 @@ export function create (files) {
     },
     files: outputFiles
   }
+}
+
+module.exports = {
+  getRoot,
+  setRoot,
+  create
 }

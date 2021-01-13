@@ -1,9 +1,9 @@
-import path from 'path'
+const path = require('path')
 
-import * as fixtures from './fixtures'
-import { create, unmerge } from '../lib/config'
+const fixtures = require('./fixtures')
+const { create, unmerge } = require('../lib/config')
 
-export default async function (test, assert) {
+module.exports = async function (test, assert) {
   test('config - defaults', async () => {
     const pages = 'app/**/*.js'
     const cli = { pages }
