@@ -1,6 +1,9 @@
 console.time('test')
 
-require('../lib/register')()
+require('@babel/polyfill')
+require('@babel/register')({
+  presets: [require.resolve('@babel/preset-env')]
+})
 
 const path = require('path')
 
