@@ -2,21 +2,8 @@
 
 process.env.PRESTA_ENV = 'development'
 
-const [_, jsx = 'h'] = process.argv.join(' ').match(/--jsx[\s|=]([^-]+)/) || []
-
-const jsxPresets = {
-  h: {
-    jsxPragma: 'h',
-    jsxFragmentPragma: 'h'
-  },
-  react: {
-    jsxPragma: 'React.createElement',
-    jsxFragmentPragma: 'React.Fragment'
-  }
-}
-
-require('./lib/register')({
-  ...jsxPresets[jsx]
+require('@babel/register')({
+  presets: [require.resolve('@babel/preset-env')]
 })
 
 try {

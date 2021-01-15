@@ -29,8 +29,12 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@babel/register": "^7.12.10",
     "@sucrase/webpack-loader": "^2.0.0",
     "ansi-colors": "^4.1.1",
+    "babel-loader": "^8.2.2",
     "chokidar": "^3.4.3",
     "core-js": "^3.6.5",
     "debug": "^4.1.1",
@@ -51,7 +55,7 @@
     "sade": "^1.7.3",
     "sirv": "^1.0.7",
     "sucrase": "^3.17.0",
-    "watch-dependency-graph": "^2.1.0-beta.3",
+    "watch-dependency-graph": "^2.1.0-beta.4",
     "webpack": "^4.44.2"
   },
   "devDependencies": {
