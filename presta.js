@@ -3,7 +3,7 @@
 process.env.PRESTA_ENV = 'development'
 
 require('@babel/register')({
-  presets: [require.resolve('@babel/preset-env')]
+  presets: ['@babel/preset-env']
 })
 
 try {
