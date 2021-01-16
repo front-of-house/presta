@@ -1,14 +1,17 @@
-import fs from 'fs-extra'
-import path from 'path'
+const fs = require('fs-extra')
+const path = require('path')
 
-import * as fixtures from './fixtures'
+const fixtures = require('./fixtures')
 
-import { OUTPUT_STATIC_DIR, OUTPUT_DYNAMIC_PAGES_ENTRY } from '../lib/constants'
-import { build } from '../lib/build'
+const {
+  OUTPUT_STATIC_DIR,
+  OUTPUT_DYNAMIC_PAGES_ENTRY
+} = require('../lib/constants')
+const { build } = require('../lib/build')
 
 const outDir = path.join(fixtures.getRoot(), 'build/dist')
 
-export default async (test, assert) => {
+module.exports = async (test, assert) => {
   test('build - static pages', async () => {
     const fsx = fixtures.create({
       a: {
@@ -48,7 +51,8 @@ export default async (test, assert) => {
     const config = {
       cwd: process.cwd(),
       pages: fsx.files.b,
-      output: outDir
+      output: outDir,
+      dynamicEntryFilepath: path.join(outDir, OUTPUT_DYNAMIC_PAGES_ENTRY)
     }
 
     await build(config)

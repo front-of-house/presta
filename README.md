@@ -13,7 +13,7 @@ Use any JS templating language (yes, React) and bring your own directory structu
 - 0kb runtime\*
 - Runs ES modules natively in Node with no pre-compilation
 - Generate any file format. Seriously. Easily nest microsites.
-- Go read the source (and contribute!): atm it's only about 1300 loc.
+- Go read the source (and contribute!): atm it's only about 1500 loc.
 - Get started in seconds, right from the command line. Scale to thousands of pages.
 - There's no magic, only strings. Bring back the document web.
 

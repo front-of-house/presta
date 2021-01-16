@@ -1,3 +1,5 @@
-import deepmerge from 'deepmerge'
+const deepmerge = require('deepmerge')
 
-export const merge = deepmerge
+const merge = deepmerge
+
+module.exports = { merge }

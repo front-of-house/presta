@@ -1,6 +1,6 @@
-import { defaultCreateContent } from '../lib/defaultCreateContent'
+const { defaultCreateContent } = require('../lib/defaultCreateContent')
 
-export default async (test, assert) => {
+module.exports = async (test, assert) => {
   test('defaultCreateContent - basic', async () => {
     const doc = defaultCreateContent({
       props: {

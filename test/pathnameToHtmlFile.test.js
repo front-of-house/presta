@@ -1,6 +1,6 @@
-import { pathnameToHtmlFile } from '../lib/pathnameToHtmlFile'
+const { pathnameToHtmlFile } = require('../lib/pathnameToHtmlFile')
 
-export default async function (test, assert) {
+module.exports = async function (test, assert) {
   test('pathnameToHtmlFile', async () => {
     assert(pathnameToHtmlFile('/foo') === '/foo/index.html')
     assert(pathnameToHtmlFile('/foo/bar') === '/foo/bar/index.html')

@@ -1,12 +1,12 @@
-import fs from 'fs-extra'
-import path from 'path'
+const fs = require('fs-extra')
+const path = require('path')
 
-import * as fixtures from './fixtures'
+const fixtures = require('./fixtures')
 
-import { OUTPUT_STATIC_DIR } from '../lib/constants'
-import { renderStaticEntries } from '../lib/renderStaticEntries'
-import { createStaticEntry } from '../lib/createEntries'
-import { getLogs } from '../lib/log'
+const { OUTPUT_STATIC_DIR } = require('../lib/constants')
+const { renderStaticEntries } = require('../lib/renderStaticEntries')
+const { createStaticEntry } = require('../lib/createEntries')
+const { getLogs } = require('../lib/log')
 
 /*
  * Think of this as basically creating a page/config pair.
@@ -43,7 +43,7 @@ async function createPageFromSourceFile (page, conf = {}) {
   return contents
 }
 
-export default async (test, assert) => {
+module.exports = async (test, assert) => {
   test('renderStaticEntries - base', async () => {
     const page = await createPageFromSourceFile({
       url: 'a',

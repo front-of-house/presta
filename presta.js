@@ -2,15 +2,10 @@
 
 process.env.PRESTA_ENV = 'development'
 
-require = require('esm')(module)
-
-const path = require('path')
-const { cosmiconfigSync } = require('cosmiconfig')
-const { config: defaultBabelConfig } = require('./lib/babel')
-
-const { config: userBabelConfig } = cosmiconfigSync('babel').search() || {}
-
-require('@babel/register')(userBabelConfig || defaultBabelConfig)
+require('@babel/register')({
+  extensions: ['.ts', '.tsx', '.js', '.jsx'],
+  presets: ['@babel/preset-env']
+})
 
 try {
   require('./cli')
