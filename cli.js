@@ -1,3 +1,6 @@
+require('core-js/stable')
+require('regenerator-runtime/runtime')
+
 const sade = require('sade')
 const exit = require('exit')
 const c = require('ansi-colors')
