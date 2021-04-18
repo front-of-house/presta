@@ -35,21 +35,21 @@ prog
 
 prog
   .command(
-    'build [pages] [output]',
-    'Render page(s) to output directory (defaults to ./build)',
+    'build [files] [output]',
+    'Render files(s) to output directory (defaults to ./build)',
     { default: true }
   )
   .example(`build`)
-  .example(`build pages/**/*.js build`)
+  .example(`build files/**/*.js build`)
   .example(`build -c ${CONFIG_DEFAULT}`)
-  .action(async (pages, output, opts) => {
+  .action(async (files, output, opts) => {
     console.clear()
 
     warnOnBadGlob(output)
 
     const config = globalConfig.create({
       ...opts,
-      pages,
+      files,
       output
     })
 
@@ -59,20 +59,20 @@ prog
   })
 
 prog
-  .command('watch [pages] [output]')
+  .command('watch [files] [output]')
   .option('--no-serve, -n', `Don't serve output directory`, false)
   .describe('Watch and build page(s) to output directory')
   .example(`watch`)
-  .example(`watch pages/**/*.js build`)
+  .example(`watch files/**/*.js build`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
-  .action(async (pages, output, opts) => {
+  .action(async (files, output, opts) => {
     console.clear()
 
     warnOnBadGlob(output)
 
     const config = globalConfig.create({
       ...opts,
-      pages,
+      files,
       output
     })
 

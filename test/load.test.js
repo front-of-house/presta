@@ -1,4 +1,4 @@
-const { prime, load, render, persistent } = require('../load')
+const { prime, load, render, flush, persistent } = require('../load')
 const { createContext } = require('../lib/createContext')
 
 function expire (key) {
@@ -103,7 +103,7 @@ module.exports = async (test, assert) => {
     assert(loads === 2)
   })
 
-  test('disk - loads', async () => {
+  test.skip('disk - loads', async () => {
     let loads = 0
 
     expire('disk')
@@ -188,7 +188,7 @@ module.exports = async (test, assert) => {
     assert(loads === 0)
   })
 
-  test('prime to disk', async () => {
+  test.skip('prime to disk', async () => {
     let loads = 0
 
     expire('disk')
@@ -258,5 +258,28 @@ module.exports = async (test, assert) => {
     } catch (e) {
       assert((loads = 1))
     }
+  })
+
+  test('flush', async () => {
+    let loads = 0
+
+    function component () {
+      load(
+        async () => {
+          loads++
+          return 'data'
+        },
+        { key: 'flush' }
+      )
+
+      return 'component'
+    }
+
+    const { data, content } = await flush(() => component())
+    await flush(() => component())
+
+    assert(content === 'component')
+    assert(data.flush === 'data')
+    assert(loads === 1)
   })
 }

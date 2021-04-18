@@ -21,7 +21,7 @@ function clearMemoryCache () {
 function prime (value, { key, duration } = {}) {
   assert(!!key, 'presta/load requires a key')
 
-  const persist = !!duration && PRESTA_ENV === 'development'
+  const persist = !!duration && PRESTA_ENV !== 'production'
 
   if (persist) {
     const interval = ms(duration)
@@ -45,7 +45,7 @@ function prime (value, { key, duration } = {}) {
 }
 
 function cache (loader, { key, duration } = {}) {
-  const persist = !!duration && PRESTA_ENV === 'development'
+  const persist = !!duration && PRESTA_ENV !== 'production'
 
   // try in-memory first
   let entry = memory[key]
@@ -132,11 +132,33 @@ async function render (
   return context
 }
 
+async function flush (run, data = {}) {
+  const content = run()
+
+  if (Object.keys(requests).length) {
+    await Promise.allSettled(Object.values(requests))
+    return flush(run, data)
+  }
+
+  const cached = persistent.all()
+
+  data = {
+    ...memory,
+    ...Object.keys(cached).reduce((res, k) => {
+      res[k] = cached[k].value
+      return res
+    }, {})
+  }
+
+  return { content, data }
+}
+
 module.exports = {
   persistent,
   clearMemoryCache,
   prime,
   cache,
   load,
-  render
+  render,
+  flush
 }
