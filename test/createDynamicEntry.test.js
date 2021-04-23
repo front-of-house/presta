@@ -19,7 +19,7 @@ module.exports = (test, assert) => {
       }
     })
     const config = {
-      pages: './createDynamicEntry/*.js',
+      files: './createDynamicEntry/*.js',
       output: 'output',
       dynamicEntryFilepath: path.join(
         fixtures.getRoot(),

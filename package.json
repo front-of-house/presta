@@ -10,7 +10,7 @@
     "test": "rm -rf ./fixtures && NODE_ENV=test node test",
     "test:watch": "NODE_ENV=test nodemon --ignore fixtures/ test",
     "format": "prettier-standard --format",
-    "cloc": "npx cloc lib/*.js utils/*.js cli.js presta.js document.js load.js serve.js router.js"
+    "cloc": "npx cloc lib/*.js cli.js presta.js html.js"
   },
   "husky": {
     "hooks": {
@@ -40,11 +40,13 @@
     "debug": "^4.1.1",
     "deepmerge": "^4.2.2",
     "exit": "^0.1.2",
+    "fast-json-stringify": "^2.6.0",
     "filewatcher": "^3.0.1",
     "flat-cache": "^2.0.1",
     "fs-extra": "^9.0.1",
     "get-port": "^5.1.1",
     "matched": "^5.0.0",
+    "mime-types": "^2.1.30",
     "module-alias": "^2.2.2",
     "ms": "^2.1.2",
     "p-queue": "^6.6.1",

@@ -1,6 +1,6 @@
 const { createHeadTags, createFootTags } = require('./lib/createHeadTags')
 
-function document ({
+function html ({
   body = '',
   head = {},
   foot = {},
@@ -41,4 +41,6 @@ function document ({
   return `<!-- built with presta https://npm.im/presta --><!DOCTYPE html><html${htmlAttr}><head>${headTags}</head><body${bodyAttr}>${body}${footTags}</body></html>`
 }
 
-module.exports = { document }
+module.exports = {
+  html
+}

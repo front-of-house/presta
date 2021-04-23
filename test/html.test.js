@@ -1,8 +1,8 @@
-const { document } = require('../document')
+const { html } = require('../html')
 
 module.exports = async (test, assert) => {
-  test('document - works on its own', async () => {
-    const doc = document({
+  test('html - works on its own', async () => {
+    const doc = html({
       body: 'original',
       head: {
         title: 'original'
@@ -13,8 +13,8 @@ module.exports = async (test, assert) => {
     assert(/<body.+original/.test(doc))
   })
 
-  test('document - attributes work', async () => {
-    const doc = document({
+  test('html - attributes work', async () => {
+    const doc = html({
       body: 'original',
       head: {
         title: 'original'
