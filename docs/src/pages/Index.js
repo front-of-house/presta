@@ -1,7 +1,12 @@
-import { h } from 'hyposcript'
-import { Box } from 'hypobox'
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { Hypo, Box } from '@hypobox/react'
+import { html } from 'presta/html'
+import { hypostyle } from 'hypostyle'
 
 import { title } from '@/src/lib/title'
+import * as document from '@/src/lib/document'
+import { theme } from '@/src/lib/theme'
 
 import { Gutter } from '@/src/components/Gutter'
 import { Alert } from '@/src/components/Alert'
@@ -13,22 +18,17 @@ export function getStaticPaths () {
   return ['/']
 }
 
-export function template (context) {
-  context.plugins.head({
-    title: title('Presta'),
-    description: 'Hyper minimal framework for the modern web.'
-  })
-
+function Page () {
   return (
-    <Box pb={6} css={{ overflow: 'hidden' }}>
+    <Box pb={6} cx={{ overflow: 'hidden' }}>
       <Gutter withVertical>
-        <Box mx='auto' mw='1100px'>
+        <Box mx='auto' maxWidth='1100px'>
           <Box f aic jcb>
             <Logo />
 
             <Box as='ul' f aic>
               <Box as='li' db>
-                <Box as='a' db href='/docs' fs={5} fe='bold' mr={6}>
+                <Box as='a' db href='/docs' fs={5} fw='bold' mr={6}>
                   Docs
                 </Box>
               </Box>
@@ -39,7 +39,7 @@ export function template (context) {
                   lh='1.0'
                   href='https://github.com/sure-thing/presta'
                   target='_blank'
-                  fe='bold'
+                  fw='bold'
                 >
                   <Github w='20px' h='20px' />
                 </Box>
@@ -62,7 +62,7 @@ export function template (context) {
                   pb={7}
                   ff='mono'
                   fs={6}
-                  css={{
+                  cx={{
                     boxShadow: 'var(--shadow)',
                     borderRadius: '6px'
                   }}
@@ -73,26 +73,26 @@ export function template (context) {
                       bg='#FA6666'
                       w='10px'
                       h='10px'
-                      css={{ borderRadius: '10px' }}
+                      cx={{ borderRadius: '10px' }}
                     />
                     <Box
                       mr={2}
                       bg='#EDD13C'
                       w='10px'
                       h='10px'
-                      css={{ borderRadius: '10px' }}
+                      cx={{ borderRadius: '10px' }}
                     />
                     <Box
                       mr={2}
                       bg='#86CD4F'
                       w='10px'
                       h='10px'
-                      css={{ borderRadius: '10px' }}
+                      cx={{ borderRadius: '10px' }}
                     />
                   </Box>
 
                   <Box f>
-                    <Box mr={2} css={{ opacity: 0.5 }}>
+                    <Box mr={2} cx={{ opacity: 0.5 }}>
                       $
                     </Box>{' '}
                     npx presta build pages/* dist/
@@ -164,8 +164,8 @@ export function template (context) {
                 description: `There's no magic, only strings. Bring back the document web.`
               }
             ].map(f => (
-              <Box as='li' db p={1} w={[1, 1 / 2, 1 / 3]} mb={5}>
-                <Box h='100%' css={{ borderLeft: '4px solid var(--pink)' }}>
+              <Box key={f.title} as='li' db p={1} w={[1, 1 / 2, 1 / 3]} mb={5}>
+                <Box h='100%' cx={{ borderLeft: '4px solid var(--pink)' }}>
                   <Box px={5} py={1}>
                     <Box as='h5' mb={3}>
                       {f.title}
@@ -182,4 +182,30 @@ export function template (context) {
       </Gutter>
     </Box>
   )
+}
+
+export function handler (ctx) {
+  const hypo = hypostyle(theme)
+  const body = renderToStaticMarkup(
+    <div id='root'>
+      <Hypo hypostyle={hypo}>
+        <Page />
+      </Hypo>
+    </div>
+  )
+  const head = document.head(ctx)
+  const sheet = hypo.flush()
+
+  return {
+    html: html({
+      title: title('Presta'),
+      description: 'Hyper minimal framework for the modern web.',
+      head: {
+        ...head,
+        style: [...(head.style || []), { id: 'style', children: sheet }]
+      },
+      body: body,
+      foot: document.foot(ctx)
+    })
+  }
 }
