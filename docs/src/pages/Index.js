@@ -186,6 +186,7 @@ function Page () {
 
 export function handler (ctx) {
   const hypo = hypostyle(theme)
+  const head = document.head(ctx)
   const body = renderToStaticMarkup(
     <div id='root'>
       <Hypo hypostyle={hypo}>
@@ -193,8 +194,6 @@ export function handler (ctx) {
       </Hypo>
     </div>
   )
-  const head = document.head(ctx)
-  const sheet = hypo.flush()
 
   return {
     html: html({
@@ -202,7 +201,7 @@ export function handler (ctx) {
       description: 'Hyper minimal framework for the modern web.',
       head: {
         ...head,
-        style: [...(head.style || []), { id: 'style', children: sheet }]
+        style: [...(head.style || []), { id: 'style', children: hypo.flush() }]
       },
       body: body,
       foot: document.foot(ctx)
