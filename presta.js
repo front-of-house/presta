@@ -4,7 +4,7 @@ process.env.PRESTA_ENV = 'development'
 
 require('@babel/register')({
   extensions: ['.ts', '.tsx', '.js', '.jsx'],
-  presets: ['@babel/preset-env']
+  presets: [require.resolve('@babel/preset-env')]
 })
 
 try {
