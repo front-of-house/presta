@@ -50,7 +50,8 @@ prog
     const config = globalConfig.create({
       ...opts,
       files,
-      output
+      output,
+      env: 'production'
     })
 
     log(`${c.blue('~ presta build')}\n`)
@@ -73,7 +74,8 @@ prog
     const config = globalConfig.create({
       ...opts,
       files,
-      output
+      output,
+      env: 'development'
     })
 
     if (!opts.n) {
