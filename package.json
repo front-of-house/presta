@@ -10,7 +10,7 @@
     "test": "rm -rf ./fixtures && NODE_ENV=test node test",
     "test:watch": "NODE_ENV=test nodemon --ignore fixtures/ test",
     "format": "prettier-standard --format",
-    "cloc": "npx cloc lib/*.js cli.js presta.js html.js"
+    "cloc": "npx cloc lib/*.js cli.js html.js load.js"
   },
   "husky": {
     "hooks": {
