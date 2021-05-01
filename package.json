@@ -53,7 +53,7 @@
     "route-sort": "^1.0.0",
     "sade": "^1.7.3",
     "sirv": "^1.0.7",
-    "watch-dependency-graph": "^2.3.0",
+    "watch-dependency-graph": "^2.4.0",
     "webpack": "^4.44.2"
   },
   "devDependencies": {
