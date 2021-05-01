@@ -46,6 +46,8 @@ prog
   .example(`build files/**/*.js build`)
   .example(`build -c ${CONFIG_DEFAULT}`)
   .action(async (files, output, opts) => {
+    process.env.PRESTA_ENV = 'production'
+
     registerRuntime()
 
     console.clear()
@@ -72,6 +74,8 @@ prog
   .example(`watch files/**/*.js build`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
   .action(async (files, output, opts) => {
+    process.env.PRESTA_ENV = 'development'
+
     registerRuntime()
 
     console.clear()
