@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const sade = require('sade')
 const exit = require('exit')
 const c = require('ansi-colors')
@@ -20,6 +22,10 @@ function warnOnBadGlob (output) {
   }
 }
 
+function registerRuntime (options = {}) {
+  require('esbuild-register/dist/node').register(options)
+}
+
 const prog = sade('presta')
 
 prog
@@ -40,6 +46,8 @@ prog
   .example(`build files/**/*.js build`)
   .example(`build -c ${CONFIG_DEFAULT}`)
   .action(async (files, output, opts) => {
+    registerRuntime()
+
     console.clear()
 
     warnOnBadGlob(output)
@@ -64,6 +72,8 @@ prog
   .example(`watch files/**/*.js build`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
   .action(async (files, output, opts) => {
+    registerRuntime()
+
     console.clear()
 
     warnOnBadGlob(output)

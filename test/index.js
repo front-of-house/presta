@@ -1,18 +1,6 @@
 console.time('test')
 
-require('@babel/register')({
-  extensions: ['.ts', '.tsx', '.js', '.jsx'],
-  presets: [
-    [
-      require.resolve('@babel/preset-env'),
-      {
-        targets: { node: '12' },
-        useBuiltIns: 'usage',
-        corejs: '3.6'
-      }
-    ]
-  ]
-})
+require('esbuild-register/dist/node').register()
 
 const path = require('path')
 
