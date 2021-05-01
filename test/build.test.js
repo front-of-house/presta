@@ -12,7 +12,7 @@ const { build } = require('../lib/build')
 const outDir = path.join(fixtures.getRoot(), 'build/dist')
 
 module.exports = async (test, assert) => {
-  test('build - static files', async () => {
+  test.skip('build - static files', async () => {
     const fsx = fixtures.create({
       a: {
         url: './build/a.js',
@@ -23,6 +23,7 @@ module.exports = async (test, assert) => {
       }
     })
     const config = {
+      env: 'production',
       cwd: process.cwd(),
       files: fsx.files.a,
       output: outDir
@@ -38,7 +39,7 @@ module.exports = async (test, assert) => {
     assert(contents.includes('page'))
   })
 
-  test('build - dynamic files', async () => {
+  test.skip('build - dynamic files', async () => {
     const fsx = fixtures.create({
       b: {
         url: './build/b.js',
@@ -49,6 +50,7 @@ module.exports = async (test, assert) => {
       }
     })
     const config = {
+      env: 'production',
       cwd: process.cwd(),
       files: fsx.files.b,
       output: outDir,
