@@ -44,6 +44,8 @@ require('./build.test')(test, assert)
 require('./router.test')(test, assert)
 require('./getRouteParams.test')(test, assert)
 require('./normalizeResponse.test')(test, assert)
+require('./load.test')(test, assert)
+require('./loadCache.test')(test, assert)
 
 !(async function () {
   await test.run()
