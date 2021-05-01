@@ -1,5 +1,5 @@
-import { h } from 'hyposcript'
-import { Box } from 'hypobox'
+import React from 'react'
+import { Box } from '@hypobox/react'
 
 export function Gutter ({ withVertical, children }) {
   return (

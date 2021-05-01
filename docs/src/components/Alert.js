@@ -1,5 +1,5 @@
-import { h } from 'hyposcript'
-import { Box } from 'hypobox'
+import React from 'react'
+import { Box } from '@hypobox/react'
 
 import { Info } from '@/src/icons/Info'
 
@@ -13,7 +13,7 @@ export function Alert ({ children, ...rest }) {
         c='b'
         px={6}
         py={6}
-        css={{
+        cx={{
           border: '2px solid var(--dark)',
           borderRadius: '6px',
           boxShadow: 'var(--shadow)'

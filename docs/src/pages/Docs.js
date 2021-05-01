@@ -1,9 +1,14 @@
 import fs from 'fs'
 import path from 'path'
-import { h } from 'hyposcript'
-import { Box } from 'hypobox'
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { Hypo, Box } from '@hypobox/react'
+import { html } from 'presta/html'
+import { hypostyle } from 'hypostyle'
 
 import { title } from '@/src/lib/title'
+import * as document from '@/src/lib/document'
+import { theme } from '@/src/lib/theme'
 
 import { Gutter } from '@/src/components/Gutter'
 import { Github } from '@/src/icons/Github'
@@ -14,47 +19,60 @@ export async function getStaticPaths () {
   return ['/docs']
 }
 
-export function template (context) {
+export function handler (ctx) {
   const file = fs.readFileSync(
     path.resolve(__dirname, '../content/docs.md'),
     'utf-8'
   )
+  const hypo = hypostyle(theme)
+  const head = document.head(ctx)
+  const body = renderToStaticMarkup(
+    <div id='root'>
+      <Hypo hypostyle={hypo}>
+        <Box pb={6} cx={{ overflow: 'hidden' }}>
+          <Gutter withVertical>
+            <Box mx='auto' maxWidth='640px'>
+              <Box f aic jcb>
+                <Box as='a' href='/' cx={{ textDecoration: 'none' }}>
+                  <Logo noWord />
+                </Box>
 
-  context.plugins.head({
-    title: title(['Documentation', 'Presta']),
-    description: 'Hyper minimal framework for the modern web.'
-  })
-
-  return (
-    <Box pb={6} css={{ overflow: 'hidden' }}>
-      <Gutter withVertical>
-        <Box mx='auto' mw='640px'>
-          <Box f aic jcb>
-            <Box as='a' href='/' css={{ textDecoration: 'none' }}>
-              <Logo noWord />
-            </Box>
-
-            <Box as='ul' f aic>
-              <Box as='li' db>
-                <Box
-                  as='a'
-                  db
-                  lh='1.0'
-                  href='https://github.com/sure-thing/presta'
-                  target='_blank'
-                  fe='bold'
-                >
-                  <Github w='20px' h='20px' />
+                <Box as='ul' f aic>
+                  <Box as='li' db>
+                    <Box
+                      as='a'
+                      db
+                      lh='1.0'
+                      href='https://github.com/sure-thing/presta'
+                      target='_blank'
+                      fw='bold'
+                    >
+                      <Github w='20px' h='20px' />
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          </Box>
 
-          <Box pt={16} f fw jcb>
-            <Markdown>{file}</Markdown>
-          </Box>
+              <Box pt={16} f fw jcb>
+                <Markdown content={file} />
+              </Box>
+            </Box>
+          </Gutter>
         </Box>
-      </Gutter>
-    </Box>
+      </Hypo>
+    </div>
   )
+
+  return {
+    html: html({
+      title: title(['Documentation', 'Presta']),
+      description: 'Hyper minimal framework for the modern web.',
+      head: {
+        ...head,
+        style: [...(head.style || []), { id: 'style', children: hypo.flush() }]
+      },
+      body: body,
+      foot: document.foot(ctx)
+    })
+  }
 }

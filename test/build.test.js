@@ -12,19 +12,19 @@ const { build } = require('../lib/build')
 const outDir = path.join(fixtures.getRoot(), 'build/dist')
 
 module.exports = async (test, assert) => {
-  test('build - static pages', async () => {
+  test('build - static files', async () => {
     const fsx = fixtures.create({
       a: {
         url: './build/a.js',
         content: `
           export const getStaticPaths = () => ([ 'path' ])
-          export const template = () => 'page'
+          export const handler = () => 'page'
         `
       }
     })
     const config = {
       cwd: process.cwd(),
-      pages: fsx.files.a,
+      files: fsx.files.a,
       output: outDir
     }
 
@@ -38,19 +38,19 @@ module.exports = async (test, assert) => {
     assert(contents.includes('page'))
   })
 
-  test('build - dynamic pages', async () => {
+  test('build - dynamic files', async () => {
     const fsx = fixtures.create({
       b: {
         url: './build/b.js',
         content: `
           export const route = 'path'
-          export const template = () => 'page'
+          export const handler = () => 'page'
         `
       }
     })
     const config = {
       cwd: process.cwd(),
-      pages: fsx.files.b,
+      files: fsx.files.b,
       output: outDir,
       dynamicEntryFilepath: path.join(outDir, OUTPUT_DYNAMIC_PAGES_ENTRY)
     }

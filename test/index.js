@@ -1,17 +1,24 @@
 console.time('test')
 
-require('@babel/polyfill')
 require('@babel/register')({
-  presets: [require.resolve('@babel/preset-env')]
+  extensions: ['.ts', '.tsx', '.js', '.jsx'],
+  presets: [
+    [
+      require.resolve('@babel/preset-env'),
+      {
+        targets: { node: '12' },
+        useBuiltIns: 'usage',
+        corejs: '3.6'
+      }
+    ]
+  ]
 })
 
 const path = require('path')
 
 // proxy self back to self
 require('module-alias').addAliases({
-  'presta/load': path.join(__dirname, '../load'),
-  'presta/document': path.join(__dirname, '../document'),
-  'presta/render': path.join(__dirname, '../render')
+  // 'presta/html': path.join(__dirname, '../html')
 })
 
 const fs = require('fs-extra')
@@ -26,19 +33,19 @@ fs.ensureDirSync(root)
 process.chdir(root)
 fixtures.setRoot(root)
 
-require('./load.test')(test, assert)
 require('./config.test')(test, assert)
 require('./getFiles.test')(test, assert)
 require('./createHeadTags.test')(test, assert)
 require('./createDynamicEntry.test')(test, assert)
-require('./pathnameToHtmlFile.test')(test, assert)
-require('./head.test')(test, assert)
-require('./document.test')(test, assert)
+require('./pathnameToFile.test')(test, assert)
+require('./html.test')(test, assert)
 // require('./renderStaticEntries.test')(test, assert)
 require('./build.test')(test, assert)
 require('./router.test')(test, assert)
 require('./getRouteParams.test')(test, assert)
-require('./defaultCreateContent.test')(test, assert)
+require('./normalizeResponse.test')(test, assert)
+require('./load.test')(test, assert)
+require('./loadCache.test')(test, assert)
 
 !(async function () {
   await test.run()

@@ -1,5 +1,5 @@
-import { h } from 'hyposcript'
-import { Box } from 'hypobox'
+import React from 'react'
+import { Box } from '@hypobox/react'
 
 export function Logo ({ noWord }) {
   return (
@@ -7,7 +7,7 @@ export function Logo ({ noWord }) {
       <Box dib as='span' fs='50px' h={40} lh='33px' c='pink'>
         ~
       </Box>
-      <Box pl={2} dib as='span' fs={3} h={40} css={{ opacity: noWord ? 0 : 1 }}>
+      <Box pl={2} dib as='span' fs={3} h={40} cx={{ opacity: noWord ? 0 : 1 }}>
         Presta
       </Box>
     </Box>

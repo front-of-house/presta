@@ -1,5 +1,5 @@
-import { h } from 'hyposcript'
-import { Box } from 'hypobox'
+import React from 'react'
+import { Box } from '@hypobox/react'
 
 export function Button ({ children, ...props }) {
   return (
@@ -9,8 +9,8 @@ export function Button ({ children, ...props }) {
       px={4}
       bg='pink'
       fs={6}
-      fe={4}
-      css={{
+      fw={4}
+      cx={{
         color: 'var(--dark) !important',
         border: '2px solid currentColor',
         borderRadius: '6px',

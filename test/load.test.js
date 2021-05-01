@@ -1,262 +1,152 @@
-const { prime, load, render, persistent } = require('../load')
-const { createContext } = require('../lib/createContext')
+const { prime, load, flush } = require('../load')
 
-function expire (key) {
-  persistent.removeKey(key)
-  persistent.save(true)
-}
-
-function createComponent ({ key, duration, loadCb }) {
-  return ({ children }) => {
-    const loaded = load(
-      async () => {
-        loadCb()
-
-        return {
-          [key]: true
-        }
-      },
-      { key, duration }
-    )
-
-    return JSON.stringify({
-      ...loaded,
-      children: children && loaded ? children({}) : null
-    })
-  }
-}
+const wait = t => new Promise(r => setTimeout(r, t))
 
 module.exports = async (test, assert) => {
-  test('requires a key', async () => {
-    function component () {
-      load(async () => ({ component: true }))
-      return ''
+  test('runs', async () => {
+    let i = 0
+
+    const loader = async () => {
+      await wait(100)
+      return { value: 'runs' }
     }
-
-    try {
-      await render(component, createContext({}))
-    } catch (e) {
-      assert(e.message.includes('requires a key'))
-    }
-  })
-
-  test('memory - loads', async () => {
-    let loads = 0
-
-    const comp = createComponent({
-      key: 'a',
-      loadCb () {
-        loads++
-      }
-    })
-
-    const { props } = await render(comp, createContext({}))
-    const json = JSON.parse(props.content)
-
-    assert(json.a)
-    assert(loads === 1)
-  })
-
-  test('memory - multiple', async () => {
-    let loads = 0
-
-    const comp = createComponent({
-      key: 'b',
-      loadCb () {
-        loads++
-      }
-    })
-
-    const { props } = await render(comp, createContext({ children: comp }))
-    const json = JSON.parse(props.content)
-
-    assert(json.b)
-
-    // `b` should be cached
-    assert(loads === 1)
-  })
-
-  test('memory - multiple separate', async () => {
-    let loads = 0
-
-    const c = createComponent({
-      key: 'c',
-      loadCb () {
-        loads++
-      }
-    })
-
-    const d = createComponent({
-      key: 'd',
-      loadCb () {
-        loads++
-      }
-    })
-
-    const { props } = await render(c, createContext({ children: d }))
-    const json = JSON.parse(props.content)
-
-    assert(json.c)
-    assert(json.children)
-
-    // `c` and `d` should each have been loaded
-    assert(loads === 2)
-  })
-
-  test('disk - loads', async () => {
-    let loads = 0
-
-    expire('disk')
-
-    const comp = createComponent({
-      key: 'disk',
-      duration: '1m',
-      loadCb () {
-        loads++
-      }
-    })
-
-    const { props } = await render(comp, createContext({ children: comp }))
-    const json = JSON.parse(props.content)
-
-    assert(json.disk)
-    assert(loads === 1)
-  })
-
-  test('memory - no recursion on error', async () => {
-    let loads = 0
 
     function component () {
-      loads++
-
-      load(
-        async () => {
-          throw 'error'
-          return 'data'
-        },
-        { key: 'recursion error' }
-      )
-
-      return 'component'
+      i++
+      const data = load(loader, { key: 'runs' })
+      return data ? data.value : null
     }
 
-    await render(component, createContext({}))
-    assert(loads === 2)
+    const { content, data } = await flush(component)
+
+    assert(content === 'runs')
+    assert(data.runs.value === 'runs')
+    assert(i === 2)
   })
 
-  test('disk - no recursion on error', async () => {
-    let loads = 0
+  test('nested - cached', async () => {
+    let i = 0
+
+    const loader = async () => {
+      await wait(100)
+      return { value: 'nested' }
+    }
+
+    function child () {
+      i++
+      const data = load(loader, { key: 'nested' })
+      return data ? data.value : null
+    }
+
+    function entry () {
+      i++
+      const data = load(loader, { key: 'nested' })
+      return data ? child() : null
+    }
+
+    const { content, data } = await flush(entry)
+
+    assert(content === 'nested')
+    assert(data.nested.value === 'nested')
+    assert(i === 3)
+  })
+
+  test('nested - not cached', async () => {
+    let i = 0
+
+    const loader = async () => {
+      await wait(100)
+      return { value: 'nested' }
+    }
+
+    function child () {
+      i++
+      const data = load(loader, { key: 'nested_child' })
+      return data ? data.value : null
+    }
+
+    function entry () {
+      i++
+      const data = load(loader, { key: 'nested_entry' })
+      return data ? child() : null
+    }
+
+    const { content, data } = await flush(entry)
+
+    assert(content === 'nested')
+    assert(data.nested_entry.value === 'nested')
+    assert(data.nested_child.value === 'nested')
+    assert(i === 5)
+  })
+
+  test('no recursion on error', async () => {
+    let i = 0
+
+    const loader = async () => {
+      await wait(100)
+      throw 'error'
+      return { value: 'runs' }
+    }
 
     function component () {
-      loads++
-
-      load(
-        async () => {
-          throw 'error'
-          return 'data'
-        },
-        { key: 'recursion error', duration: '1m' }
-      )
-
-      return 'component'
+      i++
+      const data = load(loader, { key: 'runs' })
+      return data ? data.value : null
     }
 
-    try {
-      await render(component, createContext({}))
-      throw 'unreachable'
-    } catch (e) {
-      assert((loads = 1))
+    await flush(component)
+
+    assert(i === 1)
+  })
+
+  test('prime', async () => {
+    let i = 0
+
+    const loader = async () => {
+      return { value: 'val' }
     }
-  })
-
-  test('prime to memory', async () => {
-    let loads = 0
-
-    prime({ memory: true }, { key: 'memory' })
-
-    const comp = createComponent({
-      key: 'memory',
-      loadCb () {
-        loads++
-      }
-    })
-
-    const { props } = await render(comp, createContext({ children: comp }))
-    const json = JSON.parse(props.content)
-
-    assert(json.memory)
-    assert(loads === 0)
-  })
-
-  test('prime to disk', async () => {
-    let loads = 0
-
-    expire('disk')
-
-    prime({ disk: true }, { key: 'disk', duration: '1m' })
-
-    const comp = createComponent({
-      key: 'disk',
-      duration: '1m',
-      loadCb () {
-        loads++
-      }
-    })
-
-    const { props } = await render(comp, createContext({ children: comp }))
-    const json = JSON.parse(props.content)
-
-    assert(json.disk)
-    assert(loads === 0)
-  })
-
-  test('memory - catches sync error', async () => {
-    let loads = 0
 
     function component () {
-      loads++
-
-      load(
-        () => {
-          throw 'error'
-          return 'data'
-        },
-        { key: 'sync error' }
-      )
-
-      return 'component'
+      i++
+      const data = load(loader, { key: 'runs' })
+      return data ? data.value : null
     }
 
-    try {
-      await render(component, createContext({}))
-      throw 'unreachable'
-    } catch (e) {
-      assert((loads = 1))
-    }
+    prime('runs', 'val')
+
+    await flush(component)
+
+    assert(i === 1)
   })
 
-  test('memory - catches async error', async () => {
-    let loads = 0
+  test('catches sync and async errors', async () => {
+    let one = 0
+    let two = 0
 
-    function component () {
-      loads++
-
-      load(
-        async () => {
-          throw 'error'
-          return 'data'
-        },
-        { key: 'async error' }
-      )
-
-      return 'component'
+    const asyncLoader = async () => {
+      throw 'async'
+      return { value: 'async' }
+    }
+    const syncLoader = () => {
+      throw 'sync'
+      return { value: 'sync' }
     }
 
-    try {
-      await render(component, createContext({}))
-      throw 'unreachable'
-    } catch (e) {
-      assert((loads = 1))
+    function asyncComponent () {
+      one++
+      const data = load(asyncLoader, { key: 'async' })
+      return data ? data.value : null
     }
+    function syncComponent () {
+      two++
+      const data = load(syncLoader, { key: 'async' })
+      return data ? data.value : null
+    }
+
+    await flush(asyncComponent)
+    assert(one === 2)
+
+    await flush(syncComponent)
+    assert(two === 1)
   })
 }

@@ -1,7 +1,12 @@
-import { h } from 'hyposcript'
-import { Box } from 'hypobox'
+import React from 'react'
+import { Box } from '@hypobox/react'
 import md from 'marked'
 
-export function Markdown ({ children }) {
-  return <Box class='wysiwyg'>{md(children[0])}</Box>
+export function Markdown ({ content, children }) {
+  return (
+    <Box
+      className='wysiwyg'
+      dangerouslySetInnerHTML={{ __html: md(content) }}
+    />
+  )
 }
