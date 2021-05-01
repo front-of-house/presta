@@ -4,7 +4,7 @@
   "description": "Hyper minimal framework for the modern web.",
   "main": "presta.js",
   "bin": {
-    "presta": "presta.js"
+    "presta": "cli.js"
   },
   "scripts": {
     "test": "rm -rf ./fixtures && NODE_ENV=test node test",
@@ -29,15 +29,11 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "@babel/core": "^7.12.10",
-    "@babel/preset-env": "^7.13.15",
-    "@babel/register": "^7.12.10",
     "ansi-colors": "^4.1.1",
-    "babel-loader": "^8.2.2",
     "chokidar": "^3.4.3",
-    "core-js": "^3.6.5",
     "debug": "^4.1.1",
     "deepmerge": "^4.2.2",
+    "esbuild-register": "^2.5.0",
     "exit": "^0.1.2",
     "filewatcher": "^3.0.1",
     "fs-extra": "^9.0.1",
@@ -53,8 +49,7 @@
     "route-sort": "^1.0.0",
     "sade": "^1.7.3",
     "sirv": "^1.0.7",
-    "watch-dependency-graph": "^2.4.0",
-    "webpack": "^4.44.2"
+    "watch-dependency-graph": "^2.4.0"
   },
   "devDependencies": {
     "baretest": "^2.0.0",
