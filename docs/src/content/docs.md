@@ -1,610 +1,246 @@
-- [Installation](#installation)
-- [Running Presta](#running-presta)
-  - [Build](#build)
-  - [Watch](#watch)
-- [Presta Context](#presta-context)
-- [Configuration](#configuration)
-  - [Pages](#pages)
-  - [Output](#output)
-  - [Assets](#assets)
-  - [Transforming Content](#transforming-content)
-  - [Custom Renderer](#custom-renderer)
-  - [Config FAQ](#config-faq)
-- [Creating Pages](#creating-pages)
-  - [Static Pages](#static-pages)
-  - [Dynamic Pages](#dynamic-pages)
-  - [Hybrid Pages](#hybrid-pages)
-  - [Page Head Metadata](#page-head-metadata)
-- [Data Loading](#data-loading)
-  - [Keys and Caching](#keys-and-caching)
-  - [Co-location](#co-location)
-- [Utilities](#utilities)
-  - [presta/document](#prestadocument)
-  - [presta/utils/merge](#prestautilsmerge)
-- [Examples](#examples)
-- [Roadmap](#roadmap)
-
-<br />
-
-Presta is an alternative to all-in-one web frameworks. You can use Presta to
-render a single file, or many. You can integrate it as a small part of existing
-projects, or use it to manage multiple microsites built with different
-technologies. As a general rule, Presta aims to be an ecosystem of tools, not a
-walled-garden platform.
+Presta is a _minimalist_ web framework. It provides a thin layer on top of familiar
+serverless patterns to enable devs to build APIs and HTML pages extremely easily
+and quickly.
 
 #### Features
 
-- create static pages, SSR routes, SPAs, or any combination
-- no client-side runtime, but you can easily bring your own
-- fast local development using [esm](https://github.com/standard-things/esm) to
-  run your ESModule code (almost) natively
-- can support (probably) any templating library written in JavaScript
-- output any file format you need i.e. sitemaps or RSS feeds
-- at ~1300 loc, it's small and maintainable (and we aim to keep it that way)
+🔥 really really fast<br />
+🍰 build serverless APIs<br />
+📂 render HTML files (or any other format)<br />
+📡 fetch data however you like<br />
+📡 optionally co-locate data loading with components<br />
+🙅 no browser runtime (it's a feature!)<br />
+⚙️ TypeScript and JSX support built in<br />
 
-## Installation
+#### Upcoming Features
 
-```bash
-$ npm i presta
-```
+- plugins API
+- API actions API — like programatically trigger renders
+- deploy adapters — like Netlify, Vercel
 
-```bash
-Usage
-  $ presta <command> [options]
+# Usage
 
-Available Commands
-  build    Render page(s) to output directory (defaults to ./build)
-  watch    Watch and build page(s) to output directory
-
-For more info, run any command with the `--help` flag
-  $ presta build --help
-  $ presta watch --help
-
-Options
-  -c, --config     Path to a config file.  (default ./presta.config.js)
-  -a, --assets     Specify static asset directory.  (default ./public)
-  --jsx            Specify a JSX pragma.  (default h)
-  -v, --version    Displays current version
-  -h, --help       Displays this message
-```
-
-## Running Presta
-
-As seen above, you can run Presta one of two ways: `build` or `watch`.
-
-#### Build
-
-`build` will generate all static pages, compile a serverless function with any
-configured dynamic pages, and copy any files from `./public` to the static
-output directory for deployment.
-
-#### Watch
-
-`watch` does the same as `build`, but monitors your file structure for changes,
-re-generating your files and reloading your browser on every change.
-
-> `watch` doesn't do a full render to start, so if you're starting from an empty output
-> directory, consider running `npx presta build` followed by `npx presta watch` to
-> kick things off.
-
-## Presta Context
-
-Throughout the process, Presta passes around a object containing helpful context
-related to the file being built.
-
-For static files, it looks like this:
-
-```js
-{
-  path: '/about', // the route being rendered
-}
-```
-
-For dynamic files, it looks like this:
-
-```js
-{
-  path: '/about',
-  headers: {}, // lambda headers
-  params: {}, // route params
-  query: {}, // query params
-  plugins: {},
-  props: {},
-  lambda: { event, context } // the raw lambda objects
-}
-```
-
-## Configuration
-
-In addition to the CLI, Presta will read from a config file, which defaults to
-`presta.config.js` in the current working directory.
-
-#### Pages
-
-`pages` can be a single file, a glob, or an array of single files and globs.
-
-```js
-export const pages = 'src/pages/**/*.js'
-```
-
-#### Output
-
-Defaults to `./build`.
-
-```js
-export const output = 'dist'
-```
-
-#### Assets
-
-Directory for your static assets. Defaults to `./public`. These are copied to
-the `output` directory on `presta build`.
-
-```js
-export const assets = 'assets'
-```
-
-#### Transforming Content
-
-Out of the box, Presta will wrap your content in a basic HTML document. If you
-need to customize this, or output a different type of document, define a
-`createContent` export.
-
-`createContent` is passed the full Presta context, and is required to return a
-`string`. The default setup looks like this:
-
-```js
-import { document } from 'presta/document'
-
-export function createContent (context) {
-  return document({
-    head: context.props.head,
-    body: context.props.content
-  })
-}
-```
-
-> You can also define `createContent` at a page-level. If defined there, it will
-> take precedence over the globally defined function in the config file.
-
-`createContent` should simply return a string, and the filename depends on what
-you return from `getStaticPaths`. So if you're rendering, say, JSON, those files might
-look like this:
-
-```js
-// my-json-file.js
-
-export function getStaticPaths () {
-  return ['my-file.json']
-}
-
-export function template ({ path }) {
-  return JSON.stringify({ path })
-}
-```
-
-```js
-// presta.config.js
-
-export function createContent ({ body }) {
-  return body
-}
-```
-
-#### Custom Renderer
-
-By default, Presta's render looks like this:
-
-```js
-export function render (template, context) {
-  return template(context)
-}
-```
-
-But, say you're using React:
-
-```js
-import { renderToStaticMarkup } from 'react-dom/server'
-
-export function render (Template, context) {
-  return renderToStaticMarkup(<Template {...context} />)
-}
-```
-
-Easy as that. Soon we'll include more examples here! If you have suggestions,
-[drop us a line.](https://github.com/sure-thing/presta/issues/new/choose)
-
-#### Config FAQ
-
-##### What properties are required in my config file?
-
-None of them.
-
-##### Can I define a custom `render` without a custom `createContent`?
-
-Of course! If you need to render a templating language like React, you can
-define a custom `render` and leave out `createContent`: it'll fallback to
-Presta's default, but use your newly rendered React markup.
-
-And it goes both ways. A custom `createContent` does not require a custom
-`render` handler.
-
-## Creating Pages
-
-When rendering statically, Presta generates strings – via templates – and writes
-them to files. For dynamic SSR rendered pages, it writes strings to HTTP
-responses via a simple serverless function.
-
-#### Static Pages
-
-To create a static page, create a file that exports two functions:
-
-- `getStaticPaths` - an async function that returns an array of strings
-- `template` - a synchronous function that returns a string
-
-```js
-export async function getStaticPaths () {
-  return ['/about']
-}
-
-export function template (ctx) {
-  return `<h1>You're on page ${ctx.path}</h1>`
-}
-```
-
-You can render this page – let's call it `About.js` – from the CLI:
+You can get started with Presta directly from the command line:
 
 ```bash
-$ npx presta build About.js
+npx presta watch index.js
 ```
 
-#### Dynamic Pages
+`npx` will install Presta, and `watch` will boot a live-reloading dev server.
+Then, create your `index.js` file.
 
-To create dynamic pages, swap the `getStaticPaths` export with:
+We'll go into more detail on the anotomy of a Presta file soon, but for now,
+this should get you started.
 
-```js
-export const route = '/about'
-```
+```javascript
+/**
+ * Define your route here — and name your file whatever you want!
+ */
+export const route = '/:slug?'
 
-Now, a serverless function will be generated, and every hit to `/about` will
-render a fresh `template`!
-
-##### Additional Properties
-
-Since dynamic routes are generated in response to server requests, we can
-decorate the context with added properties.
-
-Say you have a page configured like this:
-
-```js
-export const route = '/:slug'
-export const template = ctx => `<div>...</div>`
-```
-
-And you hit `/about?foo=abc` in your browser. The `ctx` value above will look
-like this:
-
-```js
-{
-  path: '/about',
-  params: { slug: 'about' },
-  query: { foo: 'abc' },
-  headers: { ... },
-  lambda: { ... },
+/**
+ * Essentially an AWS-flavored serverless function
+ *
+ *    path             the URL
+ *    headers          all request headers
+ *    params           any route params, like :slug
+ *    query            any query params, as an object
+ *    lambda.event     the full lambda event
+ *    lambda.context   the full lambda context
+ */
+export async function handler ({
+  path,
+  headers,
+  params,
+  query,
+  lambda: { event, context }
+}) {
+  return {
+    statusCode: 200,
+    headers: {
+      'Cache-Control': 'max-age=3600, public'
+    },
+    /*
+     * You can return a response as a string,
+     * like a normal serverless function
+     */
+    body: `<h1>Hello world!</h1>`,
+    /*
+     * Or you can use one of the shortcuts.
+     * For example, `html` will set appropriate
+     * headers and render HTML.
+     */
+    html: `<h1>I'm an HTML response</h1>`,
+    /*
+     * Similarly, `json` will set headers and
+     * serialize an object into JSON.
+     */
+    json: {
+      posts: [{ title: 'My First Blog Post' }]
+    },
+    /*
+     * There's even an `xml` option for sitemaps!
+     */
+    xml: generateSitemap()
+  }
 }
 ```
 
-#### Hybrid Pages
+At this point, you can visit the served URL (probably `localhost:4000`) in your
+browser to view your HTML page or API response.
 
-Pages in Presta can be both static and hybrid, which is great for sites that
-want to do things like preview content, or that build infrequently between
-content updates.
+## Static Responses
 
-```js
-import { load } from 'presta/load'
+So you've seen how to create a serverless function with Presta. But what if you
+wanted to render one of those HTML files or JSON responses to a static file?
 
-export const route = '/posts/:slug/:preview?'
+Add a `getStaticPaths` export. Any paths returned from this method will be
+compared against `route`, passed to the `handler`, and saved to files for
+deployment.
+
+```javascript
+export const route = '/:slug?'
 
 export async function getStaticPaths () {
-  const posts = await getAllPosts()
-  return posts.map(p => p.slug)
+  return ['/']
 }
 
-export function template (ctx) {
-  const { slug, preview } = ctx.params
-  const post = load(() => getSinglePost({ slug, preview }), { key: 'posts' })
-
-  return post ? `<article>${post.content}</article>` : ''
+export async function handler (props) {
+  return {
+    html: `<div>You're on ${props.path} page</div>`
+  }
 }
 ```
 
-Although this is pseudo code, the page above could do a couple neat things if
-set up correctly.
+> What's neat about this approach is that the above acts as a _hybrid_ page.
+> Requests for `/` will return the static HTML file. Any other requests, like
+> `/about` or `/blog/posts/my-post` will render on the sever.
 
-- Let's say you deploy and you visit `/posts/one` in your browser. You'll see the
-  static page for the post with slug `one`.
-- If you create a new post with slug `two`, you can visit it immediately at
-  `/posts/two` _without rebuilding your site_.
-- Say you create a draft version of `one`. You could visit `/posts/one/preview`
-  – which won't match the static version of the page at `/posts/one` – and it
-  could fetch you the draft version of your post instead!
+You can also specify extensions in the paths returned from `getStaticPaths`. To
+generate static JSON, you could return `'/products.json'`, use the `json`
+response shortcut, and you'll get a `products.json` file in your output
+directory.
 
-#### Page Head Metadata
+## HTML Helper
 
-You'll probably want to manage your `<head>` metadata at a page level. Presta
-by default includes a simple plugin on its context for this:
+Since HTML response are such a large part of what Presta does, we've provided a
+handy util. As you can see below, it's a simple interface for generating `head`
+tags and such. More docs coming soon!
 
-```js
-export function template ({ plugins }) {
-  plugins.head({ title: 'My Page Title' })
+```javascript
+import { html } from 'presta/html'
 
-  return `<div>...</div>`
+export async function handler (props) {
+  return {
+    html: html({
+      title: 'Document Title',
+      image: '/path/to/social-image.jpg',
+      head: {
+        meta: [{ name: 'description', content: 'Meta description' }],
+        link: [{ rel: 'stylesheet', href: '/styles.css' }]
+      },
+      body: `<h1>Hello world!</h1>`,
+      foot: {
+        script: [{ src: '/index.js' }]
+      }
+    })
+  }
 }
 ```
-
-> The API here is the same as that of the [presta/document](#prestadocument)
-> below. Have a look at that to get an idea of what's available.
 
 ## Data Loading
 
-Presta is unique in its approach to data loading. Instead of [prop
-drilling](https://www.google.com/search?q=prop+drilling), it provides a utility
-to co-locate your data with your templates and other components.
+As you've seen, Presta is very much like a normal serverless function. So
+loading data looks about the same in most cases.
 
-It should look familiar to React devs. And don't worry, it **works with any HTTP
-request library you already use.**
+```javascript
+export const route = '/products/:category'
 
-```js
-import { load } from 'presta/load'
+export async function handler (props) {
+  const products = await getProducts({ category: props.params.category })
 
-export const route = '/:slug'
+  return {
+    html: `
+      <ul>
+        ${producs.map(
+          prod => `
+          <li>${prod.title}</li>
+        `
+        )}
+      </ul>
+    `
+  }
+}
+```
 
-export function template ({ path }) {
-  const data = load(
-    () => {
-      return fetch(`/api/page/${path}`).then(res => res.json())
-    },
-    { key: path }
+In cases where you don't want to hit your APIs on every reload during
+development, Presta provides a handy file cache. Just pass a `key` to specify
+the data to be stored, and a `duration` in milliseconds to cache the response to
+disk.
+
+```javascript
+import { cache } from 'presta/load'
+
+// ...
+
+export async function handler (props) {
+  const products = cache(
+    () => await getProducts({ category: props.params.category }),
+    { key: 'products', duration: 60 * 1000 }
   )
 
-  return `<h1>Hello from ${data ? data.title : ''}</h1>`
+  return {
+    ...
+  }
 }
 ```
 
-Note the ternary. `data` here is undefined until the `fetch` resolves. Don't
-forget: this is the server. No need for a loading state. In fact, feel free to
-return nothing until the data resolves. The end result will be the same.
+## React, TypeScript, etc
 
-```js
-export function template({ path }) {
-  const data = load(...)
+What about React or other javascript-based templating? TypeScript? We've got you covered.
+Presta uses `esbuild` under the hood, which supports JSX and TS out of the box.
+Just use the appropriate file extension i.e. `jsx` or `ts` and `tsx`.
 
-  if (!data) return '';
+Since Presta doesn't do any of the rendering for you, depending on the
+templating library you'd like to use, you'll need to convert it to a string
+first.
 
-  return `<h1>Hello from ${data.title}</h1>`
-}
-```
+React, for example:
 
-#### Keys and caching
-
-Keen observers may have noticed the `key` prop passed to `load`. The `key` here **is required** and serves a few purposes:
-
-- indexing the data so Presta knows which loader requested what data
-- caching the data into memory so it can be reused on other pages or by manually accessing it
-- indexing an aggregate data object to render to the `window` of the final HTML file – hello frontend hydration
-
-##### Does the loader run every time I make an edit to my template?
-
-Yes, glad you asked. Since `load` lives within the `Page` function, it will be
-run every time. However, if you need to avoid over-calling your API or CMS, you
-can optionally cache the result of your loader to a local persistent file cache.
-
-Below, though the `load` will be called every time the file is rendered, data
-will only be fetched _at most_ every 60 seconds. You can use [any supported
-value](https://github.com/vercel/ms) to denote the cache duration.
-
-```js
-export function template({ path }) {
-  const data = load(..., { key: path, duration: '60s' })
-
-  if (!data) return '';
-
-  return `<h1>Hello from ${data.title}</h1>`
-}
-```
-
-#### Co-location
-
-Above, we fetched at a top level. But Presta doesn't care where or how many
-times in your tree of components and functions `load` is called.
-
-Say you've got a `Nav.js` component that fetches its links, which is used on
-your `Home.js` homepage. Presta will load each of these independently and render
-the template after all data has resolved.
-
-```js
-// Nav.js
-
-import { load } from 'presta/load'
-
-export function Nav ({ activePathname }) {
-  const links = load(getNavLinks, { key: 'nav' })
-
-  if (!links) return ''
-
-  const cx = link.url === activePathname ? 'active' : ''
-
-  return links.map(
-    link => `<a href="${link.url}" class="${cx}">${link.title}</a>`
-  )
-}
-```
-
-```js
-// Home.js
-
-import { load } from 'presta/load'
-import { Nav } from './Nav.js'
+```javascript
+// index.jsx
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 
 export function getStaticPaths () {
   return ['/']
 }
 
-export function template ({ path }) {
-  const data = load(getHomePage, { key: 'home' })
-
-  return `
-    ${Nav({ activePathname: path })}
-    <h1>${data ? data.title : ''}</h1>
-  `
+export function handler () {
+  return {
+    html: renderToStaticMarkup(<div>Hello world!</div>)
+  }
 }
 ```
 
-##### How it works
+# FAQ
 
-Internally, Presta is simply rendering the page recursively. Again, nothing
-fancy. When it encounters a `load`, it adds it to a queue. When the queue is
-empty, it returns the full HTML result.
+### What's this about co-located data fetching?
 
-##### Is this slow?
+`presta/load` also exports a special `load` function which can be used _in
+nested files_ throughout your project. You can then use another export, `flush`
+to resolve all data and return your rendered templates. This is great because it
+avoids extensive prop-drilling, and keeps your template files clean and concise.
+Docs for this are coming soon.
 
-Each render pass adds a millisecond or two, sure. The vast majority of time
-rendering is spent fetching data, so in most cases that's what should be
-optimized.
+### Will Presta ever build a frontend JavaScript runtime for me?
 
-> We're working on documentation for further cache optimization. Check back
-> soon!
+Probably. We're working on a React companion library for automatic partial
+hydration and co-located data in the browser and on the server. At any rate, a
+client-side runtime will _always_ be optional, and you can always BYOB.
 
-##### Is this a footgun?
+### Additional Questions
 
-Yeah, it could be. But avoiding pitfalls like 30 separate loaders in a single template
-or circular loads is fairly common sense stuff. However, in the future we could
-probably implement a heuristic to handle most edge cases.
-
-## Utilities
-
-Presta exposes a couple things it uses internally because they might be helpful
-to users.
-
-#### presta/document
-
-As seen above, Presta defaults to creating HTML documents for your pages. To do
-so, it uses an internal function called `document`. Many users will need to
-customize their documents, so it's exposed for easy access. Full example below:
-
-```js
-// presta.config.js
-
-import { document } from 'presta/document'
-import { merge } from 'presta/utils/merge'
-
-export function createContent (context) {
-  return document({
-    head: merge(context.props.head, {
-      title: 'My Site',
-      image: '/social-image.png',
-      meta: [{ name: 'description', content: 'My SEO description' }],
-      link: [
-        { rel: 'icon', href: '/favicon.png' },
-        {
-          rel: 'stylesheet',
-          href: 'https://unpkg.com/svbstrate@4.1.2/dist/svbstrate.css'
-        }
-      ],
-      script: [{ src: '/analytics.js' }]
-    }),
-    body: `<div id="root">${context.props.content}</div>`,
-    foot: {
-      script: [{ src: '/app.js' }]
-    }
-  })
-}
-```
-
-#### presta/utils/merge
-
-As seen above, Presta exposes a deep merge utility.
-
-## Templating
-
-Presta renders strings. So really, anything that can generate a string with
-JavaScript should work as a templating solution - even plain strings themselves!
-
-Strings get cumbersome pretty quickly, so let's talk about better options.
-
-#### No config templating
-
-No config here just means no [custom renderer](#custom-renderer) i.e. the
-templating solution deals with strings directly and doesn't require a build or
-render step.
-
-A great option for this is
-[hyposcript](https://github.com/sure-thing/hyposcript). It's a
-[hyperscript](https://github.com/hyperhype/hyperscript) library (another solid
-option for templating), but focused only on server-side rendering, which means
-it's faster.
-
-> Looking for an all-in-one? With
-> [hypobox](https://github.com/sure-thing/hypobox), you can write fast JSX
-> template with familiar CSS-in-JS ergonomics.
-
-#### Some config templating
-
-If you have existing templates or libraries you'd like to source, you can
-probably configure a [custom renderer](#custom-renderer) for the job. Here's an
-incomplete list of possibilities that should work just fine.
-
-- [hyperscript](https://github.com/hyperhype/hyperscript)
-- [React](https://reactjs.org/)
-- [Preact](https://preactjs.com/)
-- [htm](https://github.com/developit/htm)
-- [nanohtml](https://github.com/choojs/nanohtml)
-- [mustache](https://github.com/janl/mustache.js/) (anything in this family)
-- [pug](https://github.com/pugjs/pug)
-
-#### Markdown
-
-If you're using markdown exclusively – like via `.md` files in your repo – then
-maybe you don't need templating at all. Below is a quick sketch of what a
-homepage generated from markdown might look like:
-
-```js
-import fs from 'fs'
-import md from 'marked'
-
-export function getStaticPaths () {
-  return ['/']
-}
-
-export function template () {
-  return md(fs.readFileSync('../content/home.md', 'utf-8'))
-}
-```
-
-## Examples
-
-Check out our [repo of examples](https://github.com/sure-thing/presta-examples).
-If you'd like a different example, shoot us a PR or [open a new
-issue](https://github.com/sure-thing/presta-examples/issues/new/choose) there.
-
-## Roadmap
-
-> Presta is in active development, but still in the early stages. If you've got
-> ideas or suggestions for where it should go, [drop us a
-> line.](https://github.com/sure-thing/presta/issues/new/choose)
-
-#### Next up
-
-- Webpack and Babel extension
-- Typescript
-- serverless API routes
-
-#### Future plans
-
-Since Presta is extremely small, it's got room to grow. Future looking features
-will be built in a way that they can be _layered_ or _composed_, instead of
-opting into the full feature set for every project like some larger frameworks
-do.
-
-> However, Presta is small and aims to stay small. Look for it to be used a
-> single tool inside a larger abstraction or framework.
+If there's anything else you're curious about, [drop us a
+line](https://github.com/sure-thing/presta/issues/new/choose). We'd love to hear
+from you!

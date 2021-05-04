@@ -61,16 +61,19 @@ h4 {
   font-size: 1.4rem;
 }
 h5 {
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 h6 {
   font-size: 0.875rem;
+}
+p {
+  font-size: 1.2rem;
 }
 .wysiwyg p {
   margin-bottom: 16px;
 }
 .wysiwyg ul {
-  font-size: inherit;
+  font-size: 1.2rem;
   margin: 16px 0;
   list-style: disc outside;
   padding-left: 16px;
@@ -96,6 +99,7 @@ h6 {
   margin: 1.5em 0 0.5em;
 }
 .wysiwyg blockquote {
+  position: relative;
   margin: 16px 0;
   padding: 16px 24px 16px 56px;
   overflow: auto;
@@ -146,31 +150,25 @@ h6 {
 .wysiwyg h6:hover a {
   opacity: 1;
 }
+
+code {
+  background: #eee;
+  color: var(--mid);
+  padding: 0;
+}
 pre,
 code {
   font-family: 'Roboto Mono', monospace;
-  font-size: 0.9rem;
-  background: var(--dark);
-  color: white;
-  border-radius: 6px;
+  font-size: inherit;
 }
-code {
-  background: transparent;
-  color: var(--mid);
-}
-pre code {
-  background: transparent;
-  color: inherit;
-}
-pre {
+pre code[class*='hljs'] {
   margin: 16px 0;
   padding: 16px 24px;
-  overflow: auto;
+  border-radius: 6px;
 }
-pre code::selection,
-pre::selection {
-  background: var(--light);
-  color: var(--dark);
+pre {
+  padding: 0;
+  overflow: auto;
 }
 
 #root {

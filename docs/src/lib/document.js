@@ -7,7 +7,7 @@ export function head (context) {
     og: {
       site_name: name,
       image,
-      url: `https://sure-thing.net${context.path}`
+      url: `https://presta.run${context.path}`
     },
     twitter: {
       site_name: name,
@@ -18,6 +18,7 @@ export function head (context) {
     meta: [{ name: 'author', content: '@estrattonbailey' }],
     link: [
       { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+      `<link href="https://unpkg.com/nord-highlightjs@0.1.0/dist/nord.css" rel="stylesheet" type="text/css" />`,
       { rel: 'stylesheet', href: '/style.css' }
     ]
   }

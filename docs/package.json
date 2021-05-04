@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "start": "npx presta watch './src/pages/**/*.js'",
-    "build": "webpack -p && npx presta './src/pages/**/*.js'",
+    "start": "npx run build && npx presta watch './src/pages/**/*.jsx'",
+    "build": "webpack -p && npx presta './src/pages/**/*.jsx'",
     "client": "webpack -w",
     "format": "prettier-standard --format"
   },
@@ -11,9 +11,8 @@
     "@sanity/client": "^1.150.1",
     "@sanity/image-url": "^0.140.19",
     "front-matter": "^4.0.2",
-    "hypobox": "^1.2.1",
     "hyposcript": "^1.0.1",
-    "hypostyle": "^3.0.0",
+    "hypostyle": "^3.1.2",
     "marked": "^1.1.1",
     "matched": "^5.0.1",
     "micromark": "^2.10.1",
@@ -22,14 +21,19 @@
     "picoapp": "^3.6.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "remark-highlight.js": "^6.0.0",
+    "remark-html": "^13.0.1",
+    "remark-parse": "^9.0.0",
     "snarkdown": "^2.0.0",
-    "vsbl": "^1.3.3"
+    "unified": "^9.2.1",
+    "vsbl": "^1.3.3",
+    "webpack": "^5.36.2"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/preset-react": "^7.13.13",
     "babel-loader": "^8.1.0",
-    "presta": "^0.27.0-beta.2",
+    "presta": "^0.28.3",
     "prettier-standard": "^16.4.1",
     "webpack-cli": "^3.3.12"
   }
