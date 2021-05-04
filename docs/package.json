@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "start": "npx run build && npx presta watch './src/pages/**/*.jsx'",
-    "build": "webpack -p && npx presta './src/pages/**/*.jsx'",
+    "start": "npm run build && presta watch './src/pages/**/*.jsx'",
+    "build": "webpack -p && presta build './src/pages/**/*.jsx'",
     "client": "webpack -w",
     "format": "prettier-standard --format"
   },

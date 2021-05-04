@@ -102,7 +102,7 @@ function Page () {
             </Box>
           </Box>
 
-          <Box rel mb={[8, 8, 12]}>
+          <Box rel mb={[8, 8, 12]} borderRadius='8px' bg='dark'>
             <Box
               as='video'
               db
