@@ -89,6 +89,10 @@ export async function handler ({
 At this point, you can visit the served URL (probably `localhost:4000`) in your
 browser to view your HTML page or API response.
 
+> With the above example, make sure to only include one of `body`, `html`,
+> `json` or `xml`. All of these map to `Response.body`, and set separate
+> `Content-Type` headers for convenience.
+
 ## Static Responses
 
 So you've seen how to create a serverless function with Presta. But what if you

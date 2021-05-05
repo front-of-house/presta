@@ -55,6 +55,7 @@ function Page () {
 
               <Box w={[1, 1, 2 / 5]} pt={[8, 8, 0]} pl={[0, 0, 8]}>
                 <Box
+                  rel
                   c='white'
                   bg='dark'
                   p={6}
@@ -91,18 +92,74 @@ function Page () {
                     />
                   </Box>
 
+                  <Box
+                    abs
+                    left
+                    right
+                    top
+                    mxa
+                    bg='white'
+                    borderRadius='4px'
+                    px={[2, 2, 3]}
+                    py={3}
+                    fs={6}
+                    w={140}
+                    c='dark'
+                    tac
+                    boxShadow='shadow'
+                    transform='translateY(-50%)'
+                    cx={{
+                      '@keyframes bounce': {
+                        from: {
+                          transform: 'translateY(-65%)'
+                        },
+                        to: {
+                          transform: 'translateY(-50%)'
+                        }
+                      },
+                      animation: 'bounce 0.4s',
+                      animationDirection: 'alternate',
+                      animationTimingFunction: 'cubic-bezier(.5, 0.05, 1, .5)',
+                      animationIterationCount: 'infinite'
+                    }}
+                  >
+                    Try it now!
+                    <Box
+                      abs
+                      left
+                      right
+                      bottom
+                      mxa
+                      w={0}
+                      h={0}
+                      cx={{
+                        borderTop: '8px solid white',
+                        borderLeft: '8px solid transparent',
+                        borderRight: '8px solid transparent',
+                        borderBottom: '8px solid transparent',
+                        transform: 'translateY(100%)'
+                      }}
+                    />
+                  </Box>
+
                   <Box f>
                     <Box mr={2} cx={{ opacity: 0.5 }}>
                       $
                     </Box>{' '}
-                    npx presta build file.tsx
+                    npx presta watch index.ts
                   </Box>
                 </Box>
               </Box>
             </Box>
           </Box>
 
-          <Box rel mb={[8, 8, 12]} borderRadius='8px' bg='dark'>
+          <Box
+            rel
+            mb={[8, 8, 12]}
+            borderRadius='8px'
+            bg='dark'
+            d={['none', 'none', 'block']}
+          >
             <Box
               as='video'
               db

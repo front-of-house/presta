@@ -44,7 +44,7 @@ export async function handler (ctx) {
       <Hypo hypostyle={hypo}>
         <Box pb={6} cx={{ overflow: 'hidden' }}>
           <Gutter withVertical>
-            <Box mx='auto' maxWidth='640px'>
+            <Box mx='auto' w={1} maxWidth='640px'>
               <Box f aic jcb>
                 <Box as='a' href='/' cx={{ textDecoration: 'none' }}>
                   <Logo noWord />
@@ -67,7 +67,8 @@ export async function handler (ctx) {
               </Box>
 
               <Box pt={16} f fw jcb>
-                <div
+                <Box
+                  w={1}
                   className='wysiwyg'
                   dangerouslySetInnerHTML={{ __html: content }}
                 />
