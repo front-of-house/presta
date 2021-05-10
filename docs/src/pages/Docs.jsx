@@ -19,6 +19,7 @@ import { Github } from '@/src/icons/Github'
 import { Logo } from '@/src/components/Logo'
 
 export async function getStaticPaths () {
+  // const [file] = source(path.resolve(__dirname, '../content/docs.md'))
   return ['/docs']
 }
 

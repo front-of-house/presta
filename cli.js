@@ -8,21 +8,17 @@ const pkg = require('./package.json')
 
 const { CONFIG_DEFAULT } = require('./lib/constants')
 const { log } = require('./lib/log')
-const globalConfig = require('./lib/config')
+const { createConfig, getConfigFile } = require('./lib/config')
 const { watch } = require('./lib/watch')
 const { build } = require('./lib/build')
 const { serve } = require('./lib/serve')
 
-function warnOnBadGlob (output) {
-  if (/\.(js|jsx|ts|tsx)$/.test(output)) {
-    const msg = `  Your specified output '${output}' looks like a file. Maybe you need surround your file glob with quotes?`
-    const issue = `  More info here: https://github.com/sure-thing/presta/issues/15`
-    log(`${c.yellow(`presta`)}\n\n${msg}\n\n${issue}\n`)
-    exit()
-  }
-}
-
 function registerRuntime (options = {}) {
+  require('module-alias').addAliases({
+    '@': process.cwd(),
+    'presta:internal': __dirname // wherever this is running from
+  })
+
   require('esbuild-register/dist/node').register(options)
 }
 
@@ -32,33 +28,36 @@ prog
   .version(pkg.version)
   .option(
     '--config, -c',
-    `Path to a config file.  (default /${CONFIG_DEFAULT})`
+    `Path to a config file — defaults to ${CONFIG_DEFAULT}`
   )
-  .option('--assets, -a', `Specify static asset directory.  (default /public)`)
+  .option(
+    '--output, -o',
+    `Specify output directory for built files — defaults to ./build`
+  )
+  .option(
+    '--assets, -a',
+    `Specify static asset directory — defaults to ./public`
+  )
 
 prog
-  .command(
-    'build [files] [output]',
-    'Render files(s) to output directory (defaults to ./build)',
-    { default: true }
-  )
+  .command('build', 'Render files(s) to output directory.', { default: true })
   .example(`build`)
-  .example(`build files/**/*.js build`)
+  .example(`build files/**/*.js`)
   .example(`build -c ${CONFIG_DEFAULT}`)
-  .action(async (files, output, opts) => {
+  .action(async opts => {
     process.env.PRESTA_ENV = 'production'
 
     registerRuntime()
 
     console.clear()
 
-    warnOnBadGlob(output)
-
-    const config = globalConfig.create({
-      ...opts,
-      files,
-      output,
-      env: 'production'
+    const config = createConfig({
+      env: 'production',
+      configFile: getConfigFile(opts.config),
+      cliArgs: {
+        ...opts,
+        files: opts._
+      }
     })
 
     log(`${c.blue('~ presta build')}\n`)
@@ -67,26 +66,27 @@ prog
   })
 
 prog
-  .command('watch [files] [output]')
-  .option('--no-serve, -n', `Don't serve output directory`, false)
-  .describe('Watch and build page(s) to output directory')
+  .command('watch')
+  .option('--no-serve, -n', `Do not run local dev server.`, false)
+  .describe('Watch and build files(s) to output directory')
   .example(`watch`)
-  .example(`watch files/**/*.js build`)
+  .example(`watch ./files/**/*.js`)
+  .example(`watch ./files/**/*.js -o ./out`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
-  .action(async (files, output, opts) => {
+  .action(async opts => {
     process.env.PRESTA_ENV = 'development'
 
     registerRuntime()
 
     console.clear()
 
-    warnOnBadGlob(output)
-
-    const config = globalConfig.create({
-      ...opts,
-      files,
-      output,
-      env: 'development'
+    const config = createConfig({
+      env: 'development',
+      configFile: getConfigFile(opts.config),
+      cliArgs: {
+        ...opts,
+        files: opts._
+      }
     })
 
     if (!opts.n) {

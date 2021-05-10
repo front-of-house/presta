@@ -1,164 +1,180 @@
 const path = require('path')
 
 const fixtures = require('./fixtures')
-const { create, unmerge } = require('../lib/config')
+const {
+  createConfig,
+  removeConfigValues,
+  getConfigFile,
+  clearCurrentConfig
+} = require('../lib/config')
+
+const env = 'test'
 
 module.exports = async function (test, assert) {
   test('config - defaults', async () => {
-    const files = 'app/**/*.js'
-    const cli = { files }
-    const config = create(cli)
+    clearCurrentConfig()
 
-    assert(Array.isArray(config.cliArgs.files))
+    const config = createConfig({
+      env,
+      cliArgs: {
+        files: 'app/*.js',
+        output: 'dist'
+      }
+    })
+
+    assert.equal(config.env, env)
+    assert(!!config.configFilepath)
+    assert(!!config.dynamicEntryFilepath)
+
     assert.deepEqual(config.configFile, {})
 
-    assert(config.files[0].includes(files))
-    assert(path.isAbsolute(config.output))
-    assert(path.isAbsolute(config.assets))
-    assert(path.isAbsolute(config.cwd))
-    assert(config.configFilepath === undefined)
-    assert(config.dynamicEntryFilepath.includes(config.output))
+    assert(path.isAbsolute(config.cliArgs.files[0]))
+
+    assert(path.isAbsolute(config.merged.files[0]))
+    assert(path.isAbsolute(config.merged.output))
+    assert(path.isAbsolute(config.merged.assets))
+
+    assert(config.merged.output.includes('dist'))
+    assert(config.dynamicEntryFilepath.includes('dist'))
   })
 
   test('config - no files', async () => {
-    const cli = {}
-    const config = create(cli)
+    clearCurrentConfig()
 
-    assert.deepEqual(config.files, [])
+    const config = createConfig({
+      env,
+      cliArgs: {}
+    })
+
+    assert.deepEqual(config.merged.files, [])
   })
 
   test('config - output', async () => {
-    const files = 'app/**/*.js'
-    const output = 'dist'
-    const cli = { files, output }
-    const config = create(cli)
+    clearCurrentConfig()
 
-    assert(config.output.includes(output))
-    assert(path.isAbsolute(config.output))
+    const config = createConfig({
+      env,
+      cliArgs: {
+        files: 'app/*.js',
+        output: 'dist'
+      }
+    })
+
+    assert(path.isAbsolute(config.merged.output))
+    assert(config.merged.output.includes('dist'))
   })
 
   test('config - assets', async () => {
-    const files = 'app/**/*.js'
-    const output = 'dist'
-    const assets = 'assets'
-    const cli = { files, output, assets }
-    const config = create(cli)
+    clearCurrentConfig()
 
-    assert(config.assets.includes(assets))
-    assert(path.isAbsolute(config.assets))
+    const config = createConfig({
+      env,
+      cliArgs: {
+        files: 'app/*.js',
+        assets: 'assets'
+      }
+    })
+
+    assert(path.isAbsolute(config.merged.assets))
+    assert(config.merged.assets.includes('assets'))
   })
 
   test('config - picks up default file if present', async () => {
-    const files = 'files/*.js'
+    clearCurrentConfig()
+
+    const file = 'file.js'
     const output = 'output'
     const fsx = fixtures.create({
       config: {
         url: 'presta.config.js',
-        content: `export const files = '${files}'; export const output = '${output}'`
+        content: `export const files = '${file}'; export const output = '${output}'`
       }
     })
-
-    const config = create({})
-
-    assert(path.isAbsolute(config.configFilepath))
-    assert(config.files[0].includes(files))
-    assert(config.output.includes(output))
-
-    fsx.cleanup()
-  })
-
-  test('config - picks up custom file if present', async () => {
-    const files = 'files/*.js'
-    const output = 'output'
-    const fsx = fixtures.create({
-      config: {
-        url: 'presta-config.js',
-        content: `export const files = '${files}'; export const output = '${output}'`
-      }
+    const configFile = getConfigFile(fsx.files.config)
+    const config = createConfig({
+      env,
+      configFile,
+      cliArgs: {}
     })
 
-    const config = create({
-      config: fsx.files.config
-    })
-
-    assert(config.configFilepath.includes(fsx.files.config))
-    assert(path.isAbsolute(config.configFilepath))
-    assert(config.files[0].includes(files))
-    assert(config.output.includes(output))
+    assert(config.merged.files[0].includes(file))
+    assert(config.merged.output.includes(output))
 
     fsx.cleanup()
   })
 
   test('config - overriden by CLI args', async () => {
+    clearCurrentConfig()
+
     const fsx = fixtures.create({
       config: {
         url: 'presta.config.js',
-        content: `export const files = './files/*.js'; export const output = './output'`
+        content: `export const files = 'file.js'; export const output = 'output'`
+      }
+    })
+    const configFile = getConfigFile(fsx.files.config)
+    const config = createConfig({
+      env,
+      configFile,
+      cliArgs: {
+        files: 'foo.js',
+        output: 'out'
       }
     })
 
-    const config = create({
-      files: 'foo',
-      output: 'dist'
-    })
-
-    assert(config.files.find(p => p.includes('foo')))
-    assert(config.output.includes('dist'))
-
-    // should merge files
-    assert(config.files.find(p => p.includes('files/*.js')))
+    assert(config.merged.files[0].includes('foo.js'))
+    assert(config.merged.output.includes('out'))
 
     fsx.cleanup()
   })
 
   test('config - file is merged with internal config', async () => {
-    const fsx = fixtures.create({
-      config: {
-        url: 'presta.merged.config.js',
-        content: `export const output = './public'`
+    clearCurrentConfig()
+
+    const config = createConfig({
+      configFile: {
+        output: 'out'
       }
     })
 
-    const config = create({
-      files: 'foo',
-      config: fsx.files.config
-    })
-
-    assert(config.output.includes('public'))
-    assert(config.dynamicEntryFilepath.includes(config.output))
-
-    fsx.cleanup()
+    assert(config.merged.output.includes('out'))
+    assert(config.dynamicEntryFilepath.includes('out'))
   })
 
-  test.skip('config - unmerge', async () => {
-    const fsx = fixtures.create({
-      config: {
-        url: 'presta.unmerged.config.js',
-        content: `
-          export const files = 'foo'
-          export const output = 'output'
-          export function createContent(context) {}
-        `
+  test('config - merging updates', async () => {
+    clearCurrentConfig()
+
+    const config = createConfig({
+      configFile: {
+        output: 'output'
       }
     })
 
-    const curr = create({
-      files: 'bar',
-      config: 'presta.unmerged.config.js'
+    assert(config.merged.output.includes('output'))
+
+    const merged = createConfig({
+      configFile: {
+        output: 'output',
+        assets: 'assets'
+      }
     })
-    const prev = require(fsx.files.config)
 
-    assert(curr.files.length === 2) // merged
-    assert(curr.output.includes('output'))
-    assert(curr.dynamicEntryFilepath.includes(curr.output))
+    assert(merged.merged.assets.includes('assets'))
+  })
 
-    const unmerged = unmerge(curr)
+  test('config - removeConfigValues', async () => {
+    clearCurrentConfig()
 
-    assert(unmerged.files.length === 1)
-    assert(unmerged.files[0].includes('bar'))
-    assert(unmerged.output.includes('build'))
-    assert(unmerged.dynamicEntryFilepath.includes(unmerged.output))
+    const config = createConfig({
+      configFile: {
+        output: 'output'
+      }
+    })
 
-    fsx.cleanup()
+    assert(config.merged.output.includes('output'))
+
+    const unmerged = removeConfigValues()
+
+    assert(unmerged.merged.output.includes('build'))
   })
 }

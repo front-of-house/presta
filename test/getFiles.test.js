@@ -69,7 +69,10 @@ module.exports = async function (test, assert) {
 
     const fsx = fixtures.create(files)
 
-    const results = getFiles({ cwd: process.cwd(), files: ['./getFiles/*.js'] })
+    const results = getFiles({
+      cwd: process.cwd(),
+      merged: { files: ['./getFiles/*.js'] }
+    })
     assert(results.length === 3)
 
     fsx.cleanup()

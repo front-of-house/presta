@@ -18,7 +18,7 @@ module.exports = async (test, assert) => {
 
     cache.set('foo', 'bar', 1000)
 
-    await wait(1000)
+    await wait(1100)
 
     assert(undefined === cache.get('foo'))
 

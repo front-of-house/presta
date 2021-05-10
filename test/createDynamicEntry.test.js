@@ -3,8 +3,8 @@ const path = require('path')
 
 const fixtures = require('./fixtures')
 
+const { createConfig } = require('../lib/config')
 const { createDynamicEntry } = require('../lib/createDynamicEntry')
-const { OUTPUT_DYNAMIC_PAGES_ENTRY } = require('../lib/constants')
 
 module.exports = (test, assert) => {
   test('createDynamicEntry', () => {
@@ -18,20 +18,16 @@ module.exports = (test, assert) => {
         content: ''
       }
     })
-    const config = {
-      files: './createDynamicEntry/*.js',
-      output: 'output',
-      dynamicEntryFilepath: path.join(
-        fixtures.getRoot(),
-        'output',
-        OUTPUT_DYNAMIC_PAGES_ENTRY
-      )
-    }
+    const config = createConfig({
+      cliArgs: {
+        files: './createDynamicEntry/*.js',
+        output: path.join(fixtures.getRoot(), 'output')
+      }
+    })
 
     const entry = createDynamicEntry([fsx.files.a, fsx.files.b], config)
 
-    assert(entry.includes(config.output))
-    assert(entry.includes(OUTPUT_DYNAMIC_PAGES_ENTRY))
+    assert(entry.includes(config.merged.output))
 
     fsx.cleanup()
   })
