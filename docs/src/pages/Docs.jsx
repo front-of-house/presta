@@ -9,6 +9,7 @@ import unified from 'unified'
 import markdown from 'remark-parse'
 import remarkHtml from 'remark-html'
 import highlight from 'remark-highlight.js'
+import { source } from 'presta/source'
 
 import { title } from '@/src/lib/title'
 import * as document from '@/src/lib/document'
@@ -19,7 +20,8 @@ import { Github } from '@/src/icons/Github'
 import { Logo } from '@/src/components/Logo'
 
 export async function getStaticPaths () {
-  // const [file] = source(path.resolve(__dirname, '../content/docs.md'))
+  const files = source(path.resolve(__dirname, '../content/docs.md'))
+  console.log(files)
   return ['/docs']
 }
 
