@@ -1,5 +1,6 @@
-const fs = require('fs')
+const fs = require('fs-extra')
 const path = require('path')
+const callsites = require('callsites')
 
 const { OUTPUT_STATIC_DIR } = require('./lib/constants')
 const { getCurrentConfig } = require('./lib/config')
@@ -13,25 +14,20 @@ function hash (str) {
   return (h >>> 0).toString(36)
 }
 
-function extract (raw, ext, key = '') {
+function base (raw, ext, key) {
   const { env, cwd, merged: config } = getCurrentConfig()
   const PROD = env === 'production'
 
-  let filename = key
+  // important: if you call base() directly, this callsites index will be incorrect
+  key = key || path.basename(callsites()[3].getFileName()).split('.')[0]
 
-  if (PROD) {
-    if (key) {
-      filename = key + '-' + hash(raw)
-    } else {
-      filename = hash(raw)
-    }
-  } else if (!PROD && !key) {
-    filename = hash(raw)
-  }
-
+  const filename = PROD ? key + '-' + hash(raw) : key
   const publicPath = '/' + filename + '.' + ext
 
-  fs.writeFileSync(path.join(config.output, OUTPUT_STATIC_DIR, publicPath), raw)
+  fs.outputFileSync(
+    path.join(config.output, OUTPUT_STATIC_DIR, publicPath),
+    raw
+  )
 
   return publicPath
 }
@@ -42,6 +38,11 @@ function css (raw, key) {
 
 function js (raw, key) {
   return extract(raw, 'js', key)
+}
+
+// facade to enable callsites usage
+function extract (raw, ext, key) {
+  return base(raw, ext, key)
 }
 
 module.exports = {
