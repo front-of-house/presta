@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "start": "npm run build && presta watch './src/pages/**/*.jsx'",
-    "build": "webpack -p && presta build './src/pages/**/*.jsx'",
+    "build": "webpack -p && NODE_ENV=production presta build './src/pages/**/*.jsx'",
     "client": "webpack -w",
     "format": "prettier-standard --format"
   },
