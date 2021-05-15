@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { Hypo, Box } from '@hypobox/react'
 import { html } from 'presta/html'
 import { hypostyle } from 'hypostyle'
+import * as extract from 'presta/extract'
 
 import { title } from '@/src/lib/title'
 import * as document from '@/src/lib/document'
@@ -271,7 +272,10 @@ export function handler (ctx) {
       description: 'Hyper minimal framework for the modern web.',
       head: {
         ...head,
-        style: [...(head.style || []), { id: 'style', children: hypo.flush() }]
+        link: [
+          ...head.link,
+          { rel: 'stylesheet', href: extract.css(hypo.flush()) }
+        ]
       },
       body: body,
       foot: document.foot(ctx)

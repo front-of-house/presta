@@ -9,6 +9,7 @@ import unified from 'unified'
 import markdown from 'remark-parse'
 import remarkHtml from 'remark-html'
 import highlight from 'remark-highlight.js'
+import * as extract from 'presta/extract'
 
 import { title } from '@/src/lib/title'
 import * as document from '@/src/lib/document'
@@ -19,7 +20,6 @@ import { Github } from '@/src/icons/Github'
 import { Logo } from '@/src/components/Logo'
 
 export async function getStaticPaths () {
-  // const [file] = source(path.resolve(__dirname, '../content/docs.md'))
   return ['/docs']
 }
 
@@ -87,7 +87,10 @@ export async function handler (ctx) {
       description: 'Hyper minimal framework for the modern web.',
       head: {
         ...head,
-        style: [...(head.style || []), { id: 'style', children: hypo.flush() }]
+        link: [
+          ...head.link,
+          { rel: 'stylesheet', href: extract.css(hypo.flush()) }
+        ]
       },
       body: body,
       foot: document.foot(ctx)

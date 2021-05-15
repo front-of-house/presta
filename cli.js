@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const fs = require('fs-extra')
 const sade = require('sade')
 const exit = require('exit')
 const c = require('ansi-colors')
@@ -60,6 +61,8 @@ prog
       }
     })
 
+    fs.emptyDirSync(config.merged.output)
+
     log(`${c.blue('~ presta build')}\n`)
 
     await build(config)
@@ -88,6 +91,8 @@ prog
         files: opts._
       }
     })
+
+    fs.emptyDirSync(config.merged.output)
 
     if (!opts.n) {
       const server = await serve(config, { noBanner: true })
