@@ -62,7 +62,7 @@ function source (globs, { baseDir = cwd, extensions } = {}) {
   /*
    * Sourced files
    */
-  const files = globs
+  const filepaths = globs
     .map(glob => matched.sync(glob, { cwd: baseDir }))
     .flat()
     .map(fp => path.resolve(baseDir, fp))
@@ -88,9 +88,9 @@ function source (globs, { baseDir = cwd, extensions } = {}) {
 
     /**
      * Map sourced file to the root that sourced it.
-     * Call this EVERY render to source new files.
+     * Call this EVERY render to source new filepaths.
      */
-    for (const source of files) {
+    for (const source of filepaths) {
       processNewSource(source, root)
     }
 
@@ -98,10 +98,10 @@ function source (globs, { baseDir = cwd, extensions } = {}) {
       ready = true
 
       /*
-       * Clean up all source files on remove of root file
+       * Clean up all source filepaths on remove of root file
        */
       function cleanupOnRootRemoval (currentRoot) {
-        // first clear the deleted root file from any files
+        // first clear the deleted root file from any filepaths
         for (const source of rootsToSourcesMap[currentRoot]) {
           sourcesToRootsMap[source].delete(currentRoot)
         }
@@ -113,7 +113,7 @@ function source (globs, { baseDir = cwd, extensions } = {}) {
 
       /*
        * These emitters are set up in watch.js, the main watcher. They
-       * watch the root files (pages) themselves.
+       * watch the root filepaths (pages) themselves.
        */
       emitter.on('done', ([file]) => {
         const currentRoot = Object.keys(rootCounter).find(root => root === file)
@@ -126,9 +126,7 @@ function source (globs, { baseDir = cwd, extensions } = {}) {
            * or commented out.
            */
           if (cache.callCount === cache.prevCallCount) {
-            console.log('cleanup')
             cleanupOnRootRemoval(currentRoot)
-            console.log(rootsToSourcesMap)
           } else {
             /*
              * Inc prev call count for this particular root file
@@ -145,7 +143,7 @@ function source (globs, { baseDir = cwd, extensions } = {}) {
       })
     }
 
-    // init filewatcher for sourced files
+    // init filewatcher for sourced filepaths
     if (!watcher) {
       watcher = chokidar.watch(baseDir, {
         ignoreInitial: true
@@ -184,21 +182,21 @@ function source (globs, { baseDir = cwd, extensions } = {}) {
   }
 
   /*
-   * Outside watch mode, just read files and return
+   * Outside watch mode, just read filepaths and return
    */
 
-  const results = files.map(fp => {
+  const results = filepaths.map(fp => {
     const extension = path.extname(fp).split('.')[1]
     return extensions[extension](fp)
   })
 
   return {
-    files,
+    filepaths,
     paths: results.reduce((paths, res) => {
       return paths.concat(Object.keys(res))
     }, []),
-    sources: results.reduce((files, res) => {
-      return Object.assign(files, res)
+    sources: results.reduce((sources, res) => {
+      return Object.assign(sources, res)
     }, {})
   }
 }
