@@ -3,7 +3,6 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { Hypo, Box } from '@hypobox/react'
 import { html } from 'presta/html'
 import { hypostyle } from 'hypostyle'
-import * as extract from 'presta/extract'
 
 import { title } from '@/src/lib/title'
 import * as document from '@/src/lib/document'
