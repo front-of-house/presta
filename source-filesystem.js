@@ -1,7 +1,6 @@
 const fs = require('fs-extra')
 const path = require('path')
 const matched = require('matched')
-const callsites = require('callsites')
 const chokidar = require('chokidar')
 const match = require('picomatch')
 
@@ -36,7 +35,7 @@ function createDefaultExtensions ({ baseDir }) {
   }
 }
 
-function source (globs, { baseDir = cwd, extensions } = {}) {
+function source (globs, { baseDir = cwd, file: root, extensions } = {}) {
   /*
    * Current process variables
    */
@@ -47,7 +46,6 @@ function source (globs, { baseDir = cwd, extensions } = {}) {
 
   const config = getCurrentConfig() // current process config
   const { env, emitter } = config
-  const root = callsites()[1].getFileName() // file that just called source()
 
   /*
    * Normalize values
