@@ -3,6 +3,7 @@ const path = require('path')
 const matched = require('matched')
 const chokidar = require('chokidar')
 const match = require('picomatch')
+const assert = require('assert')
 
 const { getCurrentConfig } = require('./lib/config')
 const { buildFiles } = require('./lib/watch')
@@ -36,7 +37,10 @@ function createDefaultExtensions ({ baseDir }) {
   }
 }
 
-function source (globs, { baseDir = cwd, file: root, extensions } = {}) {
+function source (globs, { baseDir = cwd, file: root, extensions = {} } = {}) {
+  assert(path.isAbsolute(root), 'file should be an absolute path')
+  assert(path.isAbsolute(baseDir), 'baseDir should be an absolute path')
+
   /*
    * Current process variables
    */
