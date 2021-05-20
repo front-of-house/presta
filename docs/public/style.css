@@ -23,6 +23,7 @@ body {
   font-weight: 400;
   font-family: 'Roboto', -apple-system, system-ui, BlinkMacSystemFont,
     sans-serif;
+  font-size: 100%;
   -moz-osx-font-smoothing: grayscale;
 }
 ::selection {
@@ -45,10 +46,6 @@ h5,
 h6 {
   margin: 0;
 }
-p {
-  line-height: 1.5;
-  margin: 0;
-}
 h1 {
   font-size: 3rem;
 }
@@ -67,8 +64,11 @@ h5 {
 h6 {
   font-size: 0.875rem;
 }
-p {
+p,
+.p {
   font-size: 1.2rem;
+  line-height: 1.5;
+  margin: 0;
 }
 .wysiwyg p {
   margin-bottom: 16px;
@@ -98,6 +98,14 @@ p {
 .wysiwyg h5,
 .wysiwyg h6 {
   margin: 1.5em 0 0.5em;
+}
+.wysiwyg h1:first-child,
+.wysiwyg h2:first-child,
+.wysiwyg h3:first-child,
+.wysiwyg h4:first-child,
+.wysiwyg h5:first-child,
+.wysiwyg h6:first-child {
+  margin-top: 0;
 }
 .wysiwyg blockquote {
   position: relative;
