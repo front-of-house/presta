@@ -1,4 +1,3 @@
-import fs from 'fs'
 import path from 'path'
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -10,6 +9,7 @@ import markdown from 'remark-parse'
 import remarkHtml from 'remark-html'
 import highlight from 'remark-highlight.js'
 import * as extract from 'presta/extract'
+import { source } from 'presta/source'
 
 import { title } from '@/src/lib/title'
 import * as document from '@/src/lib/document'
@@ -19,25 +19,27 @@ import { Gutter } from '@/src/components/Gutter'
 import { Github } from '@/src/icons/Github'
 import { Logo } from '@/src/components/Logo'
 
+const { paths, files } = source('*.md', {
+  baseDir: path.resolve(__dirname, '../content')
+})
+
 export async function getStaticPaths () {
-  return ['/docs']
+  return paths
 }
 
 export async function handler (ctx) {
-  const file = fs.readFileSync(
-    path.resolve(__dirname, '../content/docs.md'),
-    'utf-8'
-  )
+  const raw = files[ctx.path]
   const content = await new Promise((res, rej) => {
     unified()
       .use(markdown)
       .use(highlight)
       .use(remarkHtml)
-      .process(file, (err, h) => {
+      .process(raw, (err, h) => {
         if (err) rej(err)
         res(h)
       })
   })
+
   const hypo = hypostyle(theme)
   const head = document.head(ctx)
   const body = renderToStaticMarkup(
