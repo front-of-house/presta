@@ -1,9 +1,11 @@
 const fs = require('fs-extra')
 const path = require('path')
-const callsites = require('callsites')
+const assert = require('assert')
 
 const { OUTPUT_STATIC_DIR } = require('./lib/constants')
 const { getCurrentConfig } = require('./lib/config')
+
+const keys = []
 
 function hash (str) {
   var h = 5381,
@@ -14,12 +16,13 @@ function hash (str) {
   return (h >>> 0).toString(36)
 }
 
-function base (raw, ext, key) {
+function extract (raw, ext, key) {
+  assert(!!raw, 'Nothing to extract')
+  assert(!!ext, 'Please specify an extension')
+  assert(!!key, 'Please specify a key')
+
   const { env, cwd, merged: config } = getCurrentConfig()
   const PROD = env === 'production'
-
-  // important: if you call base() directly, this callsites index will be incorrect
-  key = key || path.basename(callsites()[3].getFileName()).split('.')[0]
 
   const filename = PROD ? key + '-' + hash(raw) : key
   const publicPath = '/' + filename + '.' + ext
@@ -38,11 +41,6 @@ function css (raw, key) {
 
 function js (raw, key) {
   return extract(raw, 'js', key)
-}
-
-// facade to enable callsites usage
-function extract (raw, ext, key) {
-  return base(raw, ext, key)
 }
 
 module.exports = {
