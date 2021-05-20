@@ -26,7 +26,7 @@ function createUrlFromFilepath ({ filepath, baseDir }) {
 
 function createDefaultExtensions ({ baseDir }) {
   return {
-    md (filepath) {
+    default (filepath) {
       const p = createUrlFromFilepath({ filepath, baseDir })
 
       return {
@@ -187,7 +187,8 @@ function source (globs, { baseDir = cwd, extensions } = {}) {
 
   const results = filepaths.map(fp => {
     const extension = path.extname(fp).split('.')[1]
-    return extensions[extension](fp)
+    const handler = extensions[extension] // try specific extension
+    return handler ? handler(fp) : extensions.default(fp)
   })
 
   return {
