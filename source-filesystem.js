@@ -6,6 +6,7 @@ const match = require('picomatch')
 
 const { getCurrentConfig } = require('./lib/config')
 const { buildFiles } = require('./lib/watch')
+const { debug } = require('./lib/debug')
 
 let ready // flag for global watch.js wathcers
 let watcher // single chokidar watcher
@@ -56,6 +57,8 @@ function source (globs, { baseDir = cwd, file: root, extensions } = {}) {
     ...createDefaultExtensions({ baseDir }),
     ...extensions
   }
+
+  debug('source', { baseDir, globs })
 
   /*
    * Sourced files
