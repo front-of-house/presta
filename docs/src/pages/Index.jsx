@@ -273,9 +273,10 @@ export function handler (ctx) {
       head: {
         ...head,
         link: [
-          ...head.link,
-          { rel: 'stylesheet', href: extract.css(hypo.flush()) }
-        ]
+          ...head.link
+          // { rel: 'stylesheet', href: extract.css(hypo.flush()) }
+        ],
+        style: [{ id: 'hypo', children: hypo.flush() }]
       },
       body: body,
       foot: document.foot(ctx)
