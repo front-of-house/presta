@@ -9,7 +9,7 @@ import markdown from 'remark-parse'
 import remarkHtml from 'remark-html'
 import highlight from 'remark-highlight.js'
 import * as extract from 'presta/extract'
-import { source } from 'presta/source'
+import { source } from 'presta/source-filesystem'
 
 import { title } from '@/src/lib/title'
 import * as document from '@/src/lib/document'
