@@ -19,7 +19,7 @@ import { Gutter } from '@/src/components/Gutter'
 import { Github } from '@/src/icons/Github'
 import { Logo } from '@/src/components/Logo'
 
-const { paths, files } = source('*.md', {
+const { paths, sources } = source('*.md', {
   baseDir: path.resolve(__dirname, '../content')
 })
 
@@ -28,7 +28,7 @@ export async function getStaticPaths () {
 }
 
 export async function handler (ctx) {
-  const raw = files[ctx.path]
+  const raw = sources[ctx.path]
   const content = await new Promise((res, rej) => {
     unified()
       .use(markdown)
