@@ -8,7 +8,11 @@ function html ({
   bodyAttributes = {}
 }) {
   // insert favicon during dev, if not otherwise specified
-  if (head.link && !head.link.find(m => m.rel === 'icon')) {
+  if (
+    head.link &&
+    !head.link.find(m => m.rel === 'icon' || /rel="icon/.test(m + ''))
+  ) {
+    console.log('add icon')
     head.link.push({
       rel: 'icon',
       type: 'image/png',
