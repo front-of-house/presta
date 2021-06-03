@@ -278,7 +278,7 @@ export function handler (ctx) {
     html: html({
       head: {
         title: title('Presta'),
-        description: 'Hyper minimal framework for the modern web.',
+        description: 'The serverless-first web framework. SSG, SSR, API functions and more.',
         ...head,
         link: [
           ...head.link
