@@ -276,9 +276,9 @@ export function handler (ctx) {
 
   return {
     html: html({
-      title: title('Presta'),
-      description: 'Hyper minimal framework for the modern web.',
       head: {
+        title: title('Presta'),
+        description: 'Hyper minimal framework for the modern web.',
         ...head,
         link: [
           ...head.link
