@@ -5,26 +5,19 @@ export const theme = {
   tokens: {
     ...presets.tokens,
     color: {
-      dark: 'var(--dark)',
-      light: 'var(--light)',
-      blue: 'var(--blue)',
-      pink: 'var(--pink)',
-      green: 'var(--green)',
-      yellow: 'var(--yellow)'
+      dark: '#223355',
+      accent: '#4488FF',
+      medium: '#C2D0E8',
+      light: '#DBE2EE'
     },
-    width: {
-      s: '400px',
-      m: '800px',
-      l: '1000px',
-      xl: '1300px'
+    fontFamily: {
+      mono: `'IBM Plex Mono', monospace`,
+      sans: `'IBM Plex Sans', -apple-system, system-ui, BlinkMacSystemFont, sans-serif`
     },
     fontSize: ['4rem', '4rem', '2.8rem', '2rem', '1.4rem', '1rem', '0.875rem'],
-    fontFamily: {
-      sans: `'Roboto', -apple-system, system-ui, BlinkMacSystemFont, sans-serif`,
-      mono: `'Roboto Mono', monospace`
-    },
+    lineHeight: ['1.1', '1.1', '1.2', '1.3', '1.4', '1.5', '1.5'],
     boxShadow: {
-      shadow: `0px 0px 1px var(--dAlpha), 0px 4px 8px var(--dAlpha), 0px 16px 24px var(--dAlpha), 0px 24px 32px var(--dAlpha)`
+      shadow: `0px 0px 1px rgba(34, 51, 85, 0.1), 0px 4px 8px rgba(34, 51, 85, 0.1), 0px 16px 24px rgba(34, 51, 85, 0.1), 0px 24px 32px rgba(34, 51, 85, 0.1)`
     }
   }
 }

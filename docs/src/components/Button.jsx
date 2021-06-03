@@ -7,14 +7,15 @@ export function Button ({ children, ...props }) {
       as='button'
       py={2}
       px={4}
-      bg='pink'
+      bg='accent'
       fs={6}
-      fw={4}
+      fw={7}
       cx={{
-        color: 'var(--dark) !important',
-        border: '2px solid currentColor',
+        c: 'white !important',
+        border: '2px solid',
+        borderColor: 'dark',
         borderRadius: '6px',
-        textDecoration: 'none'
+        textDecoration: 'none !important'
       }}
       {...props}
     >

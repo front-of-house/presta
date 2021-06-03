@@ -14,13 +14,14 @@ export function Alert ({ children, ...rest }) {
         px={6}
         py={6}
         cx={{
-          border: '2px solid var(--dark)',
+          border: '2px solid',
+          borderColor: 'dark',
           borderRadius: '6px',
-          boxShadow: 'var(--shadow)'
+          boxShadow: 'shadow'
         }}
       >
         <Box w={[1, 32]} h='24'>
-          <Info w={32} h={32} />
+          <Info w={32} h={32} c='accent' />
         </Box>
         <Box w={[1, 'calc(100% - 32px)']}>
           <Box pt={[3, 0]} pl={[0, 4]}>

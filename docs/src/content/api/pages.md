@@ -1,16 +1,29 @@
 ---
-title: Pages
-order: 2
+meta_title: Pages | API | Presta
+sidebar_title: Pages
+sidebar_order: 8
 ---
 
-We'll go into more detail on the anotomy of a Presta file soon, but for now,
-this should get you started.
+# Pages API
+
+In lieu of a full spec, here's a file with all possible options expanded.
+
+> With the below example, make sure to only include one of `body`, `html`,
+> `json` or `xml`. All of these map to `Response.body`, and set separate
+> `Content-Type` headers for convenience.
 
 ```javascript
 /**
  * Define your route here — and name your file whatever you want!
  */
 export const route = '/:slug?'
+
+/**
+ * Any paths returned here will be passed to the handler and rendered statically
+ */
+export async function getStaticPaths () {
+  return ['/']
+}
 
 /**
  * Essentially an AWS-flavored serverless function
@@ -59,10 +72,3 @@ export async function handler ({
   }
 }
 ```
-
-At this point, you can visit the served URL (probably `localhost:4000`) in your
-browser to view your HTML page or API response.
-
-> With the above example, make sure to only include one of `body`, `html`,
-> `json` or `xml`. All of these map to `Response.body`, and set separate
-> `Content-Type` headers for convenience.

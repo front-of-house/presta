@@ -19,13 +19,12 @@ export function head (context) {
     link: [
       { rel: 'icon', type: 'image/png', href: '/favicon.png' },
       `<link href="https://unpkg.com/nord-highlightjs@0.1.0/dist/nord.css" rel="stylesheet" type="text/css" />`,
-      { rel: 'stylesheet', href: '/style.css' }
+      `<link rel="preconnect" href="https://fonts.gstatic.com">`,
+      `<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">`
     ]
   }
 }
 
 export function foot () {
-  return {
-    script: [{ src: '/client.js' }]
-  }
+  return {}
 }

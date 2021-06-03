@@ -7,6 +7,7 @@ import { hypostyle } from 'hypostyle'
 import { title } from '@/src/lib/title'
 import * as document from '@/src/lib/document'
 import { theme } from '@/src/lib/theme'
+import { style } from '@/src/lib/style'
 
 import { Gutter } from '@/src/components/Gutter'
 import { Alert } from '@/src/components/Alert'
@@ -207,7 +208,7 @@ function Page () {
             </Box>
           </Box>
 
-          <Box as='ul' f fw mx={-1}>
+          <Box as='ul' f fw mx={-1} px={0}>
             {[
               {
                 title: `Fast AF`,
@@ -235,7 +236,13 @@ function Page () {
               }
             ].map(f => (
               <Box key={f.title} as='li' db p={1} w={[1, 1 / 2, 1 / 3]} mb={5}>
-                <Box h='100%' cx={{ borderLeft: '4px solid var(--pink)' }}>
+                <Box
+                  h='100%'
+                  cx={{
+                    borderLeft: '4px solid',
+                    borderColor: 'accent'
+                  }}
+                >
                   <Box px={5} py={1}>
                     <Box as='h5' mb={3}>
                       {f.title}
@@ -264,6 +271,8 @@ export function handler (ctx) {
       </Hypo>
     </div>
   )
+
+  hypo.injectGlobal(style)
 
   return {
     html: html({
