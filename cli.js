@@ -54,7 +54,7 @@ prog
 
     const config = createConfig({
       env: 'production',
-      configFile: getConfigFile(opts.config),
+      configFile: getConfigFile(opts.config, true),
       cliArgs: {
         ...opts,
         files: opts._
