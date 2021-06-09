@@ -1,20 +1,20 @@
-function createEmitter () {
-  let events = {}
+export const createEmitter = () => {
+  let events = []
 
-  function emit (ev, ...args) {
+  const emit =  (ev, ...args) => {
     return events[ev] ? events[ev].map(fn => fn(...args)) : []
   }
 
-  function on (ev, fn) {
+  const on =  (ev, fn) => {
     events[ev] = events[ev] ? events[ev].concat(fn) : [fn]
     return () => events[ev].splice(events[ev].indexOf(fn), 1)
   }
 
-  function clear () {
-    events = {}
+  const clear = () => {
+    events = []
   }
 
-  function listeners (ev) {
+  const listeners = (ev) => {
     return events[ev] || []
   }
 
@@ -25,5 +25,3 @@ function createEmitter () {
     listeners
   }
 }
-
-module.exports = { createEmitter }

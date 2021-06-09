@@ -1,17 +1,17 @@
-function stringify (obj) {
+export const stringify = (obj: any) => {
   return typeof obj === 'object' ? JSON.stringify(obj) : obj
 }
 
-function normalizeResponse (response) {
+export const normalizeResponse = (response: any) => {
   const {
     isBase64Encoded = false,
     statusCode = 200,
     headers = {},
     multiValueHeaders = {},
     body,
-    html,
-    json,
-    xml
+    html = {},
+    json = {},
+    xml = {}
   } =
     typeof response === 'object'
       ? response
@@ -38,5 +38,3 @@ function normalizeResponse (response) {
     body: stringify(body || html || json || xml || '')
   }
 }
-
-module.exports = { normalizeResponse }

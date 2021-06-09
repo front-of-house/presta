@@ -1,15 +1,17 @@
-const { debug } = require('./debug')
-const { getRouteParams } = require('./getRouteParams')
-const { default404 } = require('./default404')
-const { createContext } = require('./createContext')
-const { normalizeResponse } = require('./normalizeResponse')
-const { loadCache } = require('../load')
+import { debug } from './debug'
+import { getRouteParams } from './getRouteParams'
+import { default404 } from './default404'
+import { createContext } from './createContext'
+import { normalizeResponse } from './normalizeResponse'
+import { loadCache } from '../load'
+import config from './types/config'
+import context from './types/context'
 
 /*
  * This function is initially called *within* a generated entry file
  */
-function createHandler (router, config) {
-  return async (event, context) => {
+export const createHandler = (router, config: config) => {
+  return async (event, context: context) => {
     /*
      * Match a file using router
      */
@@ -55,5 +57,3 @@ function createHandler (router, config) {
     return response
   }
 }
-
-module.exports = { createHandler }

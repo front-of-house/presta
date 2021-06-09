@@ -1,18 +1,19 @@
-const fs = require('fs-extra')
-const c = require('ansi-colors')
-const graph = require('watch-dependency-graph')
-const chokidar = require('chokidar')
-const match = require('picomatch')
+import fs from 'fs-extra'
+import c from 'ansi-colors'
+import graph from 'watch-dependency-graph'
+import chokidar from 'chokidar'
+import match from 'picomatch'
 
-const { debug } = require('./debug')
-const { createDynamicEntry } = require('./createDynamicEntry')
-const { log, formatLog } = require('./log')
-const { getFiles, isStatic, isDynamic } = require('./getFiles')
-const { renderStaticEntries } = require('./renderStaticEntries')
-const { timer } = require('./timer')
-const { createConfig, removeConfigValues, getConfigFile } = require('./config')
+import { debug } from './debug'
+import { createDynamicEntry } from './createDynamicEntry'
+import { log, formatLog } from './log'
+import { getFiles, isStatic, isDynamic } from './getFiles'
+import { renderStaticEntries } from './renderStaticEntries'
+import { timer } from './timer'
+import { createConfig, removeConfigValues, getConfigFile } from './config'
+import config from './types/config'
 
-function getFileIds (config) {
+const getFileIds = (config: config) => {
   const files = getFiles(config)
 
   return {
@@ -24,7 +25,7 @@ function getFileIds (config) {
 /*
  * Prior to reloading dynamic entry after any update, we need to clear the cache
  */
-function clearDynamicEntryCache (config) {
+const clearDynamicEntryCache = (config) => {
   delete require.cache[config.dynamicEntryFilepath]
 }
 
@@ -32,7 +33,7 @@ function clearDynamicEntryCache (config) {
  * Handles the actual writing of the dyanmic entry by updating the file and
  * then clearing require cache
  */
-function updateDynamicEntry (ids, config) {
+const updateDynamicEntry = (ids: string[], config: config) => {
   const time = timer()
 
   createDynamicEntry(ids, config)
@@ -52,7 +53,7 @@ function updateDynamicEntry (ids, config) {
 /**
  * Util for other helpers, like source
  */
-async function buildFiles (ids, config) {
+export const buildFiles = async (ids: string[], config: config) => {
   const staticIds = ids.filter(isStatic)
   const dynamicIds = ids.filter(isDynamic)
 
@@ -67,7 +68,7 @@ async function buildFiles (ids, config) {
   config.emitter.emit('done', ids)
 }
 
-async function watch (config, options = {}) {
+export const watch = async (config: config, options:any = {}) => {
   debug('watch initialized with config', config)
 
   let hasConfigFile = !!Object.keys(config.configFile).length
@@ -99,7 +100,7 @@ async function watch (config, options = {}) {
     ignored: [config.merged.output, config.merged.assets]
   })
 
-  async function handleConfigUpdate () {
+  const handleConfigUpdate = async () => {
     // stop watching previous pages
     staticWatcher.remove(staticIds)
     dynamicWatcher.remove(dynamicIds)
@@ -248,7 +249,7 @@ async function watch (config, options = {}) {
   configWatcher.on('remove', async files => {
     debug('configWatcher - config removed')
 
-    if (files[0] === config.configFilepath) {
+    if (files[0] === config.configFilePath) {
       // filter out values from the config file
       config = removeConfigValues()
 
@@ -259,12 +260,12 @@ async function watch (config, options = {}) {
     debug('configWatcher - config changed')
 
     // clear config file for re-require
-    delete require.cache[config.configFilepath]
+    delete require.cache[config.configFilePath]
 
     try {
       // merge in new values from config file
       config = createConfig({
-        configFile: getConfigFile(config.configFilepath)
+        configFile: getConfigFile(config.configFilePath)
       })
 
       handleConfigUpdate()
@@ -329,15 +330,15 @@ async function watch (config, options = {}) {
     }
 
     // if file matches config file and we don't already have one
-    if (file === config.configFilepath && !hasConfigFile) {
+    if (file === config.configFilePath && !hasConfigFile) {
       debug('globalWatcher - add config file')
 
-      configWatcher.add(config.configFilepath)
+      configWatcher.add(config.configFilePath)
 
       try {
         // merge in new values from config file
         config = createConfig({
-          configFile: getConfigFile(config.configFilepath)
+          configFile: getConfigFile(config.configFilePath)
         })
 
         hasConfigFile = true
@@ -358,8 +359,8 @@ async function watch (config, options = {}) {
   /*
    * Watch config and tree if available
    */
-  if (fs.existsSync(config.configFilepath)) {
-    configWatcher.add(config.configFilepath)
+  if (fs.existsSync(config.configFilePath)) {
+    configWatcher.add(config.configFilePath)
   }
 
   try {
@@ -369,5 +370,3 @@ async function watch (config, options = {}) {
     log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
   }
 }
-
-module.exports = { buildFiles, watch }

@@ -1,28 +1,28 @@
-const c = require('ansi-colors')
+import c from 'ansi-colors'
 
-const { createCache } = require('./lib/loadCache')
+import { createCache } from './lib/loadCache'
 
 const { NODE_ENV } = process.env
 
 const requests = {}
 const errors = {}
-const loadCache = createCache('presta-load-cache')
+export const loadCache = createCache('presta-load-cache')
 
-function log (str) {
+export const log = (str: string) => {
   if (NODE_ENV !== 'test') console.log(str)
 }
 
-function loadError (key, e) {
+export const loadError = (key: string, e: any) => {
   log(`\n  ${c.red('error')} load { ${key} }\n\n${e}\n`)
   errors[key] = e
   delete requests[key]
 }
 
-function prime (key, value, duration) {
+export const prime = (key: string, value: any, duration?: number) => {
   loadCache.set(key, value, duration)
 }
 
-async function cache (loader, { key, duration }) {
+export const cache = async (loader: () => Promise<any>, { key, duration }: { key: string, duration?: number }) => {
   let value = loadCache.get(key)
 
   if (!value) {
@@ -33,7 +33,7 @@ async function cache (loader, { key, duration }) {
   return value
 }
 
-function load (loader, { key, duration }) {
+export const load = (loader: () => Promise<any>, { key, duration }: { key: string, duration?: number }) => {
   let value = loadCache.get(key)
 
   if (!value && !errors[key]) {
@@ -42,12 +42,12 @@ function load (loader, { key, duration }) {
       requests[key] = loader()
 
       requests[key]
-        .then(value => {
+        .then((value: any) => {
           loadCache.set(key, value, duration)
           delete requests[key]
         })
         // catch async errors
-        .catch(e => loadError(key, e))
+        .catch((e: any) => loadError(key, e))
     } catch (e) {
       loadError(key, e)
     }
@@ -58,7 +58,7 @@ function load (loader, { key, duration }) {
   return value
 }
 
-async function flush (run, data = {}) {
+export const flush = async (run: () => any, data: any = {}) => {
   const content = run()
 
   if (Object.keys(requests).length) {
@@ -67,12 +67,4 @@ async function flush (run, data = {}) {
   }
 
   return { content, data: loadCache.dump() }
-}
-
-module.exports = {
-  loadCache,
-  prime,
-  cache,
-  load,
-  flush
 }

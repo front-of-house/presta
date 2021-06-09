@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-const fs = require('fs-extra')
-const sade = require('sade')
-const exit = require('exit')
-const c = require('ansi-colors')
+import fs from 'fs-extra'
+import sade from 'sade'
+import exit from 'exit'
+import c from 'ansi-colors'
 
-const pkg = require('./package.json')
+import pkg from './package.json'
 
-const { CONFIG_DEFAULT } = require('./lib/constants')
-const { log } = require('./lib/log')
-const { createConfig, getConfigFile } = require('./lib/config')
-const { watch } = require('./lib/watch')
-const { build } = require('./lib/build')
-const { serve } = require('./lib/serve')
+import { CONFIG_DEFAULT } from './lib/constants'
+import { log } from './lib/log'
+import { createConfig, getConfigFile } from './lib/config'
+import { watch } from './lib/watch'
+import { build } from './lib/build'
+import { serve } from './lib/serve'
 
 function registerRuntime (options = {}) {
   require('module-alias').addAliases({

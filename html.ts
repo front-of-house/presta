@@ -1,12 +1,18 @@
 const { createHeadTags, createFootTags } = require('./lib/createHeadTags')
 
-function html ({
+export const html = ({
   body = '',
   head = {},
   foot = {},
   htmlAttributes = {},
   bodyAttributes = {}
-}) {
+}: {
+  body: string;
+  head: any;
+  foot: any;
+  htmlAttributes: any;
+  bodyAttributes: any;
+}) => {
   // insert favicon during dev, if not otherwise specified
   if (
     head.link &&
@@ -43,8 +49,4 @@ function html ({
   }, '')
 
   return `<!-- built with presta https://npm.im/presta --><!DOCTYPE html><html${htmlAttr}><head>${headTags}</head><body${bodyAttr}>${body}${footTags}</body></html>`
-}
-
-module.exports = {
-  html
 }

@@ -1,15 +1,16 @@
-let rsort = require('route-sort')
-let toRegExp = require('regexparam')
+import * as rSort from 'route-sort'
+import * as regExp from 'regexparam'
+import config from './types/config'
 
-rsort = rsort.default || rsort
-toRegExp = toRegExp.default || toRegExp
+const rsort = rSort.default
+const toRegExp = regExp.default
 
 /**
  * This is used *within* the generated dynamic entry file
  *
  * @see https://github.com/lukeed/regexparam#usage
  */
-function createRouter (files, config) {
+export const createRouter = (files: any[], config: config) => {
   // get route paths
   const routes = rsort(files.map(p => p.route))
 
@@ -19,11 +20,9 @@ function createRouter (files, config) {
     files.find(p => p.route === route)
   ])
 
-  return url => {
+  return (url: string) => {
     for (const [{ pattern }, page] of preparedRoutes) {
       if (pattern.test(url)) return page
     }
   }
 }
-
-module.exports = { createRouter }

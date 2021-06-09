@@ -1,25 +1,20 @@
-const fs = require('fs-extra')
-const path = require('path')
-const matched = require('matched')
+import fs from 'fs-extra'
+import path from 'path'
+import matched from 'matched'
+import config from './types/config'
 
-function isDynamic (file) {
+export const isDynamic = (file: string) => {
   return /export\s.+\sroute\s+\=/.test(fs.readFileSync(file, 'utf-8'))
 }
 
-function isStatic (file) {
+export const isStatic = (file: string) => {
   return /export\s.+\sgetStaticPaths/.test(fs.readFileSync(file, 'utf-8'))
 }
 
-function getFiles (config) {
+export const getFiles = (config: config) => {
   return []
     .concat(config.merged.files)
     .map(file => path.resolve(config.cwd, file)) // make absolute
     .map(glob => matched.sync(glob, { cwd: config.cwd }))
     .flat()
-}
-
-module.exports = {
-  isDynamic,
-  isStatic,
-  getFiles
 }

@@ -1,19 +1,20 @@
-const fs = require('fs-extra')
-const path = require('path')
-const c = require('ansi-colors')
-const mime = require('mime-types')
+import fs from 'fs-extra'
+import path from 'path'
+import c from 'ansi-colors'
+import mime from 'mime-types'
 
-const { debug } = require('./debug')
-const { OUTPUT_STATIC_DIR } = require('./constants')
-const { pathnameToFile } = require('./pathnameToFile')
-const { log, formatLog } = require('./log')
-const { timer } = require('./timer')
-const { getRouteParams } = require('./getRouteParams')
-const { createContext } = require('./createContext')
-const { normalizeResponse } = require('./normalizeResponse')
-const { loadCache } = require('../load')
+import { debug } from './debug'
+import { OUTPUT_STATIC_DIR } from './constants'
+import { pathnameToFile } from './pathnameToFile'
+import { log, formatLog } from './log'
+import { timer } from './timer'
+import { getRouteParams } from './getRouteParams'
+import { createContext } from './createContext'
+import { normalizeResponse } from './normalizeResponse'
+import { loadCache } from '../load'
+import config from './types/config'
 
-function renderStaticEntries (entries, config, options = {}) {
+export const renderStaticEntries = (entries: string[], config: config, options: any = {}) => {
   return new Promise(async (y, n) => {
     debug('renderStaticEntries', entries)
 
@@ -62,7 +63,7 @@ function renderStaticEntries (entries, config, options = {}) {
 
           const response = normalizeResponse(await file.handler(context))
           const type = response.headers['Content-Type']
-          const ext = type ? mime.extension(type) : 'html'
+          const ext = type ? mime.extension(type) as string : 'html'
           const filename = pathnameToFile(url, ext)
 
           allGeneratedFiles.push(filename)
@@ -97,5 +98,3 @@ function renderStaticEntries (entries, config, options = {}) {
     y({ allGeneratedFiles })
   })
 }
-
-module.exports = { renderStaticEntries }

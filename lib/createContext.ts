@@ -1,6 +1,6 @@
-const merge = require('deepmerge')
+import merge from 'deepmerge'
 
-function createContext (context) {
+export const createContext = (context: any) => {
   return merge(
     {
       path: '',
@@ -15,5 +15,3 @@ function createContext (context) {
     context
   )
 }
-
-module.exports = { createContext }

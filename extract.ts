@@ -1,13 +1,13 @@
-const fs = require('fs-extra')
-const path = require('path')
-const assert = require('assert')
+import fs from 'fs-extra'
+import path from 'path'
+import assert from 'assert'
 
-const { OUTPUT_STATIC_DIR } = require('./lib/constants')
-const { getCurrentConfig } = require('./lib/config')
+import { OUTPUT_STATIC_DIR } from './lib/constants'
+import { getCurrentConfig } from './lib/config'
 
 const keys = []
 
-function hash (str) {
+const hash = (str: string) => {
   var h = 5381,
     i = str.length
 
@@ -16,7 +16,7 @@ function hash (str) {
   return (h >>> 0).toString(36)
 }
 
-function extract (raw, ext, key) {
+export const extract = (raw: string, ext: string, key: string) => {
   assert(!!raw, 'Nothing to extract')
   assert(!!ext, 'Please specify an extension')
   assert(!!key, 'Please specify a key')
@@ -35,16 +35,10 @@ function extract (raw, ext, key) {
   return publicPath
 }
 
-function css (raw, key) {
+export const css = (raw: string, key: string) => {
   return extract(raw, 'css', key)
 }
 
-function js (raw, key) {
+export const js = (raw: string, key: string) => {
   return extract(raw, 'js', key)
-}
-
-module.exports = {
-  extract,
-  css,
-  js
 }

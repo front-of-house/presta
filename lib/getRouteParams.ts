@@ -1,9 +1,12 @@
-let toRegExp = require('regexparam')
+import * as regExp from 'regexparam'
 
-toRegExp = toRegExp.default || toRegExp
+const toRegExp = regExp.default
 
 // @see https://github.com/lukeed/regexparam#usage
-function exec (path, result) {
+export const exec = (path: string, result: {
+  keys: string[];
+  pattern: RegExp;
+}) => {
   let i = 0,
     out = {}
   let matches = result.pattern.exec(path)
@@ -13,8 +16,6 @@ function exec (path, result) {
   return out
 }
 
-function getRouteParams (url, route) {
+export const getRouteParams = (url: string, route: string) => {
   return exec(url, toRegExp(route))
 }
-
-module.exports = { getRouteParams }

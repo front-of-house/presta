@@ -1,17 +1,17 @@
-const c = require('ansi-colors')
+import c from 'ansi-colors'
 
 const { NODE_ENV } = process.env
 
 let logs = ''
 
-function getLogs () {
-  if (!NODE_ENV === 'test') {
+export const getLogs = () => {
+  if (NODE_ENV !== 'test') {
     throw new Error('Internal method was called outside test mode')
   }
   return logs
 }
 
-function log (str) {
+export const log = (str: string) => {
   if (NODE_ENV === 'test') {
     logs += str
   } else {
@@ -19,16 +19,15 @@ function log (str) {
   }
 }
 
-function formatLog ({ action, meta, description, color = 'blue' }) {
+export const formatLog = ({ action, meta, description, color = 'blue' }: {
+  action: string;
+  meta: string;
+  description: string;
+  color?: string;
+}) => {
   if (NODE_ENV === 'test') {
   } else {
     const message = `  ${c[color](action)} ${c.gray(meta)}`
     console.log(message.padEnd(40) + description)
   }
-}
-
-module.exports = {
-  getLogs,
-  log,
-  formatLog
 }

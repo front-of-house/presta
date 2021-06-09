@@ -1,32 +1,32 @@
-const fs = require('fs-extra')
-const path = require('path')
-const matched = require('matched')
-const chokidar = require('chokidar')
-const match = require('picomatch')
-const assert = require('assert')
+import fs from 'fs-extra'
+import path from 'path'
+import matched from 'matched'
+import chokidar from 'chokidar'
+import match from 'picomatch'
+import assert from 'assert'
 
-const { getCurrentConfig } = require('./lib/config')
-const { buildFiles } = require('./lib/watch')
-const { debug } = require('./lib/debug')
+import { getCurrentConfig } from './lib/config'
+import { buildFiles } from './lib/watch'
+import { debug } from './lib/debug'
 
-let ready // flag for global watch.js wathcers
-let watcher // single chokidar watcher
+let ready: boolean; // flag for global watch.js wathcers
+let watcher: chokidar.FSWatcher// single chokidar watcher
 
 const pid = process.pid
 const cwd = process.cwd()
 
 // process specific hashes to manage listeners
-const rootCounters = { [pid]: {} }
-const sourcesToRootsMaps = { [pid]: {} }
-const rootsToSourcesMaps = { [pid]: {} }
-const rootsToGlobsMaps = { [pid]: {} }
+const rootCounters: { [x: number]: any } = { [pid]: {} }
+const sourcesToRootsMaps: { [x: number]: any } = { [pid]: {} }
+const rootsToSourcesMaps: { [x: number]: any } = { [pid]: {} }
+const rootsToGlobsMaps: { [x: number]: any } = { [pid]: {} }
 
-function createUrlFromFilepath ({ filepath, baseDir }) {
+export const createUrlFromFilepath = ({ filepath, baseDir }: { filepath: string; baseDir: string; }) => {
   return filepath.split(baseDir)[1].split('.')[0]
 }
 
 const defaultExtensions = {
-  default (filepath, baseDir) {
+  default(filepath: string, baseDir: string) {
     const p = createUrlFromFilepath({ filepath, baseDir })
 
     return {
@@ -35,8 +35,8 @@ const defaultExtensions = {
   }
 }
 
-function source (baseDir, globs, { extensions = {} } = {}) {
-  return root => {
+export const source = (baseDir: string, globs: match.Glob[], { extensions = {} }: { extensions?: any } = {}) => {
+  return (root: string) => {
     assert(
       path.isAbsolute(root),
       'root file should be an absolute path — did you use __filename?'
@@ -84,7 +84,7 @@ function source (baseDir, globs, { extensions = {} } = {}) {
         callCount: 0
       }
 
-      function processNewSource (s, r) {
+      const processNewSource = (s: string, r: string) => {
         sourcesToRootsMap[s] = sourcesToRootsMap[s] || new Set()
         sourcesToRootsMap[s].add(r)
 
@@ -106,7 +106,7 @@ function source (baseDir, globs, { extensions = {} } = {}) {
         /*
          * Clean up all source filepaths on remove of root file
          */
-        function cleanupOnRootRemoval (currentRoot) {
+        function cleanupOnRootRemoval(currentRoot) {
           // first clear the deleted root file from any filepaths
           for (const source of rootsToSourcesMap[currentRoot]) {
             sourcesToRootsMap[source].delete(currentRoot)
@@ -170,7 +170,7 @@ function source (baseDir, globs, { extensions = {} } = {}) {
             }
           }
 
-          const roots = Array.from(sourcesToRootsMap[filepath] || [])
+          const roots: string[] = Array.from(sourcesToRootsMap[filepath] || [])
           if (roots.length) buildFiles(roots, config)
 
           // if remove, remove last
@@ -211,9 +211,4 @@ function source (baseDir, globs, { extensions = {} } = {}) {
       }, {})
     }
   }
-}
-
-module.exports = {
-  createUrlFromFilepath,
-  source
 }

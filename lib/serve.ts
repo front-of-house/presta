@@ -1,44 +1,45 @@
-const fs = require('fs')
-const { parse: parseUrl } = require('url')
-const path = require('path')
-const http = require('http')
-const getPort = require('get-port')
-const c = require('ansi-colors')
-const sirv = require('sirv')
-const chokidar = require('chokidar')
-const { parse: parseQuery } = require('query-string')
-const mime = require('mime-types')
+import fs from 'fs'
+import { parse as parseUrl } from 'url'
+import path from 'path'
+import http from 'http'
+import getPort from 'get-port'
+import c from 'ansi-colors'
+import sirv from 'sirv'
+import chokidar from 'chokidar'
+import { parse as parseQuery } from 'query-string'
+import mime from 'mime-types'
 
-const { OUTPUT_DYNAMIC_PAGES_ENTRY } = require('./constants')
-const { createDevClient } = require('./devClient')
-const { debug } = require('./debug')
-const { timer } = require('./timer')
-const { log, formatLog } = require('./log')
-const { devServerIcon } = require('./devServerIcon')
-const { default404 } = require('./default404')
-const { normalizeResponse } = require('./normalizeResponse')
+import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './constants'
+import { createDevClient } from './devClient'
+import { debug } from './debug'
+import { timer } from './timer'
+import { log, formatLog } from './log'
+import { devServerIcon } from './devServerIcon'
+import { default404 } from './default404'
+import { normalizeResponse } from './normalizeResponse'
+import config from './types/config'
 
 const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
 
 // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
-function shouldBase64Encode (contentType) {
+const shouldBase64Encode = (contentType: string) => {
   return Boolean(contentType) && BASE_64_MIME_REGEXP.test(contentType)
 }
 
-function resolveHTML (dir, url) {
+const resolveHTML = (dir: string, url: string) => {
   let file = path.join(dir, url)
 
   // if no extension, it's probably intended to be an HTML file
   if (!path.extname(url)) {
     try {
       return fs.readFileSync(path.join(dir, url, 'index.html'), 'utf8')
-    } catch (e) {}
+    } catch (e) { }
   }
 
   return fs.readFileSync(file, 'utf8')
 }
 
-async function serve (config, { noBanner }) {
+export const serve = async (config: config, { noBanner }: { noBanner: boolean }) => {
   const port = await getPort({ port: 4000 })
   const devClient = createDevClient({ port })
   const staticDir = path.join(config.merged.output, 'static')
@@ -46,7 +47,7 @@ async function serve (config, { noBanner }) {
 
   const server = http
     .createServer(async (req, res) => {
-      function send (r) {
+      function send(r) {
         const response = normalizeResponse(r)
 
         // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L73
@@ -59,7 +60,7 @@ async function serve (config, { noBanner }) {
         res.end()
       }
 
-      function send404 () {
+      function send404() {
         debug('serve', `failure, serve default 404 page ${req.url}`)
 
         /*
@@ -110,7 +111,7 @@ async function serve (config, { noBanner }) {
           formatLog({
             action: 'serve',
             meta: '•',
-            description: req.url
+            description: req.url,
           })
         } catch (e) {
           debug('serve', e)
@@ -128,7 +129,7 @@ async function serve (config, { noBanner }) {
               handler,
               files,
               config: userConfig
-            } = require(config.dynamicEntryFilepath)
+            } = require(config.dynamicEntryFilePath)
             const hasServerConfigured = !!files.length
 
             /**
@@ -140,7 +141,7 @@ async function serve (config, { noBanner }) {
               const time = timer()
               // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L208
               const remoteAddress =
-                req.headers['x-forwarded-for'] || req.connection.remoteAddress
+                (req.headers['x-forwarded-for'] as string) || req.connection.remoteAddress
               const ip = remoteAddress
                 .split(remoteAddress.includes('.') ? ':' : ',')
                 .pop()
@@ -161,7 +162,7 @@ async function serve (config, { noBanner }) {
                       if (!req.headers[key].includes(',')) return headers // only include multi-value headers here
                       return {
                         ...headers,
-                        [key]: req.headers[key].split(',')
+                        [key]: (req.headers[key] as string).split(',')
                       }
                     },
                     {}
@@ -169,7 +170,7 @@ async function serve (config, { noBanner }) {
                   queryStringParameters: parseQuery(parseUrl(req.url).query),
                   multiValueQueryStringParameters: {},
                   body: req.headers['content-length']
-                    ? req.body.toString(isBase64Encoded ? 'base64' : 'utf8')
+                    ? req.read(req.readableLength).toString(isBase64Encoded ? 'base64' : 'utf8')
                     : undefined,
                   isBase64Encoded
                 },
@@ -197,8 +198,8 @@ async function serve (config, { noBanner }) {
                 body:
                   ext === 'html'
                     ? response.body.split('</body>')[0] +
-                      devClient +
-                      devServerIcon
+                    devClient +
+                    devServerIcon
                     : response.body
               })
             } else {
@@ -245,7 +246,11 @@ async function serve (config, { noBanner }) {
     })
     .listen(port, () => {
       if (!noBanner) {
-        log(c.blue(`presta serve`), `– http://localhost:${port}\n`)
+        formatLog({
+          action: 'serve',
+          meta: '•',
+          description: `– http://localhost:${port}\n`
+        })
       }
     })
 
@@ -264,5 +269,3 @@ async function serve (config, { noBanner }) {
 
   return { port }
 }
-
-module.exports = { serve }

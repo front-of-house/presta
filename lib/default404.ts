@@ -1,4 +1,4 @@
-const default404 = `<!-- built with presta https://npm.im/presta -->
+export const default404 = `<!-- built with presta https://npm.im/presta -->
 <!DOCTYPE html>
 <html>
   <head>
@@ -17,5 +17,3 @@ const default404 = `<!-- built with presta https://npm.im/presta -->
     </div>
   </body>
 </html>`
-
-module.exports = { default404 }
