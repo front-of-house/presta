@@ -29,7 +29,7 @@ function Page () {
 
             <Box as='ul' f aic>
               <Box as='li' db>
-                <Box as='a' db href='/docs' fs={5} fw='bold' mr={6}>
+                <Box as='a' db href='/about' fs={5} fw='bold' mr={6}>
                   Docs
                 </Box>
               </Box>
@@ -278,7 +278,8 @@ export function handler (ctx) {
     html: html({
       head: {
         title: title('Presta'),
-        description: 'The serverless-first web framework. SSG, SSR, API functions and more.',
+        description:
+          'The serverless-first web framework. SSG, SSR, API functions and more.',
         ...head,
         link: [
           ...head.link
