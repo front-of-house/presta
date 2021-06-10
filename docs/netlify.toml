@@ -2,6 +2,6 @@
   publish = "./build/static"
 
 [[redirects]]
-  from = "/docs"
-  to = "/docs/overview"
+  from = "*"
+  to = "/"
   status = 302
