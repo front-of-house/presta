@@ -48,7 +48,7 @@
     "route-sort": "^1.0.0",
     "sade": "^1.7.3",
     "sirv": "^1.0.7",
-    "watch-dependency-graph": "^2.4.0"
+    "watch-dependency-graph": "^2.6.1"
   },
   "devDependencies": {
     "baretest": "^2.0.0",
