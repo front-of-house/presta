@@ -7,7 +7,7 @@ const defaults = head({
 })
 
 const docs = litebook('../content', '**/*.md', {
-  version: 'v0.31.11',
+  version: 'v0.31.13',
   theme,
   document: {
     head: {
