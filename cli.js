@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs-extra')
 const sade = require('sade')
 const exit = require('exit')
@@ -11,6 +13,15 @@ const { createConfig, getConfigFile } = require('./lib/config')
 const { watch } = require('./lib/watch')
 const { build } = require('./lib/build')
 const { serve } = require('./lib/serve')
+
+function registerRuntime (options = {}) {
+  require('module-alias').addAliases({
+    '@': process.cwd(),
+    'presta:internal': __dirname // wherever this is running from
+  })
+
+  require('esbuild-register/dist/node').register(options)
+}
 
 const prog = sade('presta')
 
@@ -36,6 +47,8 @@ prog
   .example(`build -c ${CONFIG_DEFAULT}`)
   .action(async opts => {
     process.env.PRESTA_ENV = 'production'
+
+    registerRuntime()
 
     console.clear()
 
@@ -65,6 +78,8 @@ prog
   .example(`watch -c ${CONFIG_DEFAULT}`)
   .action(async opts => {
     process.env.PRESTA_ENV = 'development'
+
+    registerRuntime()
 
     console.clear()
 
