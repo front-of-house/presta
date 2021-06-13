@@ -4,9 +4,14 @@
   "description": "Hyper minimal framework for the modern web.",
   "main": "presta.js",
   "bin": {
-    "presta": "cli.js"
+    "presta": "dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "esbuild cli.js extract.js html.js load.js source-filesystem.js lib/router.js lib/handler.js --bundle --outdir=dist --platform=node --target=node12 --minify --sourcemap=inline --external:fsevents --external:esbuild-register --external:esbuild --external:pocket.io",
+    "watch": "npm run build -- --watch",
     "prepare": "npx husky install && npx commitizen init cz-conventional-changelog --save-dev --save-exact",
     "test": "rm -rf ./fixtures && NODE_ENV=test node test",
     "test:watch": "NODE_ENV=test nodemon --ignore fixtures/ test",
