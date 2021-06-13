@@ -5,14 +5,14 @@ const {
   createConfig,
   removeConfigValues,
   getConfigFile,
-  clearCurrentConfig
+  _clearCurrentConfig
 } = require('../lib/config')
 
 const env = 'test'
 
 module.exports = async function (test, assert) {
   test('config - defaults', async () => {
-    clearCurrentConfig()
+    _clearCurrentConfig()
 
     const config = createConfig({
       env,
@@ -39,7 +39,7 @@ module.exports = async function (test, assert) {
   })
 
   test('config - no files', async () => {
-    clearCurrentConfig()
+    _clearCurrentConfig()
 
     const config = createConfig({
       env,
@@ -50,7 +50,7 @@ module.exports = async function (test, assert) {
   })
 
   test('config - output', async () => {
-    clearCurrentConfig()
+    _clearCurrentConfig()
 
     const config = createConfig({
       env,
@@ -65,7 +65,7 @@ module.exports = async function (test, assert) {
   })
 
   test('config - assets', async () => {
-    clearCurrentConfig()
+    _clearCurrentConfig()
 
     const config = createConfig({
       env,
@@ -80,7 +80,7 @@ module.exports = async function (test, assert) {
   })
 
   test('config - picks up default file if present', async () => {
-    clearCurrentConfig()
+    _clearCurrentConfig()
 
     const file = 'file.js'
     const output = 'output'
@@ -104,7 +104,7 @@ module.exports = async function (test, assert) {
   })
 
   test('config - overriden by CLI args', async () => {
-    clearCurrentConfig()
+    _clearCurrentConfig()
 
     const fsx = fixtures.create({
       config: {
@@ -129,7 +129,7 @@ module.exports = async function (test, assert) {
   })
 
   test('config - file is merged with internal config', async () => {
-    clearCurrentConfig()
+    _clearCurrentConfig()
 
     const config = createConfig({
       configFile: {
@@ -142,7 +142,7 @@ module.exports = async function (test, assert) {
   })
 
   test('config - merging updates', async () => {
-    clearCurrentConfig()
+    _clearCurrentConfig()
 
     const config = createConfig({
       configFile: {
@@ -163,7 +163,7 @@ module.exports = async function (test, assert) {
   })
 
   test('config - removeConfigValues', async () => {
-    clearCurrentConfig()
+    _clearCurrentConfig()
 
     const config = createConfig({
       configFile: {
