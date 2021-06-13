@@ -1,4 +1,4 @@
-const { prime, load, flush } = require('../load')
+const { prime, load, flush } = require('../lib/load')
 
 const wait = t => new Promise(r => setTimeout(r, t))
 
