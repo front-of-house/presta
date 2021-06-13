@@ -10,7 +10,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "esbuild cli.js extract.js html.js load.js source-filesystem.js lib/router.js lib/handler.js --bundle --outdir=dist --platform=node --target=node12 --minify --sourcemap=inline --external:fsevents --external:esbuild-register --external:esbuild --external:pocket.io",
+    "build": "esbuild cli.js extract.js html.js load.js source-filesystem.js lib/router.js lib/handler.js --bundle --outdir=dist --platform=node --target=node12 --minify --sourcemap=inline --external:fsevents --external:esbuild-register --external:esbuild --external:pocket.io --external:presta",
     "watch": "npm run build -- --watch",
     "prepare": "npx husky install && npx commitizen init cz-conventional-changelog --save-dev --save-exact",
     "test": "rm -rf ./fixtures && NODE_ENV=test node test",
