@@ -4,14 +4,9 @@
   "description": "Hyper minimal framework for the modern web.",
   "main": "presta.js",
   "bin": {
-    "presta": "dist/cli.js"
+    "presta": "presta.js"
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "esbuild cli.js extract.js html.js load.js source-filesystem.js lib/router.js lib/handler.js --bundle --outdir=dist --platform=node --target=node12 --minify --sourcemap=inline --external:fsevents --external:esbuild-register --external:esbuild --external:pocket.io --external:presta",
-    "watch": "npm run build -- --watch",
     "prepare": "npx husky install && npx commitizen init cz-conventional-changelog --save-dev --save-exact",
     "test": "rm -rf ./fixtures && NODE_ENV=test node test",
     "test:watch": "NODE_ENV=test nodemon --ignore fixtures/ test",
@@ -49,6 +44,7 @@
     "route-sort": "^1.0.0",
     "sade": "^1.7.3",
     "sirv": "^1.0.7",
+    "typescript": "^4.3.2",
     "watch-dependency-graph": "^2.6.1"
   },
   "devDependencies": {
