@@ -5,3 +5,10 @@
 sandbox.js
 node_modules
 dist
+
+cli.js
+extract.js
+html.js
+load.js
+source-filesystem.js
+utils.js

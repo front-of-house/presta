@@ -1,4 +1,4 @@
-const { html } = require('../html')
+const { html } = require('../lib/html')
 
 module.exports = async (test, assert) => {
   test('html - works on its own', async () => {
