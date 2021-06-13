@@ -1,11 +1,12 @@
-function createEmitter () {
+export function createEmitter () {
   let events = {}
 
-  function emit (ev, ...args) {
-    return events[ev] ? events[ev].map(fn => fn(...args)) : []
+  // TODO could improve these types
+  function emit (ev: string, ...args: any[]): void {
+    events[ev] ? events[ev].map(fn => fn(...args)) : []
   }
 
-  function on (ev, fn) {
+  function on (ev: string, fn: (...args: any[]) => void) {
     events[ev] = events[ev] ? events[ev].concat(fn) : [fn]
     return () => events[ev].splice(events[ev].indexOf(fn), 1)
   }
@@ -14,7 +15,7 @@ function createEmitter () {
     events = {}
   }
 
-  function listeners (ev) {
+  function listeners (ev: string) {
     return events[ev] || []
   }
 
@@ -25,5 +26,3 @@ function createEmitter () {
     listeners
   }
 }
-
-module.exports = { createEmitter }
