@@ -1,42 +1,46 @@
-<img alt="~ Presta" src="https://user-images.githubusercontent.com/4732330/101865148-1c5e8d80-3b3b-11eb-99d8-1ebe02b47b10.png" width="50px" />
+<img alt="~ Presta" src="https://user-images.githubusercontent.com/4732330/121911427-60eb0180-ccf5-11eb-9c86-fcc74c0a6a51.png" width="50px" />
 
-### Hyper minimal framework for the modern web.
+# The minimalist serverless-first web framework for SSG, SSR, API endpoints and more.
 
-> `presta` is in active beta. Questions, comments, ideas? Open an issue or PR!
+> `presta` is in active development. Questions, comments, ideas? Open an issue or PR!
 
-Render hybrid pages from a server or statically, with convenient co-located data loading. No more prop drilling or fat data files.
-
-Use any JS templating language (yes, React) and bring your own directory structure. Config is easy, if you even need it.
+From HTML pages to serverless APIs, Presta's low level APIs mean you can build pretty much anything. Few opinions means you bring your own. Use any templating or serverless utility library you like.
 
 #### Features
 
-- 0kb runtime\*
-- Runs ES modules natively in Node with no pre-compilation
-- Generate any file format. Seriously. Easily nest microsites.
-- Go read the source (and contribute!): atm it's only about 1500 loc.
+- Outputs _zero_ client-side Javascript — fast by default
+- Fast AF, powered by [esbuild](https://esbuild.github.io/)
+- Generate any file type. Easily nest microsites.
+- Hybrid - make pages static, dynamic, or a mix of both
 - Get started in seconds, right from the command line. Scale to thousands of pages.
-- There's no magic, only strings. Bring back the document web.
+- <1500 loc — and we aim to keep it that way
 
-\*There is no runtime. Pulled a sneaky on ya.
+#### Try it now
 
-#### Installation
-
-`presta` needs to be installed locally to your project:
+You can try Presta right now using `npx`:
 
 ```bash
-$ npm i presta
+$ npx presta watch page.js
 ```
 
-Don't forget, you can always ask the CLI for help:
+Then just follow [the pages guide](https://presta.run/tutorial/pages/) to create your first page.
+
+## Getting Started
+
+For most projects, you'll want to install locally:
 
 ```bash
-$ npx presta -h
+$ npm i presta -D
 ```
 
 ## Docs
 
-Head over to [the docs site](https://sure-thing.net/presta) to get started.
+Head over to [the docs site](https://presta.run) to get started.
 
-### License
+## Contributing
+
+We'd love your help getting Presta to `v1.0.0`. Have a look at the [contributing](https://github.com/sure-thing/presta/blob/master/CONTRIBUTING.md) doc or say hello in a [new Issue](https://github.com/sure-thing/presta/issues). Also please review our [code of conduct](https://github.com/sure-thing/presta/blob/master/CODE_OF_CONDUCT.md).
+
+## License
 
 MIT License © [Sure Thing](https://github.com/sure-thing)
