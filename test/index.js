@@ -35,6 +35,7 @@ require('./getRouteParams.test')(test, assert)
 require('./normalizeResponse.test')(test, assert)
 require('./load.test')(test, assert)
 require('./loadCache.test')(test, assert)
+require('./extract.test').default(test, assert)
 
 !(async function () {
   await test.run()
