@@ -38,9 +38,7 @@ export type Presta = {
   emitter: ReturnType<typeof createEmitter>
 }
 
-// @ts-ignore
-let instance: Presta = (global.__presta__ =
-  // @ts-ignore
+global.__presta__ =
   global.__presta__ ||
   ({
     pid: process.pid,
@@ -48,7 +46,7 @@ let instance: Presta = (global.__presta__ =
     env: Env.PRODUCTION,
     cliArgs: {},
     configFile: {}
-  } as Presta))
+  } as Presta)
 
 function resolveAbsolutePaths (configFile: Config) {
   if (configFile.files)
@@ -67,7 +65,7 @@ function resolveAbsolutePaths (configFile: Config) {
  */
 export function _clearCurrentConfig () {
   // @ts-ignore
-  instance = global.__presta__ = {
+  global.__presta__ = {
     pid: process.pid,
     cwd,
     env: Env.PRODUCTION,
@@ -102,13 +100,12 @@ export function getConfigFile (filepath: string, shouldExit: boolean = false) {
  * This is used when the user deletes their config file.
  */
 export function removeConfigValues () {
-  // @ts-ignore
-  instance = global.__presta__ = createConfig({
-    ...instance,
+  global.__presta__ = createConfig({
+    ...global.__presta__,
     configFile: {}
   })
 
-  return instance
+  return global.__presta__
 }
 
 /**
@@ -125,13 +122,13 @@ export function serialize (config: Presta) {
 }
 
 export function getCurrentConfig () {
-  return instance
+  return global.__presta__
 }
 
 export function createConfig ({
-  env = instance.env,
-  configFile = instance.configFile,
-  cliArgs = instance.cliArgs
+  env = global.__presta__.env,
+  configFile = global.__presta__.configFile,
+  cliArgs = global.__presta__.cliArgs
 }) {
   configFile = resolveAbsolutePaths({ ...configFile }) // clone read-only obj
   cliArgs = resolveAbsolutePaths({ ...cliArgs })
@@ -149,9 +146,8 @@ export function createConfig ({
   }
 
   // set instance
-  // @ts-ignore
-  instance = global.__presta__ = {
-    ...instance,
+  global.__presta__ = {
+    ...global.__presta__,
     env,
     configFile,
     cliArgs,
@@ -161,7 +157,7 @@ export function createConfig ({
     emitter: createEmitter()
   }
 
-  debug('config created', instance)
+  debug('config created', global.__presta__)
 
-  return instance
+  return global.__presta__
 }
