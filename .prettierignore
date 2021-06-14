@@ -2,3 +2,5 @@ node_modules
 demo
 fixtures
 test/fixtures
+dist
+build

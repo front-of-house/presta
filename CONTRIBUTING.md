@@ -34,4 +34,4 @@ We use a library called [baretest](https://github.com/volument/baretest), which 
 
 ## FAQ
 
-Drop us a line in an [issue](https://github.com/sure-thing/presta/issues) and we'll fill this section out. 
+Drop us a line in an [issue](https://github.com/sure-thing/presta/issues) and we'll fill this section out.
