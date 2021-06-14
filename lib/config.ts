@@ -40,6 +40,7 @@ export type Presta = {
 
 // @ts-ignore
 let instance: Presta = (global.__presta__ =
+  // @ts-ignore
   global.__presta__ ||
   ({
     pid: process.pid,
@@ -66,7 +67,7 @@ function resolveAbsolutePaths (configFile: Config) {
  */
 export function _clearCurrentConfig () {
   // @ts-ignore
-  instance = {
+  instance = global.__presta__ = {
     pid: process.pid,
     cwd,
     env: Env.PRODUCTION,
@@ -101,7 +102,8 @@ export function getConfigFile (filepath: string, shouldExit: boolean = false) {
  * This is used when the user deletes their config file.
  */
 export function removeConfigValues () {
-  instance = createConfig({
+  // @ts-ignore
+  instance = global.__presta__ = createConfig({
     ...instance,
     configFile: {}
   })
@@ -147,7 +149,8 @@ export function createConfig ({
   }
 
   // set instance
-  instance = {
+  // @ts-ignore
+  instance = global.__presta__ = {
     ...instance,
     env,
     configFile,
