@@ -10,7 +10,8 @@ const defaultConfigFilepath = 'presta.config.js'
 
 export enum Env {
   PRODUCTION = 'production',
-  DEVELOPMENT = 'development'
+  DEVELOPMENT = 'development',
+  TEST = 'test'
 }
 
 export type Config = {
@@ -35,6 +36,7 @@ export type Presta = {
   merged: Config
   configFilepath: string
   dynamicEntryFilepath: string
+  staticOutputDir: string
   emitter: ReturnType<typeof createEmitter>
 }
 
@@ -154,6 +156,7 @@ export function createConfig ({
     merged,
     configFilepath: path.resolve(cliArgs.config || defaultConfigFilepath),
     dynamicEntryFilepath: path.join(merged.output, 'functions/presta.js'),
+    staticOutputDir: path.join(merged.output, 'static'),
     emitter: createEmitter()
   }
 

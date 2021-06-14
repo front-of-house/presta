@@ -79,6 +79,20 @@ module.exports = async function (test, assert) {
     assert(config.merged.assets.includes('assets'))
   })
 
+  test('config - staticOutputDir', async () => {
+    _clearCurrentConfig()
+
+    const config = createConfig({
+      env,
+      cliArgs: {
+        files: 'app/*.js',
+        assets: 'assets'
+      }
+    })
+
+    assert(path.isAbsolute(config.staticOutputDir))
+  })
+
   test('config - picks up default file if present', async () => {
     _clearCurrentConfig()
 
