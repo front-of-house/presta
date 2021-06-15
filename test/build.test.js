@@ -1,69 +1,71 @@
-const fs = require('fs-extra')
-const path = require('path')
+import fs from 'fs-extra'
+import path from 'path'
 
-const fixtures = require('./fixtures')
+import fixtures from './fixtures'
 
-const {
-  OUTPUT_STATIC_DIR,
-  OUTPUT_DYNAMIC_PAGES_ENTRY
-} = require('../lib/constants')
-const { build } = require('../lib/build')
+import { createConfig, Env } from '../lib/config'
+import { build } from '../lib/build'
 
 const outDir = path.join(fixtures.getRoot(), 'build/dist')
 
-module.exports = async (test, assert) => {
-  test.skip('build - static files', async () => {
+export default async (test, assert) => {
+  test.only('build - static files', async () => {
     const fsx = fixtures.create({
       a: {
         url: './build/a.js',
         content: `
-          export const getStaticPaths = () => ([ 'path' ])
+          export const getStaticPaths = () => ([ 'url' ])
           export const handler = () => 'page'
         `
       }
     })
-    const config = {
-      env: 'production',
-      cwd: process.cwd(),
-      files: fsx.files.a,
-      output: outDir
-    }
+    const config = createConfig({
+      cliArgs: {
+        files: fsx.files.a,
+        output: path.join(fixtures.getRoot(), 'build/static-files')
+      }
+    })
 
     await build(config)
 
     const contents = fs.readFileSync(
-      path.join(outDir, OUTPUT_STATIC_DIR, '/path/index.html'),
-      'utf-8'
+      path.join(config.staticOutputDir, 'url/index.html'),
+      'utf8'
     )
 
-    assert(contents.includes('page'))
+    assert(contents === 'page')
   })
 
-  test.skip('build - dynamic files', async () => {
+  test.only('build - dynamic files', async () => {
     const fsx = fixtures.create({
-      b: {
-        url: './build/b.js',
+      dynamic: {
+        url: './build/dynamic.js',
         content: `
-          export const route = 'path'
+          export const route = '*'
           export const handler = () => 'page'
         `
       }
     })
-    const config = {
-      env: 'production',
-      cwd: process.cwd(),
-      files: fsx.files.b,
-      output: outDir,
-      dynamicEntryFilepath: path.join(outDir, OUTPUT_DYNAMIC_PAGES_ENTRY)
-    }
+    const config = createConfig({
+      env: Env.TEST,
+      cliArgs: {
+        files: fsx.files.dynamic,
+        output: path.join(fixtures.getRoot(), 'build/dynamic-files')
+      }
+    })
+
+    let called = false
+
+    const { build } = require('proxyquire')('../lib/build', {
+      './compile': {
+        compile () {
+          called = true
+        }
+      }
+    })
 
     await build(config)
 
-    const contents = fs.readFileSync(
-      path.join(outDir, OUTPUT_DYNAMIC_PAGES_ENTRY),
-      'utf-8'
-    )
-
-    assert(contents.includes('build/b.js'))
+    assert(called)
   })
 }
