@@ -6,10 +6,8 @@ import fixtures from './fixtures'
 import { createConfig, Env } from '../lib/config'
 import { build } from '../lib/build'
 
-const outDir = path.join(fixtures.getRoot(), 'build/dist')
-
 export default async (test, assert) => {
-  test.only('build - static files', async () => {
+  test('build - static files', async () => {
     const fsx = fixtures.create({
       a: {
         url: './build/a.js',
@@ -36,7 +34,7 @@ export default async (test, assert) => {
     assert(contents === 'page')
   })
 
-  test.only('build - dynamic files', async () => {
+  test('build - dynamic files', async () => {
     const fsx = fixtures.create({
       dynamic: {
         url: './build/dynamic.js',
