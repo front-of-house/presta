@@ -15,6 +15,7 @@ const test = require('baretest')('presta')
 const assert = require('assert')
 
 const fixtures = require('./fixtures')
+const { createConfig, _clearCurrentConfig, Env } = require('../lib/config')
 
 const root = path.join(__dirname, '../fixtures')
 
@@ -29,7 +30,7 @@ require('./createDynamicEntry.test')(test, assert)
 require('./pathnameToFile.test')(test, assert)
 require('./html.test')(test, assert)
 // require('./renderStaticEntries.test')(test, assert)
-require('./build.test')(test, assert)
+require('./build.test').default(test, assert)
 require('./router.test')(test, assert)
 require('./getRouteParams.test')(test, assert)
 require('./normalizeResponse.test')(test, assert)
@@ -38,6 +39,17 @@ require('./loadCache.test')(test, assert)
 require('./extract.test').default(test, assert)
 
 !(async function () {
+  createConfig({ env: Env.TEST })
+
+  test.before(() => {
+    _clearCurrentConfig()
+  })
+
+  test.after(() => {
+    fs.removeSync(fixtures.getRoot())
+  })
+
   await test.run()
+
   console.timeEnd('test')
 })()
