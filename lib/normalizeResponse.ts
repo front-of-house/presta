@@ -1,23 +1,33 @@
-function stringify (obj) {
+import { HandlerResponse } from '@netlify/functions'
+
+function stringify (obj: object | string) {
   return typeof obj === 'object' ? JSON.stringify(obj) : obj
 }
 
-function normalizeResponse (response) {
+export type Response = HandlerResponse & {
+  html?: string
+  json?: object
+  xml?: string
+}
+
+export function normalizeResponse (
+  response: Partial<Response> | string
+): HandlerResponse {
   const {
     isBase64Encoded = false,
     statusCode = 200,
     headers = {},
     multiValueHeaders = {},
-    body,
-    html,
-    json,
-    xml
+    body = '',
+    html = undefined,
+    json = undefined,
+    xml = undefined
   } =
-    typeof response === 'object'
-      ? response
-      : {
+    typeof response === 'string'
+      ? {
           body: response
         }
+      : response
 
   let contentType = 'text/html; charset=utf-8'
 
@@ -38,5 +48,3 @@ function normalizeResponse (response) {
     body: stringify(body || html || json || xml || '')
   }
 }
-
-module.exports = { normalizeResponse }

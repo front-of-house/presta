@@ -1,32 +1,35 @@
-const fs = require('fs')
-const { parse: parseUrl } = require('url')
-const path = require('path')
-const http = require('http')
-const getPort = require('get-port')
-const c = require('ansi-colors')
-const sirv = require('sirv')
-const chokidar = require('chokidar')
-const { parse: parseQuery } = require('query-string')
-const mime = require('mime-types')
+import fs from 'fs'
+import { parse as parseUrl } from 'url'
+import path from 'path'
+import http from 'http'
+import getPort from 'get-port'
+import c from 'ansi-colors'
+import sirv from 'sirv'
+import chokidar from 'chokidar'
+import { parse as parseQuery } from 'query-string'
+import mime from 'mime-types'
+import rawBody from 'raw-body'
+import type { HandlerResponse } from '@netlify/functions'
 
-const { OUTPUT_DYNAMIC_PAGES_ENTRY } = require('./constants')
-const { createDevClient } = require('./devClient')
-const { debug } = require('./debug')
-const { timer } = require('./timer')
-const { log, formatLog } = require('./log')
-const { devServerIcon } = require('./devServerIcon')
-const { default404 } = require('./default404')
-const { normalizeResponse } = require('./normalizeResponse')
-const rawBody = require('raw-body')
+import { createDevClient } from './devClient'
+import { debug } from './debug'
+import { timer } from './timer'
+import { log, formatLog } from './log'
+import { devServerIcon } from './devServerIcon'
+import { default404 } from './default404'
+import { normalizeResponse } from './normalizeResponse'
+import type { Presta } from './config'
+import type { createHandler } from './handler'
+import type { PrestaDynamicFile } from './router'
 
 const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
 
 // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
-function shouldBase64Encode (contentType) {
+function shouldBase64Encode (contentType: string) {
   return Boolean(contentType) && BASE_64_MIME_REGEXP.test(contentType)
 }
 
-function resolveHTML (dir, url) {
+function resolveHTML (dir: string, url: string) {
   let file = path.join(dir, url)
 
   // if no extension, it's probably intended to be an HTML file
@@ -39,7 +42,7 @@ function resolveHTML (dir, url) {
   return fs.readFileSync(file, 'utf8')
 }
 
-async function serve (config, { noBanner }) {
+export async function serve (config: Presta, { noBanner }: { noBanner: boolean }) {
   const port = await getPort({ port: 4000 })
   const devClient = createDevClient({ port })
   const staticDir = path.join(config.merged.output, 'static')
@@ -47,15 +50,19 @@ async function serve (config, { noBanner }) {
 
   const server = http
     .createServer(async (req, res) => {
-      function send (r) {
+      function send (r: Partial<HandlerResponse>) {
         const response = normalizeResponse(r)
 
         // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L73
         for (const key in r.multiValueHeaders) {
-          res.setHeader(key, r.multiValueHeaders[key])
+          res.setHeader(key, String(r.multiValueHeaders[key]))
         }
 
-        res.writeHead(response.statusCode, response.headers)
+        for (const key in r.headers) {
+          res.setHeader(key, String(r.headers[key]))
+        }
+
+        res.statusCode = response.statusCode
         res.write(response.body)
         res.end()
       }
@@ -125,7 +132,13 @@ async function serve (config, { noBanner }) {
             /*
              * No asset file, no static file, try dynamic
              */
-            const { handler, files } = require(config.dynamicEntryFilepath)
+            const {
+              handler,
+              files
+            }: {
+              handler: ReturnType<typeof createHandler>,
+              files: PrestaDynamicFile[]
+            } = require(config.dynamicEntryFilepath)
             const hasServerConfigured = !!files.length
 
             /**
@@ -137,7 +150,7 @@ async function serve (config, { noBanner }) {
               const time = timer()
               // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L208
               const remoteAddress =
-                req.headers['x-forwarded-for'] || req.connection.remoteAddress
+                String(req.headers['x-forwarded-for']) || req.connection.remoteAddress
               const ip = remoteAddress
                 .split(remoteAddress.includes('.') ? ':' : ',')
                 .pop()
@@ -156,24 +169,27 @@ async function serve (config, { noBanner }) {
                 {
                   path: req.url,
                   httpMethod: req.method,
+                  // @ts-ignore TODO test set-cookie coming in as array
                   headers: {
                     ...req.headers,
                     'client-ip': ip
                   },
+                  // TODO should these headers be exclusively single value vs multi?
                   multiValueHeaders: Object.keys(req.headers).reduce(
                     (headers, key) => {
                       if (!req.headers[key].includes(',')) return headers // only include multi-value headers here
                       return {
                         ...headers,
+                        // @ts-ignore TODO again, array headers
                         [key]: req.headers[key].split(',')
                       }
                     },
                     {}
                   ),
+                  // @ts-ignore TODO do I need to keep these separate?
                   queryStringParameters: parseQuery(parseUrl(req.url).query),
-                  multiValueQueryStringParameters: {},
                   body: body
-                    ? body.toString(isBase64Encoded ? 'base64' : 'utf8')
+                    ? new Buffer(body).toString(isBase64Encoded ? 'base64' : 'utf8')
                     : undefined,
                   isBase64Encoded
                 },
@@ -192,7 +208,7 @@ async function serve (config, { noBanner }) {
                 color: ok ? 'blue' : 'magenta',
                 action: redir ? 'redir' : 'serve',
                 meta: '⚡︎' + time(),
-                description: redir ? response.headers.Location : req.url
+                description: String(redir ? response.headers.Location : req.url)
               })
 
               send({
@@ -251,7 +267,7 @@ async function serve (config, { noBanner }) {
     })
     .listen(port, () => {
       if (!noBanner) {
-        log(c.blue(`presta serve`), `– http://localhost:${port}\n`)
+        log(`${c.blue(`presta serve`)} – http://localhost:${port}\n`)
       }
     })
 
@@ -270,5 +286,3 @@ async function serve (config, { noBanner }) {
 
   return { port }
 }
-
-module.exports = { serve }

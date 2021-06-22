@@ -1,4 +1,4 @@
-function createDevClient ({ port }) {
+export function createDevClient ({ port }) {
   return `
     <script>
       (function (global) {
@@ -28,5 +28,3 @@ function createDevClient ({ port }) {
     </script>
   `
 }
-
-module.exports = { createDevClient }

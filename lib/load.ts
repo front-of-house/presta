@@ -1,28 +1,31 @@
-const c = require('ansi-colors')
+import c from 'ansi-colors'
 
-const { createCache } = require('./loadCache')
+import { createCache } from './loadCache'
 
 const { NODE_ENV } = process.env
 
 const requests = {}
 const errors = {}
-const loadCache = createCache('presta-load-cache')
+export const loadCache = createCache('presta-load-cache')
 
-function log (str) {
+function log (str: string) {
   if (NODE_ENV !== 'test') console.log(str)
 }
 
-function loadError (key, e) {
+export function loadError (key: string, e: Error) {
   log(`\n  ${c.red('error')} load { ${key} }\n\n${e}\n`)
   errors[key] = e
   delete requests[key]
 }
 
-function prime (key, value, duration) {
+export function prime (key: string, value: any, duration?: number) {
   loadCache.set(key, value, duration)
 }
 
-async function cache (loader, { key, duration }) {
+export async function cache (
+  loader: () => Promise<any>,
+  { key, duration }: { key: string; duration?: number }
+) {
   let value = loadCache.get(key)
 
   if (!value) {
@@ -33,7 +36,10 @@ async function cache (loader, { key, duration }) {
   return value
 }
 
-function load (loader, { key, duration }) {
+export function load (
+  loader: () => Promise<any>,
+  { key, duration }: { key: string; duration?: number }
+) {
   let value = loadCache.get(key)
 
   if (!value && !errors[key]) {
@@ -58,7 +64,7 @@ function load (loader, { key, duration }) {
   return value
 }
 
-async function flush (run, data = {}) {
+export async function flush (run: () => any, data = {}) {
   const content = run()
 
   if (Object.keys(requests).length) {
@@ -67,12 +73,4 @@ async function flush (run, data = {}) {
   }
 
   return { content, data: loadCache.dump() }
-}
-
-module.exports = {
-  loadCache,
-  prime,
-  cache,
-  load,
-  flush
 }

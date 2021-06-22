@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2020",
     "module": "commonjs",
-    "esModuleInterop": true
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": true,
+    "baseUrl": "."
   }
 }

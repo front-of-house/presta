@@ -1,10 +1,10 @@
-const fs = require('fs-extra')
-const path = require('path')
+import fs from 'fs-extra'
+import path from 'path'
 
-const { debug } = require('./debug')
-const { serialize } = require('./config')
+import { debug } from './debug'
+import { serialize, Presta } from './config'
 
-function template (sourceFiles, config) {
+function template (sourceFiles: string[], config: Presta) {
   const presta = config.env === 'production' ? 'presta' : 'presta:internal'
   const configFilepath = Object.keys(config.configFile).length
     ? config.configFilepath
@@ -33,7 +33,7 @@ export const handler = createHandler(router, config);
 `
 }
 
-function createDynamicEntry (sourceFiles, config) {
+export function createDynamicEntry (sourceFiles: string[], config: Presta) {
   const entryFile = config.dynamicEntryFilepath
 
   fs.outputFileSync(entryFile, template(sourceFiles, config))
@@ -42,5 +42,3 @@ function createDynamicEntry (sourceFiles, config) {
 
   return entryFile
 }
-
-module.exports = { createDynamicEntry }

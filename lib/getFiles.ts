@@ -1,30 +1,25 @@
-const fs = require('fs-extra')
-const path = require('path')
-const matched = require('matched')
+import fs from 'fs-extra'
+import path from 'path'
+import matched from 'matched'
 
-function isDynamic (file) {
+import { Presta } from './config'
+
+export function isDynamic (file: string) {
   return /export\s.+\sroute\s+\=/.test(fs.readFileSync(file, 'utf-8'))
 }
 
-function isStatic (file) {
+export function isStatic (file: string) {
   return /export\s.+\sgetStaticPaths/.test(fs.readFileSync(file, 'utf-8'))
 }
 
-function isPrestaFile (file) {
+export function isPrestaFile (file: string) {
   return isStatic(file) || isDynamic(file)
 }
 
-function getFiles (config) {
+export function getFiles (config: Presta) {
   return []
     .concat(config.merged.files)
     .map(file => path.resolve(config.cwd, file)) // make absolute
     .map(glob => matched.sync(glob, { cwd: config.cwd }))
     .flat()
-}
-
-module.exports = {
-  isPrestaFile,
-  isDynamic,
-  isStatic,
-  getFiles
 }

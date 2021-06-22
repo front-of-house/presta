@@ -25,7 +25,7 @@ fixtures.setRoot(root)
 
 require('./config.test')(test, assert)
 require('./getFiles.test')(test, assert)
-require('./createHeadTags.test')(test, assert)
+require('./createHeadTags.test').default(test, assert)
 require('./createDynamicEntry.test')(test, assert)
 require('./pathnameToFile.test')(test, assert)
 require('./html.test')(test, assert)

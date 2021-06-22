@@ -1,31 +1,64 @@
-const {
+import {
   filterUnique,
-  objectToTag,
+  tag,
   prefixToObjects,
   createHeadTags
-} = require('../lib/createHeadTags')
+} from '../lib/createHeadTags'
 
-module.exports = async function (test, assert) {
+export default async function (test, assert) {
   test('filterUnique', async () => {
-    const unique = filterUnique([
-      { name: 'author', content: 'foo' },
-      { name: 'author', content: 'bar' }
-    ])
+    // takes last defined
+    assert.deepEqual(
+      filterUnique([
+        { name: 'author', content: 'foo' },
+        { name: 'author', content: 'bar' },
+      ]),
+      [
+        { name: 'author', content: 'bar' },
+      ]
+    )
 
-    assert(unique[0].content === 'foo')
+    assert.equal(
+      filterUnique([
+        { href: 'style.css' },
+        { href: 'style.css' },
+      ]).length,
+      1
+    )
+
+    assert.equal(
+      filterUnique([
+        { src: 'index.js' },
+        { src: 'index.js' },
+        { src: 'vendor.js' },
+      ]).length,
+      2
+    )
+
+    assert.equal(
+      filterUnique([
+        `<style>.class { color: blue }</style>`,
+        `<style>.class { color: blue }</style>`,
+      ]).length,
+      1
+    )
   })
 
   test('objectToTag', async () => {
-    const meta = objectToTag('meta', { name: 'author', content: 'foo' })
+    const meta = tag('meta')({ name: 'author', content: 'foo' })
     assert(meta === `<meta name="author" content="foo" />`)
-    const link = objectToTag('link', { rel: 'stylesheet', href: 'foo' })
-    assert(link === `<link rel="stylesheet" href="foo" />`)
-    const script = objectToTag('script', { src: 'foo' })
-    assert(script === `<script src="foo"></script>`)
-    const scriptWithChild = objectToTag('script', { children: 'foo' })
-    assert(scriptWithChild === `<script>foo</script>`)
-    const style = objectToTag('style', { children: 'foo' })
-    assert(style === `<style>foo</style>`)
+
+    const link = tag('link')({ rel: 'stylesheet', href: 'style.css' })
+    assert(link === `<link rel="stylesheet" href="style.css" />`)
+
+    const style = tag('style')({ id: 'style', children: '.class { color: blue }' })
+    assert(style === `<style id="style">.class { color: blue }</style>`)
+
+    const script = tag('script')({ id: 'script', children: 'function () {}' })
+    assert(script === `<script id="script">function () {}</script>`)
+
+    const str = tag('link')(`<link href="/foo" />`)
+    assert(str === `<link href="/foo" />`)
   })
 
   test('prefixToObjects', () => {
@@ -38,7 +71,7 @@ module.exports = async function (test, assert) {
   test('createHeadTags - defaults', async () => {
     const head = createHeadTags({})
 
-    assert(/presta/.test(head))
+    assert(/Presta/.test(head))
     assert(/charset/.test(head))
     assert(/viewport/.test(head))
   })

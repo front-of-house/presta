@@ -1,25 +1,26 @@
-const fs = require('fs-extra')
-const path = require('path')
-const c = require('ansi-colors')
-const mime = require('mime-types')
+import fs from 'fs-extra'
+import path from 'path'
+import c from 'ansi-colors'
+import mime from 'mime-types'
 
-const { debug } = require('./debug')
-const { OUTPUT_STATIC_DIR } = require('./constants')
-const { pathnameToFile } = require('./pathnameToFile')
-const { log, formatLog } = require('./log')
-const { timer } = require('./timer')
-const { getRouteParams } = require('./getRouteParams')
-const { createContext } = require('./createContext')
-const { normalizeResponse } = require('./normalizeResponse')
-const { loadCache } = require('./load')
-const { builtStaticFiles } = require('./builtStaticFiles')
-const { removeBuiltStaticFile } = require('./removeBuiltStaticFile')
+import { debug } from './debug'
+import { OUTPUT_STATIC_DIR } from './constants'
+import { pathnameToFile } from './pathnameToFile'
+import { log, formatLog } from './log'
+import { timer } from './timer'
+import { getRouteParams } from './getRouteParams'
+import { createContext } from './createContext'
+import { normalizeResponse } from './normalizeResponse'
+import { loadCache } from './load'
+import { builtStaticFiles } from './builtStaticFiles'
+import { removeBuiltStaticFile } from './removeBuiltStaticFile'
+import { Presta } from './config'
 
-function renderStaticEntries (entries, config, options = {}) {
+export function renderStaticEntries (entries: string[], config: Presta) {
   return new Promise(async (y, n) => {
     debug('renderStaticEntries', entries)
 
-    const allGeneratedFiles = []
+    const allGeneratedFiles: string[] = []
 
     for (const entry of entries) {
       const location = entry.replace(config.cwd, '')
@@ -32,7 +33,7 @@ function renderStaticEntries (entries, config, options = {}) {
 
         const prevFiles = (builtStaticFiles[entry] =
           builtStaticFiles[entry] || [])
-        const nextFiles = []
+        const nextFiles: string[] = []
 
         if (!paths || !paths.length) {
           formatLog({
@@ -109,5 +110,3 @@ function renderStaticEntries (entries, config, options = {}) {
     y({ allGeneratedFiles })
   })
 }
-
-module.exports = { renderStaticEntries }

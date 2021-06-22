@@ -1,18 +1,23 @@
-const { createHeadTags, createFootTags } = require('./createHeadTags')
+import { createHeadTags, createFootTags, PrestaHead } from './createHeadTags'
 
-function html ({
+export function html ({
   body = '',
   head = {},
   foot = {},
   htmlAttributes = {},
   bodyAttributes = {}
+}: {
+  body?: string
+  head?: PrestaHead
+  foot?: Partial<Pick<PrestaHead, 'script' | 'style'>>
+  htmlAttributes: Partial<HTMLHtmlElement>
+  bodyAttributes: Partial<HTMLBodyElement>
 }) {
   // insert favicon during dev, if not otherwise specified
   if (
     head.link &&
     !head.link.find(m => m.rel === 'icon' || /rel="icon/.test(m + ''))
   ) {
-    console.log('add icon')
     head.link.push({
       rel: 'icon',
       type: 'image/png',
@@ -43,8 +48,4 @@ function html ({
   }, '')
 
   return `<!-- built with presta https://npm.im/presta --><!DOCTYPE html><html${htmlAttr}><head>${headTags}</head><body${bodyAttr}>${body}${footTags}</body></html>`
-}
-
-module.exports = {
-  html
 }

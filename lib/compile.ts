@@ -1,9 +1,10 @@
-const path = require('path')
-const { build } = require('esbuild')
+import path from 'path'
+import { build } from 'esbuild'
 
-const { OUTPUT_DYNAMIC_PAGES_ENTRY } = require('./constants')
+import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './constants'
+import { Presta } from './config'
 
-function compile (config) {
+export function compile (config: Presta) {
   return build({
     entryPoints: [path.join(config.merged.output, OUTPUT_DYNAMIC_PAGES_ENTRY)],
     outfile: path.join(config.merged.output, 'functions', 'presta.js'),
@@ -14,5 +15,3 @@ function compile (config) {
     allowOverwrite: true
   })
 }
-
-module.exports = { compile }
