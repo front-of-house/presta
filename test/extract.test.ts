@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import fixtures from './fixtures'
+import * as fixtures from './fixtures'
 
 import { hash, extract } from '../lib/extract'
 import { createConfig, getCurrentConfig, Env } from '../lib/config'

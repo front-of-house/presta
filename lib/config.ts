@@ -15,13 +15,13 @@ export enum Env {
 }
 
 export type Config = {
-  files?: string[]
+  files?: string | string[]
   output?: string
   assets?: string
 }
 
 export type Args = {
-  files?: string[]
+  files?: string | string[]
   output?: string
   assets?: string
   config?: string

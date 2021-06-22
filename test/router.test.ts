@@ -1,10 +1,10 @@
-const { createRouter } = require('../lib/router')
+import { createRouter, PrestaDynamicFile } from '../lib/router'
 
-module.exports = async (test, assert) => {
+export default async (test, assert) => {
   const router = createRouter([
-    { route: '*' },
-    { route: '/:slug' },
-    { route: '/:page/:slug' }
+    { route: '*' } as PrestaDynamicFile,
+    { route: '/:slug' } as PrestaDynamicFile,
+    { route: '/:page/:slug' } as PrestaDynamicFile
   ])
 
   test('router - match', async () => {

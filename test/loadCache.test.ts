@@ -2,7 +2,7 @@ import { createCache } from '../lib/loadCache'
 
 const wait = t => new Promise(r => setTimeout(r, t))
 
-module.exports = async (test, assert) => {
+export default async (test, assert) => {
   test('simple', async () => {
     const cache = createCache('simple')
 

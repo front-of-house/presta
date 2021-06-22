@@ -1,6 +1,6 @@
-const { html } = require('../lib/html')
+import { html } from '../lib/html'
 
-module.exports = async (test, assert) => {
+export default async (test, assert) => {
   test('html - works on its own', async () => {
     const doc = html({
       body: 'original',
@@ -20,6 +20,7 @@ module.exports = async (test, assert) => {
         title: 'original'
       },
       bodyAttributes: {
+        // @ts-ignore TODO
         class: 'foo'
       },
       htmlAttributes: {

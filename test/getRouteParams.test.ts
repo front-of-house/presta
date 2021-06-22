@@ -1,6 +1,6 @@
-const { getRouteParams } = require('../lib/getRouteParams')
+import { getRouteParams } from '../lib/getRouteParams'
 
-module.exports = async (test, assert) => {
+export default async (test, assert) => {
   test('getRouteParams - basic', async () => {
     assert.deepEqual(getRouteParams('/a', '/:slug'), { slug: 'a' })
     assert.deepEqual(getRouteParams('/a/b', '/:page/:slug'), {

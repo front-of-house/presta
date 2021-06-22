@@ -16,7 +16,7 @@ import { builtStaticFiles } from './builtStaticFiles'
 import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 import { Presta } from './config'
 
-export function renderStaticEntries (entries: string[], config: Presta) {
+export function renderStaticEntries (entries: string[], config: Presta): Promise<{ allGeneratedFiles: string[] }> {
   return new Promise(async (y, n) => {
     debug('renderStaticEntries', entries)
 

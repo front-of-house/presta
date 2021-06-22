@@ -1,16 +1,17 @@
-const path = require('path')
+import path from 'path'
 
-const fixtures = require('./fixtures')
-const {
+import * as fixtures from './fixtures'
+import {
   createConfig,
   removeConfigValues,
   getConfigFile,
-  _clearCurrentConfig
-} = require('../lib/config')
+  _clearCurrentConfig,
+  Env
+} from '../lib/config'
 
-const env = 'test'
+const env = Env.TEST
 
-module.exports = async function (test, assert) {
+export default async function (test, assert) {
   test('config - defaults', async () => {
     _clearCurrentConfig()
 

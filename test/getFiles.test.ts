@@ -1,11 +1,9 @@
-const fs = require('fs-extra')
-const path = require('path')
+import * as fixtures from './fixtures'
 
-const fixtures = require('./fixtures')
+import { isStatic, isDynamic, getFiles } from '../lib/getFiles'
+import type { Presta } from '../lib/config'
 
-const { isStatic, isDynamic, getFiles } = require('../lib/getFiles')
-
-module.exports = async function (test, assert) {
+export default function (test, assert) {
   test('getFiles - isStatic', async () => {
     const files = {
       A: {
@@ -72,7 +70,7 @@ module.exports = async function (test, assert) {
     const results = getFiles({
       cwd: process.cwd(),
       merged: { files: ['./getFiles/*.js'] }
-    })
+    } as Presta)
     assert(results.length === 3)
 
     fsx.cleanup()

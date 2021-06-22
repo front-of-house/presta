@@ -1,24 +1,24 @@
-const fs = require('fs-extra')
-const c = require('ansi-colors')
-const graph = require('watch-dependency-graph')
-const chokidar = require('chokidar')
-const match = require('picomatch')
+import fs from 'fs-extra'
+import c from 'ansi-colors'
+import graph from 'watch-dependency-graph'
+import chokidar from 'chokidar'
+import match from 'picomatch'
 
-const { debug } = require('./debug')
-const { createDynamicEntry } = require('./createDynamicEntry')
-const { log, formatLog } = require('./log')
-const { getFiles, isStatic, isDynamic, isPrestaFile } = require('./getFiles')
-const { renderStaticEntries } = require('./renderStaticEntries')
-const { timer } = require('./timer')
-const { createConfig, removeConfigValues, getConfigFile } = require('./config')
-const { builtStaticFiles } = require('./builtStaticFiles')
-const { removeBuiltStaticFile } = require('./removeBuiltStaticFile')
+import { debug } from './debug'
+import { createDynamicEntry } from './createDynamicEntry'
+import { log, formatLog } from './log'
+import { getFiles, isStatic, isDynamic } from './getFiles'
+import { renderStaticEntries } from './renderStaticEntries'
+import { timer } from './timer'
+import { createConfig, removeConfigValues, getConfigFile, Presta } from './config'
+import { builtStaticFiles } from './builtStaticFiles'
+import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 
 /*
  * Handles the actual writing of the dyanmic entry by updating the file and
  * then clearing require cache
  */
-function updateDynamicEntry (ids, config) {
+function updateDynamicEntry (ids: string[], config: Presta) {
   const time = timer()
 
   createDynamicEntry(ids, config)
@@ -38,7 +38,7 @@ function updateDynamicEntry (ids, config) {
 /**
  * Util for other helpers, like source
  */
-async function buildFiles (ids, config) {
+export async function buildFiles (ids: string[], config: Presta) {
   if (!ids.length) return
 
   const staticIds = ids.filter(isStatic)
@@ -60,7 +60,7 @@ async function buildFiles (ids, config) {
   config.emitter.emit('done', ids)
 }
 
-async function watch (config) {
+export async function watch (config: Presta) {
   debug('watch initialized with config', config)
 
   /*
@@ -101,7 +101,7 @@ async function watch (config) {
   /*
    * On a changed file, we can just render it
    */
-  async function handleFileChange (file) {
+  async function handleFileChange (file: string) {
     // render just file that changed
     if (isStatic(file)) {
       await renderStaticEntries([file], config)
@@ -236,5 +236,3 @@ async function watch (config) {
     log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
   }
 }
-
-module.exports = { buildFiles, watch }

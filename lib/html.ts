@@ -10,8 +10,8 @@ export function html ({
   body?: string
   head?: PrestaHead
   foot?: Partial<Pick<PrestaHead, 'script' | 'style'>>
-  htmlAttributes: Partial<HTMLHtmlElement>
-  bodyAttributes: Partial<HTMLBodyElement>
+  htmlAttributes?: Partial<HTMLHtmlElement>
+  bodyAttributes?: Partial<HTMLBodyElement>
 }) {
   // insert favicon during dev, if not otherwise specified
   if (
@@ -27,7 +27,9 @@ export function html ({
 
   // insert default charset and viewport, if not otherwise specified
   if (head.meta) {
+    // @ts-ignore TODO wtf
     if (!head.meta.find(m => !!m.charset)) {
+      // @ts-ignore
       head.meta.push({ charset: 'UTF-8' })
     }
     if (!head.meta.find(m => m.name === 'viewport')) {

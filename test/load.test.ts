@@ -1,8 +1,8 @@
-const { prime, load, flush } = require('../lib/load')
+import { prime, load, flush } from '../lib/load'
 
 const wait = t => new Promise(r => setTimeout(r, t))
 
-module.exports = async (test, assert) => {
+export default async (test, assert) => {
   test('runs', async () => {
     let i = 0
 
@@ -139,6 +139,7 @@ module.exports = async (test, assert) => {
     }
     function syncComponent () {
       two++
+      // @ts-ignore
       const data = load(syncLoader, { key: 'async' })
       return data ? data.value : null
     }

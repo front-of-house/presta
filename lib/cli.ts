@@ -1,18 +1,17 @@
 #!/usr/bin/env node
 
-const fs = require('fs-extra')
-const sade = require('sade')
-const exit = require('exit')
-const c = require('ansi-colors')
+import fs from 'fs-extra'
+import sade from 'sade'
+import c from 'ansi-colors'
 
-const pkg = require('../package.json')
+import pkg from '../package.json'
 
-const { CONFIG_DEFAULT } = require('./constants')
-const { log } = require('./log')
-const { createConfig, getConfigFile } = require('./config')
-const { watch } = require('./watch')
-const { build } = require('./build')
-const { serve } = require('./serve')
+import { CONFIG_DEFAULT } from './constants'
+import { log } from './log'
+import { createConfig, getConfigFile, Env } from './config'
+import { watch } from './watch'
+import { build } from './build'
+import { serve } from './serve'
 
 function registerRuntime (options = {}) {
   require('module-alias').addAliases({
@@ -53,7 +52,7 @@ prog
     console.clear()
 
     const config = createConfig({
-      env: 'production',
+      env: Env.PRODUCTION,
       configFile: getConfigFile(opts.config, true),
       cliArgs: {
         ...opts,
@@ -84,7 +83,7 @@ prog
     console.clear()
 
     const config = createConfig({
-      env: 'development',
+      env: Env.DEVELOPMENT,
       configFile: getConfigFile(opts.config),
       cliArgs: {
         ...opts,

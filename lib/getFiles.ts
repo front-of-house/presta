@@ -16,7 +16,7 @@ export function isPrestaFile (file: string) {
   return isStatic(file) || isDynamic(file)
 }
 
-export function getFiles (config: Presta) {
+export function getFiles (config: Presta): string[] {
   return []
     .concat(config.merged.files)
     .map(file => path.resolve(config.cwd, file)) // make absolute
