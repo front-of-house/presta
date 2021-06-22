@@ -1,7 +1,16 @@
 {
+  "include": [
+    "./lib/*.ts",
+    "./test/*.ts",
+    "./global.d.ts"
+  ],
   "compilerOptions": {
-    "target": "es6",
+    "allowJs": true,
+    "target": "es2020",
     "module": "commonjs",
-    "esModuleInterop": true
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "resolveJsonModule": true
   }
 }

@@ -1,4 +1,4 @@
-const c = require('ansi-colors')
+import c from 'ansi-colors'
 
 const { NODE_ENV } = process.env
 

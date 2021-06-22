@@ -22,10 +22,10 @@ export async function build (config, options = {}) {
   if (!staticIds.length && !dynamicIds.length) {
     log(`  ${c.gray('nothing to build')}\n`)
   } else {
-    let staticTime = 0
+    let staticTime = ''
     let staticFileAmount = 0
-    let dynamicTime = 0
-    let copyTime = 0
+    let dynamicTime = ''
+    let copyTime = ''
 
     const tasks = await Promise.allSettled([
       (async () => {

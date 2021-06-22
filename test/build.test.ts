@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
 
-import fixtures from './fixtures'
+import * as fixtures from './fixtures'
 
 import { createConfig, Env } from '../lib/config'
 import { build } from '../lib/build'
