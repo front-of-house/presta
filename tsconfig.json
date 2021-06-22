@@ -5,6 +5,7 @@
     "./global.d.ts"
   ],
   "compilerOptions": {
+    "allowJs": true,
     "target": "es2020",
     "module": "commonjs",
     "lib": ["es2020", "dom"],

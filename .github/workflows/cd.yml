@@ -19,7 +19,9 @@ jobs:
         with:
           node-version: 12
       - name: Installing dependencies
-        run: npm i
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
       - name: Test
         run: npm run test
       - name: Build
