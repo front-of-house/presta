@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Hyper minimal framework for the modern web.",
   "main": "cli.js",
+  "types": "index.d.ts",
   "bin": {
     "presta": "cli.js"
   },
