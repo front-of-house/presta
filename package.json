@@ -7,13 +7,13 @@
     "presta": "cli.js"
   },
   "scripts": {
-    "build": "esbuild lib/cli.js lib/extract.ts lib/html.ts lib/load.ts lib/source-filesystem.js lib/utils.js --bundle --outdir=. --platform=node --target=node12 --minify --sourcemap=inline --sources-content=false --external:fsevents --external:esbuild-register --external:esbuild --external:pocket.io --external:presta",
+    "build": "esbuild lib/cli.ts lib/extract.ts lib/html.ts lib/load.ts lib/source-filesystem.js lib/utils.ts --bundle --outdir=. --platform=node --target=node12 --minify --sourcemap=inline --sources-content=false --external:fsevents --external:esbuild-register --external:esbuild --external:pocket.io --external:presta",
     "watch": "npm run build -- --watch",
     "prepare": "npx husky install && npx commitizen init cz-conventional-changelog --save-dev --save-exact",
     "test": "rm -rf ./fixtures && NODE_ENV=test node test",
     "test:watch": "NODE_ENV=test nodemon -e js,ts --ignore fixtures/ test",
     "format": "prettier-standard --format",
-    "cloc": "npx cloc lib/*.js cli.js html.js load.js",
+    "cloc": "npx cloc lib/*.ts",
     "typecheck": "npx tsc --noEmit"
   },
   "repository": {
