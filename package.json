@@ -2,7 +2,7 @@
   "name": "presta",
   "version": "0.0.0",
   "description": "Hyper minimal framework for the modern web.",
-  "main": "presta.js",
+  "main": "cli.js",
   "bin": {
     "presta": "cli.js"
   },
