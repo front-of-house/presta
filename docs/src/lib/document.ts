@@ -1,7 +1,9 @@
+import type { PrestaContext } from 'presta'
+
 const name = 'Presta'
 const image = `/og.png`
 
-export function head (context) {
+export function head (context: PrestaContext) {
   return {
     image,
     og: {

@@ -7,7 +7,7 @@ import highlight from 'remark-highlight.js'
 import frontmatter from 'remark-frontmatter'
 import parseFrontmatter from 'remark-parse-frontmatter'
 
-export function source (globs, options) {
+export function source (globs: string[], options: any) {
   return root(globs, {
     ...options,
     extensions: {

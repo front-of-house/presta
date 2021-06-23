@@ -3,7 +3,7 @@ import { Box } from '@hypobox/react'
 
 import { Info } from '@/src/icons/Info'
 
-export function Alert ({ children, ...rest }) {
+export function Alert ({ children, ...rest }: React.PropsWithChildren<{}>) {
   return (
     <Box {...rest}>
       <Box
