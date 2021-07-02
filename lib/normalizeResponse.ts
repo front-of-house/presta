@@ -1,18 +1,12 @@
-import { HandlerResponse } from '@netlify/functions'
+import type { lambda, HandlerResponse } from '../'
 
 function stringify (obj: object | string) {
   return typeof obj === 'object' ? JSON.stringify(obj) : obj
 }
 
-export type Response = HandlerResponse & {
-  html?: string
-  json?: object
-  xml?: string
-}
-
 export function normalizeResponse (
-  response: Partial<Response> | string
-): HandlerResponse {
+  response: Partial<HandlerResponse> | string
+): lambda['HandlerResponse'] {
   const {
     isBase64Encoded = false,
     statusCode = 200,

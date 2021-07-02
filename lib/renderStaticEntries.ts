@@ -9,12 +9,12 @@ import { pathnameToFile } from './pathnameToFile'
 import { log, formatLog } from './log'
 import { timer } from './timer'
 import { getRouteParams } from './getRouteParams'
-import { createContext } from './createContext'
 import { normalizeResponse } from './normalizeResponse'
 import { loadCache } from './load'
 import { builtStaticFiles } from './builtStaticFiles'
 import { removeBuiltStaticFile } from './removeBuiltStaticFile'
-import { Presta } from './config'
+
+import type { Presta } from '../'
 
 export function renderStaticEntries (entries: string[], config: Presta): Promise<{ allGeneratedFiles: string[] }> {
   return new Promise(async (y, n) => {
@@ -50,12 +50,12 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
 
         for (const url of paths) {
           const time = timer()
-          const context = createContext({
+          const event = {
             path: url,
             params: file.route ? getRouteParams(url, file.route) : {}
-          })
+          }
 
-          const response = normalizeResponse(await file.handler(context))
+          const response = normalizeResponse(await file.handler(event, {}))
           const type = response.headers['Content-Type']
           const ext = type ? mime.extension(type) : 'html'
           const filename = pathnameToFile(url, ext)

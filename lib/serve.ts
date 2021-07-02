@@ -18,9 +18,8 @@ import { log, formatLog } from './log'
 import { devServerIcon } from './devServerIcon'
 import { default404 } from './default404'
 import { normalizeResponse } from './normalizeResponse'
-import type { Presta } from './config'
-import type { createHandler } from './handler'
-import type { PrestaDynamicFile } from './router'
+
+import type { Presta, PrestaDynamicFile } from '..'
 
 const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
 
@@ -136,7 +135,7 @@ export async function serve (config: Presta, { noBanner }: { noBanner: boolean }
               handler,
               files
             }: {
-              handler: ReturnType<typeof createHandler>,
+              handler: PrestaDynamicFile['handler'],
               files: PrestaDynamicFile[]
             } = require(config.dynamicEntryFilepath)
             const hasServerConfigured = !!files.length

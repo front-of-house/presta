@@ -2,7 +2,8 @@ import path from 'path'
 import { build } from 'esbuild'
 
 import { OUTPUT_DYNAMIC_PAGES_ENTRY } from './constants'
-import { Presta } from './config'
+
+import type { Presta } from '../'
 
 export function compile (config: Presta) {
   return build({

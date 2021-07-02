@@ -1,9 +1,10 @@
+type callable = (...args: any[]) => void
+
 export function createEmitter () {
   let events = {}
 
-  // TODO could improve these types
   function emit (ev: string, ...args: any[]): void {
-    events[ev] ? events[ev].map(fn => fn(...args)) : []
+    events[ev] ? events[ev].map((fn: callable) => fn(...args)) : []
   }
 
   function on (ev: string, fn: (...args: any[]) => void) {

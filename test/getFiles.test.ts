@@ -1,7 +1,8 @@
 import * as fixtures from './fixtures'
 
 import { isStatic, isDynamic, getFiles } from '../lib/getFiles'
-import type { Presta } from '../lib/config'
+
+import type { Presta } from '../'
 
 export default function (test, assert) {
   test('getFiles - isStatic', async () => {

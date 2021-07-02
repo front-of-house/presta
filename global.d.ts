@@ -1,4 +1,4 @@
-import { Presta } from './lib/config'
+import { Presta } from './'
 
 declare global {
   namespace NodeJS {

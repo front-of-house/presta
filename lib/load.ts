@@ -48,12 +48,12 @@ export function load (
       requests[key] = loader()
 
       requests[key]
-        .then(value => {
+        .then((value: any) => {
           loadCache.set(key, value, duration)
           delete requests[key]
         })
         // catch async errors
-        .catch(e => loadError(key, e))
+        .catch((e: Error) => loadError(key, e))
     } catch (e) {
       loadError(key, e)
     }

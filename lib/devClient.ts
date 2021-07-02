@@ -1,4 +1,4 @@
-export function createDevClient ({ port }) {
+export function createDevClient ({ port }: { port: number }) {
   return `
     <script>
       (function (global) {

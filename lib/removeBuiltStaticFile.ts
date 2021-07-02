@@ -2,7 +2,8 @@ import fs from 'fs-extra'
 import path from 'path'
 
 import { debug } from './debug'
-import { Presta } from './config'
+
+import type { Presta } from '../'
 
 export function removeBuiltStaticFile (file: string, config: Presta) {
   debug('removing static file', file)

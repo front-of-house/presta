@@ -1,18 +1,17 @@
-import { HandlerEvent, HandlerContext } from '@netlify/functions'
-
 import { debug } from './debug'
 import { getRouteParams } from './getRouteParams'
 import { default404 } from './default404'
-import { createContext } from './createContext'
 import { normalizeResponse } from './normalizeResponse'
 import { loadCache } from './load'
 import { createRouter } from './router'
+
+import type { lambda, HandlerEvent, HandlerContext } from '..'
 
 /*
  * This function is initially called *within* a generated entry file
  */
 export function createHandler (router: ReturnType<typeof createRouter>) {
-  return async (event: HandlerEvent, context: HandlerContext) => {
+  return async (event: lambda['HandlerEvent'], context: HandlerContext) => {
     debug('received event', event)
 
     /*
@@ -34,28 +33,14 @@ export function createHandler (router: ReturnType<typeof createRouter>) {
 
     // we've got a file match...
 
-    /*
-     * Create presta context object
-     */
-    const ctx = createContext({
-      path: event.path,
-      method: event.httpMethod,
-      headers: {
-        ...event.headers,
-        ...event.multiValueHeaders
-      },
-      body: event.body,
-      params: getRouteParams(event.path, file.route),
-      query: {
-        ...event.queryStringParameters,
-        ...event.multiValueQueryStringParameters
-      },
-      lambda: { event, context }
-    })
+    event = {
+      ...event,
+      params: getRouteParams(event.path, file.route)
+    } as HandlerEvent
 
-    debug('presta serverless context', ctx)
+    debug('presta handler', event, context)
 
-    const response = normalizeResponse(await file.handler(ctx))
+    const response = normalizeResponse(await file.handler(event as HandlerEvent, context))
 
     loadCache.clearAllMemory()
 

@@ -2,7 +2,9 @@ import fs from 'fs-extra'
 import path from 'path'
 
 import { debug } from './debug'
-import { serialize, Presta } from './config'
+import { serialize } from './config'
+
+import type { Presta } from '../'
 
 function template (sourceFiles: string[], config: Presta) {
   const presta = config.env === 'production' ? 'presta' : 'presta:internal'

@@ -11,7 +11,9 @@ import { timer } from './timer'
 import { compile } from './compile'
 import { OUTPUT_STATIC_DIR } from './constants'
 
-export async function build (config, options = {}) {
+import type { Presta } from '../'
+
+export async function build (config: Presta) {
   debug('watch initialized with config', config)
 
   const totalTime = timer()
