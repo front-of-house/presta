@@ -104,4 +104,27 @@ prog
     watch(config)
   })
 
+prog
+  .command('serve')
+  .describe('Serve built files.')
+  .example(`serve`)
+  .example(`serve -o ./out`)
+  .example(`watch -c ${CONFIG_DEFAULT}`)
+  .action(async opts => {
+    console.clear()
+
+    const config = createConfig({
+      env: Env.PRODUCTION,
+      config: getConfigFile(opts.config),
+      cli: opts
+    })
+    const server = await serve(config, { noBanner: true })
+
+    log(
+      `${c.blue('~ presta serve')}${
+        !opts.n ? ` – http://localhost:${server.port}` : ''
+      }\n`
+    )
+  })
+
 prog.parse(process.argv)

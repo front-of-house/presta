@@ -1,3 +1,7 @@
+/**
+ * THIS IS PROD CODE, BE CAREFUL WHAT YOU ADD TO THIS FILE
+ */
+
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
 

@@ -134,5 +134,7 @@ export async function flush (run: () => any, data = {}) {
     return flush(run, data)
   }
 
+  // TODO clear all cache here
+
   return { content, data: loadCache.dump() }
 }
