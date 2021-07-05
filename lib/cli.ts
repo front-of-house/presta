@@ -6,12 +6,14 @@ import c from 'ansi-colors'
 
 import pkg from '../package.json'
 
-import { CONFIG_DEFAULT } from './constants'
 import { log } from './log'
 import { createConfig, getConfigFile, Env } from './config'
 import { watch } from './watch'
 import { build } from './build'
 import { serve } from './serve'
+
+const prog = sade('presta')
+const CONFIG_DEFAULT = 'presta.config.js'
 
 function registerRuntime (options = {}) {
   require('module-alias').addAliases({
@@ -21,8 +23,6 @@ function registerRuntime (options = {}) {
 
   require('esbuild-register/dist/node').register(options)
 }
-
-const prog = sade('presta')
 
 prog
   .version(pkg.version)
@@ -45,8 +45,6 @@ prog
   .example(`build files/**/*.js`)
   .example(`build -c ${CONFIG_DEFAULT}`)
   .action(async opts => {
-    process.env.PRESTA_ENV = 'production'
-
     registerRuntime()
 
     console.clear()
@@ -76,8 +74,6 @@ prog
   .example(`watch ./files/**/*.js -o ./out`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
   .action(async opts => {
-    process.env.PRESTA_ENV = 'development'
-
     registerRuntime()
 
     console.clear()

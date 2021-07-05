@@ -10,9 +10,11 @@ import { log, formatLog } from './log'
 import { getFiles, isStatic, isDynamic } from './getFiles'
 import { renderStaticEntries } from './renderStaticEntries'
 import { timer } from './timer'
-import { createConfig, removeConfigValues, getConfigFile, Presta } from './config'
+import { createConfig, removeConfigValues, getConfigFile } from './config'
 import { builtStaticFiles } from './builtStaticFiles'
 import { removeBuiltStaticFile } from './removeBuiltStaticFile'
+
+import type { Presta } from '..'
 
 /*
  * Handles the actual writing of the dyanmic entry by updating the file and

@@ -1,4 +1,6 @@
-import { createRouter, PrestaDynamicFile } from '../lib/router'
+import { createRouter } from '../lib/createRouter'
+
+import type { PrestaDynamicFile } from '../'
 
 export default async (test, assert) => {
   const router = createRouter([

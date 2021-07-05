@@ -5,6 +5,8 @@ import { debug } from './debug'
 import { log } from './log'
 import { createEmitter } from './createEmitter'
 
+import { PrestaConfig, Presta } from '../'
+
 const cwd = process.cwd()
 const defaultConfigFilepath = 'presta.config.js'
 
@@ -14,43 +16,17 @@ export enum Env {
   TEST = 'test'
 }
 
-export type Config = {
-  files?: string | string[]
-  output?: string
-  assets?: string
-}
-
-export type Args = {
-  files?: string | string[]
-  output?: string
-  assets?: string
-  config?: string
-}
-
-export type Presta = {
-  pid: number
-  cwd: string
-  env: Env
-  cliArgs: Args
-  configFile: Config
-  merged: Config
-  configFilepath: string
-  dynamicEntryFilepath: string
-  staticOutputDir: string
-  emitter: ReturnType<typeof createEmitter>
-}
-
 global.__presta__ =
   global.__presta__ ||
   ({
     pid: process.pid,
     cwd,
-    env: Env.PRODUCTION,
+    env: Env.TEST,
     cliArgs: {},
     configFile: {}
   } as Presta)
 
-function resolveAbsolutePaths (configFile: Config) {
+function resolveAbsolutePaths (configFile: PrestaConfig) {
   if (configFile.files)
     configFile.files = []
       .concat(configFile.files)
@@ -70,7 +46,7 @@ export function _clearCurrentConfig () {
   global.__presta__ = {
     pid: process.pid,
     cwd,
-    env: Env.PRODUCTION,
+    env: Env.TEST,
     cliArgs: {},
     configFile: {}
   }

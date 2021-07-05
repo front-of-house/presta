@@ -11,20 +11,36 @@ import mime from 'mime-types'
 import rawBody from 'raw-body'
 import type { HandlerResponse } from '@netlify/functions'
 
-import { createDevClient } from './devClient'
 import { debug } from './debug'
 import { timer } from './timer'
 import { log, formatLog } from './log'
-import { devServerIcon } from './devServerIcon'
 import { default404 } from './default404'
 import { normalizeResponse } from './normalizeResponse'
-import type { Presta } from './config'
-import type { createHandler } from './handler'
-import type { PrestaDynamicFile } from './router'
 
-const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
+import type { Presta, PrestaDynamicFile } from '..'
+
+const style = [
+  'position: fixed',
+  'bottom: 24px',
+  'right: 24px',
+  'width: 32px',
+  'height: 32px',
+  'border-radius: 32px',
+  'background: white',
+  'color: #FF7A93',
+  'font-size: 20px',
+  'font-weight: bold',
+  'text-align: center',
+  'line-height: 31px',
+  'box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 24px 32px rgba(0, 0, 0, 0.04)'
+]
+
+const devServerIcon = `
+  <div style="${style.join(';')}">~</div>
+`
 
 // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
+const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
 function shouldBase64Encode (contentType: string) {
   return Boolean(contentType) && BASE_64_MIME_REGEXP.test(contentType)
 }
@@ -40,6 +56,37 @@ function resolveHTML (dir: string, url: string) {
   }
 
   return fs.readFileSync(file, 'utf8')
+}
+
+function createDevClient ({ port }: { port: number }) {
+  return `
+    <script>
+      (function (global) {
+        try {
+          const socketio = document.createElement('script')
+          socketio.src = 'https://unpkg.com/pocket.io@0.1.4/min.js'
+          socketio.onload = function init () {
+            var disconnected = false
+            var socket = io('http://localhost:${port}', {
+              reconnectionAttempts: 3
+            })
+            socket.on('connect', function() { console.log('presta connected') })
+            socket.on('refresh', function() {
+              global.location.reload()
+            })
+            socket.on('disconnect', function() {
+              disconnected = true
+            })
+            socket.on('reconnect_failed', function(e) {
+              if (disconnected) return
+              console.error("presta - connection to server on :${port} failed")
+            })
+          }
+          document.head.appendChild(socketio)
+        } catch (e) {}
+      })(this);
+    </script>
+  `
 }
 
 export async function serve (config: Presta, { noBanner }: { noBanner: boolean }) {
@@ -136,7 +183,7 @@ export async function serve (config: Presta, { noBanner }: { noBanner: boolean }
               handler,
               files
             }: {
-              handler: ReturnType<typeof createHandler>,
+              handler: PrestaDynamicFile['handler'],
               files: PrestaDynamicFile[]
             } = require(config.dynamicEntryFilepath)
             const hasServerConfigured = !!files.length

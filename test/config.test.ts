@@ -6,7 +6,7 @@ import {
   removeConfigValues,
   getConfigFile,
   _clearCurrentConfig,
-  Env
+  Env,
 } from '../lib/config'
 
 const env = Env.TEST

@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import matched from 'matched'
 
-import { Presta } from './config'
+import { Presta } from '../'
 
 export function isDynamic (file: string) {
   return /export\s.+\sroute\s+\=/.test(fs.readFileSync(file, 'utf-8'))

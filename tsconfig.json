@@ -2,7 +2,7 @@
   "include": [
     "./lib/*.ts",
     "./test/*.ts",
-    "./global.d.ts"
+    "./index.d.ts"
   ],
   "compilerOptions": {
     "allowJs": true,

@@ -1,13 +1,7 @@
 import rsort from 'route-sort'
 import toRegExp from 'regexparam'
 
-import type { PrestaContext } from './createContext'
-import type { Response } from './normalizeResponse'
-
-export type PrestaDynamicFile = {
-  route: string
-  handler(context: PrestaContext): Promise<Response>
-}
+import type { PrestaDynamicFile } from '../'
 
 /**
  * This is used *within* the generated dynamic entry file
