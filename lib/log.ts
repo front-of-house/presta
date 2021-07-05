@@ -1,18 +1,18 @@
 import c from 'ansi-colors'
 
-const { NODE_ENV } = process.env
+import { getCurrentConfig, Env } from './config'
 
 let logs = ''
 
 export function getLogs () {
-  if (NODE_ENV !== 'test') {
+  if (getCurrentConfig().env !== Env.TEST) {
     throw new Error('Internal method was called outside test mode')
   }
   return logs
 }
 
 export function log (message: string) {
-  if (NODE_ENV === 'test') {
+  if (getCurrentConfig().env === Env.TEST) {
     logs += message
   } else {
     console.log(message)
@@ -30,9 +30,8 @@ export function formatLog ({
   description: string
   color?: string
 }) {
-  if (NODE_ENV === 'test') {
-  } else {
-    const message = `  ${c[color](action)} ${c.gray(meta)}`
-    console.log(message.padEnd(40) + description)
-  }
+  if (getCurrentConfig().env === Env.TEST) return
+
+  const message = `  ${c[color](action)} ${c.gray(meta)}`
+  console.log(message.padEnd(40) + description)
 }

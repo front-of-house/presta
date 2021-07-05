@@ -3,7 +3,7 @@ import { getRouteParams } from './getRouteParams'
 import { default404 } from './default404'
 import { normalizeResponse } from './normalizeResponse'
 import { loadCache } from './load'
-import { createRouter } from './router'
+import { createRouter } from './createRouter'
 
 import type { lambda, HandlerEvent, HandlerContext } from '..'
 

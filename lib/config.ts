@@ -21,7 +21,7 @@ global.__presta__ =
   ({
     pid: process.pid,
     cwd,
-    env: Env.PRODUCTION,
+    env: Env.TEST,
     cliArgs: {},
     configFile: {}
   } as Presta)
@@ -46,7 +46,7 @@ export function _clearCurrentConfig () {
   global.__presta__ = {
     pid: process.pid,
     cwd,
-    env: Env.PRODUCTION,
+    env: Env.TEST,
     cliArgs: {},
     configFile: {}
   }

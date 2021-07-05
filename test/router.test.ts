@@ -1,4 +1,4 @@
-import { createRouter } from '../lib/router'
+import { createRouter } from '../lib/createRouter'
 
 import type { PrestaDynamicFile } from '../'
 

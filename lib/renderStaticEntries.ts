@@ -4,8 +4,6 @@ import c from 'ansi-colors'
 import mime from 'mime-types'
 
 import { debug } from './debug'
-import { OUTPUT_STATIC_DIR } from './constants'
-import { pathnameToFile } from './pathnameToFile'
 import { log, formatLog } from './log'
 import { timer } from './timer'
 import { getRouteParams } from './getRouteParams'
@@ -15,6 +13,14 @@ import { builtStaticFiles } from './builtStaticFiles'
 import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 
 import type { Presta } from '../'
+
+export function pathnameToFile (pathname: string, ext = 'html') {
+  return !!path.extname(pathname)
+    ? pathname // if path has extension, use it
+    : ext === 'html'
+    ? `${pathname}/index.html` // if HTML is inferred, create index
+    : `${pathname}.${ext}` // anything but HTML will need an extension, otherwise browsers will render as text
+}
 
 export function renderStaticEntries (entries: string[], config: Presta): Promise<{ allGeneratedFiles: string[] }> {
   return new Promise(async (y, n) => {
@@ -64,7 +70,7 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
           nextFiles.push(filename)
 
           fs.outputFileSync(
-            path.join(config.merged.output, OUTPUT_STATIC_DIR, filename),
+            path.join(config.staticOutputDir, filename),
             response.body,
             'utf-8'
           )

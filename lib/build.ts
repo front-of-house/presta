@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
 import c from 'ansi-colors'
+import { build as esbuild } from 'esbuild'
 
 import { debug } from './debug'
 import { createDynamicEntry } from './createDynamicEntry'
@@ -8,8 +9,6 @@ import { log, formatLog } from './log'
 import { getFiles, isStatic, isDynamic } from './getFiles'
 import { renderStaticEntries } from './renderStaticEntries'
 import { timer } from './timer'
-import { compile } from './compile'
-import { OUTPUT_STATIC_DIR } from './constants'
 
 import type { Presta } from '../'
 
@@ -49,7 +48,15 @@ export async function build (config: Presta) {
 
           createDynamicEntry(dynamicIds, config)
 
-          await compile(config)
+          await esbuild({
+            entryPoints: [config.dynamicEntryFilepath],
+            outfile: path.join(config.merged.output, 'functions', 'presta.js'),
+            bundle: true,
+            platform: 'node',
+            target: ['node12'],
+            minify: true,
+            allowOverwrite: true
+          })
 
           dynamicTime = time()
 
@@ -67,7 +74,7 @@ export async function build (config: Presta) {
 
           fs.copySync(
             config.merged.assets,
-            path.join(config.merged.output, OUTPUT_STATIC_DIR)
+            config.staticOutputDir
           )
 
           copyTime = time()

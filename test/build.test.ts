@@ -18,6 +18,7 @@ export default async (test, assert) => {
       }
     })
     const config = createConfig({
+      env: Env.TEST,
       cliArgs: {
         files: fsx.files.a,
         output: path.join(fixtures.getRoot(), 'build/static-files')
@@ -55,8 +56,8 @@ export default async (test, assert) => {
     let called = false
 
     const { build } = require('proxyquire')('../lib/build', {
-      './compile': {
-        compile () {
+      'esbuild': {
+        build () {
           called = true
         }
       }

@@ -1,10 +1,10 @@
-import { createCache } from '../lib/loadCache'
+import { createLoadCache } from '../lib/load'
 
 const wait = t => new Promise(r => setTimeout(r, t))
 
 export default async (test, assert) => {
   test('simple', async () => {
-    const cache = createCache('simple')
+    const cache = createLoadCache('simple')
 
     cache.set('foo', 'bar')
 
@@ -14,7 +14,7 @@ export default async (test, assert) => {
   })
 
   test('duration', async () => {
-    const cache = createCache('duration')
+    const cache = createLoadCache('duration')
 
     cache.set('foo', 'bar', 1000)
 
@@ -26,7 +26,7 @@ export default async (test, assert) => {
   })
 
   test('clear', async () => {
-    const cache = createCache('clear')
+    const cache = createLoadCache('clear')
 
     cache.set('foo', 'bar')
     cache.clear('foo')
@@ -37,7 +37,7 @@ export default async (test, assert) => {
   })
 
   test('clearMemory', async () => {
-    const cache = createCache('clearMemory')
+    const cache = createLoadCache('clearMemory')
 
     cache.set('foo', 'bar')
     cache.set('baz', 'qux', 5000)

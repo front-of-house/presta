@@ -1,4 +1,4 @@
-import { pathnameToFile } from '../lib/pathnameToFile'
+import { pathnameToFile } from '../lib/renderStaticEntries'
 
 export default async function (test, assert) {
   test('pathnameToFile', async () => {
