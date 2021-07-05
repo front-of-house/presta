@@ -61,3 +61,11 @@ export type PrestaDynamicFile = {
   route: Route
   handler: Handler
 }
+
+declare global {
+  namespace NodeJS {
+    interface Global {
+      __presta__: Presta
+    }
+  }
+}
