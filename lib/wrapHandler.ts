@@ -1,16 +1,16 @@
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
 
-import type { lambda, HandlerEvent, HandlerContext, PrestaDynamicFile } from '..'
+import type { AWS, Event, Context, Lambda } from '..'
 
-export function wrapHandler (file: PrestaDynamicFile) {
-  return async (event: lambda['HandlerEvent'], context: HandlerContext) => {
+export function wrapHandler (file: Lambda) {
+  return async (event: AWS['HandlerEvent'], context: Context) => {
     event = {
       ...event,
       params: getRouteParams(event.path, file.route)
-    } as HandlerEvent
+    } as Event
 
-    const response = normalizeResponse(await file.handler(event as HandlerEvent, context))
+    const response = normalizeResponse(await file.handler(event as Event, context))
 
     return response
   }

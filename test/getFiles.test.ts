@@ -70,7 +70,7 @@ export default function (test, assert) {
 
     const results = getFiles({
       cwd: process.cwd(),
-      merged: { files: ['./getFiles/*.js'] }
+      files: ['./getFiles/*.js']
     } as Presta)
     assert(results.length === 3)
 

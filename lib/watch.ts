@@ -57,8 +57,8 @@ export async function buildFiles (ids: string[], config: Presta) {
    */
   // if (dynamicIds.length) updateLambdas(dynamicIds, config)
 
-  config.emitter.emit('refresh')
-  config.emitter.emit('done', ids)
+  config.events.emit('refresh')
+  config.events.emit('done', ids)
 }
 
 export async function watch (config: Presta) {
@@ -86,7 +86,7 @@ export async function watch (config: Presta) {
   const fileWatcher = graph({ alias: { '@': config.cwd } })
   const globalWatcher = chokidar.watch(config.cwd, {
     ignoreInitial: true,
-    ignored: [config.merged.output, config.merged.assets]
+    ignored: [config.output, config.assets]
   })
 
   /*
@@ -110,12 +110,11 @@ export async function watch (config: Presta) {
 
     // update dynamic entry with ALL dynamic files
     if (isDynamic(file)) {
-      delete require.cache[config.dynamicEntryFilepath]
       updateLambdas(files.filter(isDynamic), config)
     }
 
-    config.emitter.emit('refresh')
-    config.emitter.emit('done', [file])
+    config.events.emit('refresh')
+    config.events.emit('done', [file])
   }
 
   fileWatcher.on('remove', ([id]) => {
@@ -142,7 +141,7 @@ export async function watch (config: Presta) {
       removeBuiltStaticFile(file, config)
     )
 
-    config.emitter.emit('remove', id)
+    config.events.emit('remove', id)
   })
 
   fileWatcher.on('change', ([id]) => {
@@ -155,7 +154,7 @@ export async function watch (config: Presta) {
       try {
         // merge in new values from config file
         config = createConfig({
-          configFile: getConfigFile(config.configFilepath)
+          config: getConfigFile(config.configFilepath)
         })
 
         handleConfigUpdate()
@@ -166,7 +165,7 @@ export async function watch (config: Presta) {
       handleFileChange(id)
     }
 
-    config.emitter.emit('change', id)
+    config.events.emit('change', id)
   })
 
   fileWatcher.on('error', e => {
@@ -189,7 +188,7 @@ export async function watch (config: Presta) {
       return
 
     // if a file change matches any pages globs
-    if (match(config.merged.files)(file) && !files.includes(file)) {
+    if (match(config.files)(file) && !files.includes(file)) {
       debug('globalWatcher - add file')
 
       files.push(file)
@@ -208,7 +207,7 @@ export async function watch (config: Presta) {
       try {
         // merge in new values from config file
         config = createConfig({
-          configFile: getConfigFile(config.configFilepath)
+          config: getConfigFile(config.configFilepath)
         })
 
         hasConfigFile = true
@@ -219,7 +218,7 @@ export async function watch (config: Presta) {
       }
     }
 
-    config.emitter.emit('add', file)
+    config.events.emit('add', file)
   })
 
   /**

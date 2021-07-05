@@ -19,7 +19,7 @@ export default (test, assert) => {
     })
     const config = createConfig({
       env: Env.PRODUCTION,
-      cliArgs: {
+      cli: {
         files: './outputLambda/*.js',
         output: path.join(fixtures.getRoot(), 'output')
       }

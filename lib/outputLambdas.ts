@@ -11,7 +11,7 @@ export function outputLambda(input: string, config: Presta): [string, string] {
   const { route } = require(input)
   const name = path.basename(input).split('.').reverse().slice(1).reverse().join('.')
   const output = path.join(
-    config.dynamicOutputDir,
+    config.functionsOutputDir,
     config.env === Env.PRODUCTION ? (
       name + '-' + hashContent(fs.readFileSync(input, 'utf8')) + '.js'
     ) : (

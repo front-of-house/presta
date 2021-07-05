@@ -7,44 +7,37 @@ import type {
 import { createEmitter } from './lib/createEmitter'
 import { Env } from './lib/config'
 
-export type lambda = {
+export type AWS = {
   HandlerEvent: LambdaHandlerEvent
   HandlerContext: LambdaHandlerContext
   HandlerResponse: LambdaHandlerResponse
 }
 
-export type PrestaConfig = {
+export type Config = {
   files?: string | string[]
   output?: string
   assets?: string
 }
 
-export type CLIArgs = {
-  files?: string | string[]
-  output?: string
-  assets?: string
+export type CLI = {
   config?: string
-}
+} & Config
 
 export type Presta = {
   pid: number
   cwd: string
   env: Env
-  cliArgs: CLIArgs
-  configFile: PrestaConfig
-  merged: PrestaConfig
   configFilepath: string
-  dynamicEntryFilepath: string
-  dynamicOutputDir: string
+  functionsOutputDir: string
   staticOutputDir: string
   routesManifest: string
-  emitter: ReturnType<typeof createEmitter>
-}
+  events: ReturnType<typeof createEmitter>
+} & Required<Config>
 
 export type RouteParams = { [param: string]: string }
-export type HandlerEvent = LambdaHandlerEvent & { params: RouteParams }
-export type HandlerContext = LambdaHandlerContext
-export type HandlerResponse = LambdaHandlerResponse & {
+export type Event = LambdaHandlerEvent & { params: RouteParams }
+export type Context = LambdaHandlerContext
+export type Response = LambdaHandlerResponse & {
   html?: string
   json?: object
   xml?: string
@@ -52,14 +45,14 @@ export type HandlerResponse = LambdaHandlerResponse & {
 
 export type Route = string
 export type GetStaticPaths = () => Promise<string[]>
-export type Handler = (event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse>
+export type Handler = (event: Event, context: Context) => Promise<Response>
 
-export type PrestaStaticFile = {
+export type StaticLambda = {
   getStaticPaths: GetStaticPaths
   handler: Handler
 }
 
-export type PrestaDynamicFile = {
+export type Lambda = {
   route: Route
   handler: Handler
 }

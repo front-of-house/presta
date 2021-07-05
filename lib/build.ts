@@ -49,7 +49,7 @@ export async function build (config: Presta) {
 
           await esbuild({
             entryPoints: Object.values(require(config.routesManifest)),
-            outdir: config.dynamicOutputDir,
+            outdir: config.functionsOutputDir,
             bundle: true,
             platform: 'node',
             target: ['node12'],
@@ -68,11 +68,11 @@ export async function build (config: Presta) {
         }
       })(),
       (async () => {
-        if (fs.existsSync(config.merged.assets)) {
+        if (fs.existsSync(config.assets)) {
           const time = timer()
 
           fs.copySync(
-            config.merged.assets,
+            config.assets,
             config.staticOutputDir
           )
 

@@ -11,7 +11,7 @@ export default (test, assert) => {
   test('extract', async () => {
     createConfig({
       env: Env.TEST,
-      configFile: { output: path.join(fixtures.getRoot(), 'extract') }
+      config: { output: path.join(fixtures.getRoot(), 'extract') }
     })
 
     const config = getCurrentConfig()

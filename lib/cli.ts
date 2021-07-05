@@ -51,14 +51,14 @@ prog
 
     const config = createConfig({
       env: Env.PRODUCTION,
-      configFile: getConfigFile(opts.config, true),
-      cliArgs: {
+      config: getConfigFile(opts.config, true),
+      cli: {
         ...opts,
         files: opts._
       }
     })
 
-    fs.emptyDirSync(config.merged.output)
+    fs.emptyDirSync(config.output)
 
     log(`${c.blue('~ presta build')}\n`)
 
@@ -80,14 +80,14 @@ prog
 
     const config = createConfig({
       env: Env.DEVELOPMENT,
-      configFile: getConfigFile(opts.config),
-      cliArgs: {
+      config: getConfigFile(opts.config),
+      cli: {
         ...opts,
         files: opts._
       }
     })
 
-    fs.emptyDirSync(config.merged.output)
+    fs.emptyDirSync(config.output)
 
     if (!opts.n) {
       const server = await serve(config, { noBanner: true })

@@ -1,12 +1,12 @@
-import type { lambda, HandlerResponse } from '../'
+import type { AWS, Response } from '../'
 
 function stringify (obj: object | string) {
   return typeof obj === 'object' ? JSON.stringify(obj) : obj
 }
 
 export function normalizeResponse (
-  response: Partial<HandlerResponse> | string
-): lambda['HandlerResponse'] {
+  response: Partial<Response> | string
+): AWS['HandlerResponse'] {
   const {
     isBase64Encoded = false,
     statusCode = 200,

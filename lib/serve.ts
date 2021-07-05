@@ -18,7 +18,7 @@ import { log, formatLog } from './log'
 import { default404 } from './default404'
 import { normalizeResponse } from './normalizeResponse'
 
-import type { Presta, PrestaDynamicFile } from '..'
+import type { Presta, Lambda } from '..'
 
 const style = [
   'position: fixed',
@@ -93,8 +93,8 @@ function createDevClient ({ port }: { port: number }) {
 export async function serve (config: Presta, { noBanner }: { noBanner: boolean }) {
   const port = await getPort({ port: 4000 })
   const devClient = createDevClient({ port })
-  const staticDir = path.join(config.merged.output, 'static')
-  const assetDir = config.merged.assets
+  const staticDir = config.staticOutputDir
+  const assetDir = config.assets
 
   const server = http
     .createServer(async (req, res) => {
@@ -201,7 +201,7 @@ export async function serve (config: Presta, { noBanner }: { noBanner: boolean }
               const {
                 handler,
               }: {
-                handler: PrestaDynamicFile['handler'],
+                handler: Lambda['handler'],
               } = require(lambdaFilepath)
 
               const time = timer()
@@ -330,15 +330,15 @@ export async function serve (config: Presta, { noBanner }: { noBanner: boolean }
 
   const socket = require('pocket.io')(server, { serveClient: false })
 
-  config.emitter.on('refresh', () => {
+  config.events.on('refresh', () => {
     debug('serve', `refresh event received`)
     socket.emit('refresh')
   })
 
   chokidar
-    .watch(config.merged.assets, { ignoreInitial: true })
+    .watch(config.assets, { ignoreInitial: true })
     .on('all', () => {
-      config.emitter.emit('refresh')
+      config.events.emit('refresh')
     })
 
   return { port }
