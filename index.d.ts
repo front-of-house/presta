@@ -35,7 +35,9 @@ export type Presta = {
   merged: PrestaConfig
   configFilepath: string
   dynamicEntryFilepath: string
+  dynamicOutputDir: string
   staticOutputDir: string
+  routesManifest: string
   emitter: ReturnType<typeof createEmitter>
 }
 

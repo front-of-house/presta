@@ -1,10 +1,9 @@
 import fs from 'fs-extra'
-import path from 'path'
 import c from 'ansi-colors'
 import { build as esbuild } from 'esbuild'
 
 import { debug } from './debug'
-import { createDynamicEntry } from './createDynamicEntry'
+import { outputLambdas } from './outputLambdas'
 import { log, formatLog } from './log'
 import { getFiles, isStatic, isDynamic } from './getFiles'
 import { renderStaticEntries } from './renderStaticEntries'
@@ -46,11 +45,11 @@ export async function build (config: Presta) {
         if (dynamicIds.length) {
           const time = timer()
 
-          createDynamicEntry(dynamicIds, config)
+          outputLambdas(dynamicIds, config)
 
           await esbuild({
-            entryPoints: [config.dynamicEntryFilepath],
-            outfile: path.join(config.merged.output, 'functions', 'presta.js'),
+            entryPoints: Object.values(require(config.routesManifest)),
+            outdir: config.dynamicOutputDir,
             bundle: true,
             platform: 'node',
             target: ['node12'],
@@ -109,8 +108,8 @@ export async function build (config: Presta) {
 
     if (dynamicTime) {
       log(
-        `  ${c.blue(`dynamic`)} ${c.gray(
-          `compiled function in ${dynamicTime}`
+        `  ${c.blue(`lambda`)} ${c.gray(
+          `compiled ${dynamicIds.length} function(s) in ${dynamicTime}`
         )}`
       )
     }

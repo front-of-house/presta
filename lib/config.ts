@@ -86,19 +86,6 @@ export function removeConfigValues () {
   return global.__presta__
 }
 
-/**
- * Extract serialize-able props to merge with user config within generated
- * files
- */
-export function serialize (config: Presta) {
-  return JSON.stringify({
-    cwd: config.cwd,
-    files: config.merged.files,
-    output: config.merged.output,
-    assets: config.merged.assets
-  })
-}
-
 export function getCurrentConfig () {
   return global.__presta__
 }
@@ -132,7 +119,9 @@ export function createConfig ({
     merged,
     configFilepath: path.resolve(cliArgs.config || defaultConfigFilepath),
     dynamicEntryFilepath: path.join(merged.output, 'functions/presta.js'),
+    dynamicOutputDir: path.join(merged.output, 'functions'),
     staticOutputDir: path.join(merged.output, 'static'),
+    routesManifest: path.join(merged.output, 'routes.json'),
     emitter: createEmitter()
   }
 

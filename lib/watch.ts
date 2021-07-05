@@ -5,7 +5,7 @@ import chokidar from 'chokidar'
 import match from 'picomatch'
 
 import { debug } from './debug'
-import { createDynamicEntry } from './createDynamicEntry'
+import { outputLambdas } from './outputLambdas'
 import { log, formatLog } from './log'
 import { getFiles, isStatic, isDynamic } from './getFiles'
 import { renderStaticEntries } from './renderStaticEntries'
@@ -17,17 +17,16 @@ import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 import type { Presta } from '..'
 
 /*
- * Handles the actual writing of the dyanmic entry by updating the file and
- * then clearing require cache
+ * Wraps outputLambdas for logging
  */
-function updateDynamicEntry (ids: string[], config: Presta) {
+function updateLambdas (inputs: string[], config: Presta) {
   const time = timer()
 
-  createDynamicEntry(ids, config)
-  delete require.cache[config.dynamicEntryFilepath]
+  // always write this, even if inputs = []
+  outputLambdas(inputs, config)
 
   // if user actually has routes configured, give feedback
-  if (ids.length) {
+  if (inputs.length) {
     formatLog({
       color: 'green',
       action: 'build',
@@ -56,7 +55,7 @@ export async function buildFiles (ids: string[], config: Presta) {
    * This could be alleviated IF we decided to output separate functions
    * for each route. But at the moment this breaks.
    */
-  // if (dynamicIds.length) updateDynamicEntry(dynamicIds, config)
+  // if (dynamicIds.length) updateLambdas(dynamicIds, config)
 
   config.emitter.emit('refresh')
   config.emitter.emit('done', ids)
@@ -79,7 +78,7 @@ export async function watch (config: Presta) {
    * Create initial dynamic entry regardless of if the user has routes, bc we
    * need this file to serve 404 locally
    */
-  updateDynamicEntry(files.filter(isDynamic), config)
+  updateLambdas(files.filter(isDynamic), config)
 
   /*
    * Set up all watchers
@@ -112,7 +111,7 @@ export async function watch (config: Presta) {
     // update dynamic entry with ALL dynamic files
     if (isDynamic(file)) {
       delete require.cache[config.dynamicEntryFilepath]
-      updateDynamicEntry(files.filter(isDynamic), config)
+      updateLambdas(files.filter(isDynamic), config)
     }
 
     config.emitter.emit('refresh')
@@ -126,7 +125,7 @@ export async function watch (config: Presta) {
     files.splice(files.indexOf(id), 1)
 
     // update this regardless, not sure if [id] was dynamic or static
-    updateDynamicEntry(files.filter(isDynamic), config)
+    updateLambdas(files.filter(isDynamic), config)
 
     // if it was config, we gotta do a restart
     if (id === config.configFilepath) {

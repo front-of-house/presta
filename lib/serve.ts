@@ -9,6 +9,7 @@ import chokidar from 'chokidar'
 import { parse as parseQuery } from 'query-string'
 import mime from 'mime-types'
 import rawBody from 'raw-body'
+import toRegExp from 'regexparam'
 import type { HandlerResponse } from '@netlify/functions'
 
 import { debug } from './debug'
@@ -179,20 +180,29 @@ export async function serve (config: Presta, { noBanner }: { noBanner: boolean }
             /*
              * No asset file, no static file, try dynamic
              */
-            const {
-              handler,
-              files
-            }: {
-              handler: PrestaDynamicFile['handler'],
-              files: PrestaDynamicFile[]
-            } = require(config.dynamicEntryFilepath)
-            const hasServerConfigured = !!files.length
+            const manifest = require(config.routesManifest)
+            const routes = Object.keys(manifest)
+            const lambdaFilepath = routes
+              .map(route => ({
+                matcher: toRegExp(route),
+                route,
+              }))
+              .filter(({ matcher }) => {
+                return matcher.pattern.test(req.url.split('?')[0])
+              })
+              .map(({ route }) => manifest[route])[0]
 
             /**
-             * If we have a serverless function, delegate everything to that, like it would be in prod
+             * If we have a serverless function, delegate to it, otherwise 404
              */
-            if (hasServerConfigured) {
+            if (lambdaFilepath) {
               debug('serve', `fallback, serve dynamic page ${req.url}`)
+
+              const {
+                handler,
+              }: {
+                handler: PrestaDynamicFile['handler'],
+              } = require(lambdaFilepath)
 
               const time = timer()
               // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L208
