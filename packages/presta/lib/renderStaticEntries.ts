@@ -6,7 +6,6 @@ import * as logger from './log'
 import { timer } from './timer'
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
-import { loadCache } from './load'
 import { builtStaticFiles } from './builtStaticFiles'
 import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 
@@ -113,7 +112,7 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
     }
 
     // clear to prevent memory leak
-    loadCache.clearAllMemory() // TODO probs can't — emit?
+    // loadCache.clearAllMemory() // TODO probs can't — emit?
 
     y({ allGeneratedFiles })
   })

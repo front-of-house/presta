@@ -1,0 +1,21 @@
+{
+  "name": "@presta/load",
+  "version": "0.2.0",
+  "description": "Data loading utilities for Presta",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "pnpx tsc",
+    "typecheck": "pnpx tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sure-thing/presta.git"
+  },
+  "author": "estrattonbailey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sure-thing/presta/issues"
+  },
+  "homepage": "https://github.com/sure-thing/presta#readme"
+}

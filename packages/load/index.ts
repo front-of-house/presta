@@ -1,21 +1,19 @@
 import path from 'path'
-import fs from 'fs-extra'
+import fs from 'fs'
 
-import { getCurrentConfig, Env } from './config'
+type Loader = () => Promise<any>
 
-const requests = {}
-const errors = {}
+const requests: { [key: string]: ReturnType<Loader> } = {}
+const errors: { [key: string]: Error } = {}
 export const loadCache = createLoadCache('presta-load-cache')
 
 function writeFileCache (filepath: string, json: object) {
-  if (getCurrentConfig().env !== Env.PRODUCTION)
-    fs.writeFileSync(filepath, JSON.stringify(json), 'utf-8')
+  fs.writeFileSync(filepath, JSON.stringify(json), 'utf-8')
 }
 
 function readFileCache (filepath: string) {
-  if (getCurrentConfig().env === Env.PRODUCTION) return {}
   if (!fs.existsSync(filepath)) fs.writeFileSync(filepath, '{}', 'utf-8')
-  return JSON.parse(fs.readFileSync(filepath))
+  return JSON.parse(fs.readFileSync(filepath, 'utf8'))
 }
 
 export function createLoadCache (name: string, { dir = process.cwd() } = {}) {
@@ -61,7 +59,7 @@ export function createLoadCache (name: string, { dir = process.cwd() } = {}) {
       } catch (e) {}
     },
     dump () {
-      const res = {}
+      const res: { [key: string]: any } = {}
 
       for (const key of Object.keys(cache)) {
         res[key] = cache[key][0]
@@ -73,7 +71,7 @@ export function createLoadCache (name: string, { dir = process.cwd() } = {}) {
 }
 
 export function loadError (key: string, e: Error) {
-  if (getCurrentConfig().env !== Env.TEST) console.error(e)
+  if (!process.env.TESTING) console.error(e)
   errors[key] = e
   delete requests[key]
 }
@@ -97,7 +95,7 @@ export async function cache (
 }
 
 export function load (
-  loader: () => Promise<any>,
+  loader: Loader,
   { key, duration }: { key: string; duration?: number }
 ) {
   let value = loadCache.get(key)
@@ -124,7 +122,10 @@ export function load (
   return value
 }
 
-export async function flush (run: () => any, data = {}) {
+export async function flush (run: () => any, data = {}): Promise<{
+  content: string
+  data: { [key: string]: any }
+}> {
   const content = run()
 
   if (Object.keys(requests).length) {

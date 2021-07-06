@@ -32,8 +32,6 @@ require('./html.test').default(test, assert)
 require('./build.test').default(test, assert)
 require('./getRouteParams.test').default(test, assert)
 require('./normalizeResponse.test').default(test, assert)
-require('./load.test').default(test, assert)
-require('./loadCache.test').default(test, assert)
 require('./extract.test').default(test, assert)
 require('./serve.test').default(test, assert)
 

@@ -1,0 +1,17 @@
+{
+  "include": [
+    "./packages/**/*.ts"
+  ],
+  "exclude": [
+    "docs"
+  ],
+  "compilerOptions": {
+    "strict": true,
+    "target": "es2020",
+    "module": "commonjs",
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "resolveJsonModule": true
+  }
+}
