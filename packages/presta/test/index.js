@@ -25,14 +25,11 @@ fixtures.setRoot(root)
 
 require('./config.test').default(test, assert)
 require('./getFiles.test').default(test, assert)
-require('./createHeadTags.test').default(test, assert)
 require('./outputLambdas.test').default(test, assert)
 require('./pathnameToFile.test').default(test, assert)
-require('./html.test').default(test, assert)
 require('./build.test').default(test, assert)
 require('./getRouteParams.test').default(test, assert)
 require('./normalizeResponse.test').default(test, assert)
-require('./extract.test').default(test, assert)
 require('./serve.test').default(test, assert)
 
 !(async function () {

@@ -1,6 +1,7 @@
+node_modules
+dist
 fixtures
 test/fixtures
-node_modules
 pnpm-lock.yaml
 .pnpm*
 coverage

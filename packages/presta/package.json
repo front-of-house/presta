@@ -9,10 +9,8 @@
   },
   "scripts": {
     "build": "node scripts/build",
-    "test": "echo 'test'",
-    "test:old": "rm -rf ./fixtures && NODE_ENV=test node test",
+    "test": "rm -rf ./fixtures && NODE_ENV=test node test",
     "test:watch": "NODE_ENV=test nodemon -e js,ts --ignore fixtures/ test",
-    "format": "prettier-standard --format",
     "cloc": "npx cloc lib/*.ts",
     "typecheck": "npx tsc --noEmit"
   },

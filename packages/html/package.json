@@ -1,7 +1,7 @@
 {
-  "name": "@presta/load",
-  "version": "0.2.0",
-  "description": "Data loading utilities for Presta",
+  "name": "@presta/html",
+  "version": "0.1.0",
+  "description": "HTML utilities for Presta",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/sure-thing/presta/issues"
   },
-  "homepage": "https://github.com/sure-thing/presta#readme"
+  "homepage": "https://github.com/sure-thing/presta#readme",
+  "dependencies": {
+    "deepmerge": "^4.2.2"
+  }
 }

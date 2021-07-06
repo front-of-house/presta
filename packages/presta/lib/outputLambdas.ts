@@ -25,7 +25,7 @@ export function outputLambda(input: string, config: Presta): [string, string] {
     message: `generating ${name} lambda`,
   })
 
-  fs.outputFileSync(output, `import { wrapHandler } from 'presta/utils';
+  fs.outputFileSync(output, `import { wrapHandler } from 'presta';
 import * as file from '${input}';
 export const route = file.route
 export const handler = wrapHandler(file)`)
