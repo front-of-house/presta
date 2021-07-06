@@ -1,14 +1,6 @@
-/fixtures
-/test/fixtures
-/docs/.presta
-/docs/build
-sandbox.js
+fixtures
+test/fixtures
 node_modules
-dist
 
-/cli.js
-/extract.js
-/html.js
-/load.js
-/source-filesystem.js
-/utils.js
+pnpm-lock.yaml
+.pnpm*

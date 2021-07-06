@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-pnpm -r typecheck && pnpm -r test
+pnpx commitlint --edit "$1"
