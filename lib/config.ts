@@ -7,7 +7,6 @@ import { createEmitter } from './createEmitter'
 
 import { Presta, Config, CLI } from '../'
 
-const cwd = process.cwd()
 const defaultConfigFilepath = 'presta.config.js'
 
 export enum Env {
@@ -20,11 +19,13 @@ global.__presta__ =
   global.__presta__ ||
   ({
     pid: process.pid,
-    cwd,
+    cwd: process.cwd(),
     env: Env.TEST,
   } as Presta)
 
 function resolveAbsolutePaths (config: Config) {
+  const cwd = process.cwd()
+
   if (config.files)
     config.files = []
       .concat(config.files)
@@ -43,7 +44,7 @@ export function _clearCurrentConfig () {
   // @ts-ignore
   global.__presta__ = {
     pid: process.pid,
-    cwd,
+    cwd: process.cwd(),
     env: Env.TEST,
   }
 }
@@ -115,6 +116,7 @@ export function createConfig ({
     ...global.__presta__,
     ...merged, // overwrites every time
     env,
+    cwd: process.cwd(),
     configFilepath: path.resolve(cli.config || defaultConfigFilepath),
     functionsOutputDir: path.join(merged.output, 'functions'),
     staticOutputDir: path.join(merged.output, 'static'),

@@ -90,7 +90,7 @@ prog
     fs.emptyDirSync(config.output)
 
     if (!opts.n) {
-      const server = await serve(config, { noBanner: true })
+      const server = await serve(config)
 
       log(
         `${c.blue('~ presta watch')}${
@@ -118,7 +118,7 @@ prog
       config: getConfigFile(opts.config),
       cli: opts
     })
-    const server = await serve(config, { noBanner: true })
+    const server = await serve(config)
 
     log(
       `${c.blue('~ presta serve')}${

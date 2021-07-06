@@ -35,6 +35,7 @@ require('./normalizeResponse.test').default(test, assert)
 require('./load.test').default(test, assert)
 require('./loadCache.test').default(test, assert)
 require('./extract.test').default(test, assert)
+require('./serve.test').default(test, assert)
 
 !(async function () {
   createConfig({ env: Env.TEST })

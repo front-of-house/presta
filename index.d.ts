@@ -1,4 +1,5 @@
 import type {
+  Handler as LambdaHandler,
   HandlerEvent as LambdaHandlerEvent,
   HandlerContext as LambdaHandlerContext,
   HandlerResponse as LambdaHandlerResponse,
@@ -11,6 +12,7 @@ export type AWS = {
   HandlerEvent: LambdaHandlerEvent
   HandlerContext: LambdaHandlerContext
   HandlerResponse: LambdaHandlerResponse
+  Handler: (event: LambdaHandlerEvent, context: Partial<LambdaHandlerContext>) => Promise<LambdaHandlerResponse>
 }
 
 export type Config = {

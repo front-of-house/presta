@@ -1,24 +1,21 @@
 import fs from 'fs'
-import { parse as parseUrl } from 'url'
 import path from 'path'
 import http from 'http'
 import getPort from 'get-port'
 import c from 'ansi-colors'
 import sirv from 'sirv'
 import chokidar from 'chokidar'
-import { parse as parseQuery } from 'query-string'
 import mime from 'mime-types'
-import rawBody from 'raw-body'
 import toRegExp from 'regexparam'
-import type { HandlerResponse } from '@netlify/functions'
 
 import { debug } from './debug'
 import { timer } from './timer'
 import { log, formatLog } from './log'
 import { default404 } from './default404'
-import { normalizeResponse } from './normalizeResponse'
+import { requestToEvent } from './requestToEvent'
+import { sendServerlessResponse } from './sendServerlessResponse'
 
-import type { Presta, Lambda } from '..'
+import type { AWS, Presta } from '..'
 
 const style = [
   'position: fixed',
@@ -39,12 +36,6 @@ const style = [
 const devServerIcon = `
   <div style="${style.join(';')}">~</div>
 `
-
-// @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
-const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
-function shouldBase64Encode (contentType: string) {
-  return Boolean(contentType) && BASE_64_MIME_REGEXP.test(contentType)
-}
 
 function resolveHTML (dir: string, url: string) {
   let file = path.join(dir, url)
@@ -90,244 +81,174 @@ function createDevClient ({ port }: { port: number }) {
   `
 }
 
-export async function serve (config: Presta, { noBanner }: { noBanner: boolean }) {
-  const port = await getPort({ port: 4000 })
+export function createServerHandler ({ port, config }: { port: number, config: Presta }) {
   const devClient = createDevClient({ port })
   const staticDir = config.staticOutputDir
   const assetDir = config.assets
 
-  const server = http
-    .createServer(async (req, res) => {
-      function send (r: Partial<HandlerResponse>) {
-        const response = normalizeResponse(r)
-
-        // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L73
-        for (const key in r.multiValueHeaders) {
-          res.setHeader(key, String(r.multiValueHeaders[key]))
-        }
-
-        for (const key in r.headers) {
-          res.setHeader(key, String(r.headers[key]))
-        }
-
-        res.statusCode = response.statusCode
-        res.write(response.body)
-        res.end()
-      }
-
-      function send404 () {
-        debug('serve', `failure, serve default 404 page ${req.url}`)
-
-        /*
-         * If no static 404, show default 404
-         */
-        formatLog({
-          color: 'magenta',
-          action: 'serve',
-          meta: '⚠︎ ',
-          description: req.url
-        })
-
-        send({
-          statusCode: 404,
-          body: default404 + devClient + devServerIcon
-        })
-      }
+  return async function serveHandler(req: http.IncomingMessage, res: http.ServerResponse) {
+    /*
+     * If this is an asset other than HTML files, just serve it
+     */
+    if (/^.+\..+$/.test(req.url) && !/\.html?$/.test(req.url)) {
+      debug('serve', `serve asset ${req.url}`)
 
       /*
-       * If this is an asset other than HTML files, just serve it
+       * first check the vcs-tracked static folder,
+       * then check the presta-built static folder
+       *
+       * @see https://github.com/sure-thing/presta/issues/30
        */
-      if (/^.+\..+$/.test(req.url) && !/\.html?$/.test(req.url)) {
-        debug('serve', `serve asset ${req.url}`)
-
-        /*
-         * first check the vcs-tracked static folder,
-         * then check the presta-built static folder
-         *
-         * @see https://github.com/sure-thing/presta/issues/30
-         */
-        sirv(assetDir, { dev: true })(req, res, () => {
-          sirv(staticDir, { dev: true })(req, res, () => {
-            send404()
-          })
-        })
-      } else {
-        /*
-         * Try to resolve a static route normally
-         */
-        try {
-          const file =
-            resolveHTML(staticDir, req.url) + devClient + devServerIcon
-
-          debug('serve', `serve static page ${req.url}`)
-
-          send({ body: file })
-
+      sirv(assetDir, { dev: true })(req, res, () => {
+        sirv(staticDir, { dev: true })(req, res, () => {
           formatLog({
+            color: 'magenta',
             action: 'serve',
-            meta: '•',
+            meta: '⚠︎ ',
             description: req.url
           })
-        } catch (e) {
-          debug('serve', e)
 
-          // expect ENOENT, log everything else
-          // EISDIR is probably due to lack of `/.presta/static` dir
-          if (!e.message.includes('ENOENT') && !e.message.includes('EISDIR'))
-            console.error(e)
+          sendServerlessResponse(res, {
+            statusCode: 404,
+            body: default404 + devClient + devServerIcon
+          })
+        })
+      })
+    } else {
+      /*
+       * Try to resolve a static route normally
+       */
+      try {
+        const file =
+          resolveHTML(staticDir, req.url) + devClient + devServerIcon
 
-          try {
-            /*
-             * No asset file, no static file, try dynamic
-             */
-            const manifest = require(config.routesManifest)
-            const routes = Object.keys(manifest)
-            const lambdaFilepath = routes
-              .map(route => ({
-                matcher: toRegExp(route),
-                route,
-              }))
-              .filter(({ matcher }) => {
-                return matcher.pattern.test(req.url.split('?')[0])
-              })
-              .map(({ route }) => manifest[route])[0]
+        sendServerlessResponse(res, { body: file })
 
-            /**
-             * If we have a serverless function, delegate to it, otherwise 404
-             */
-            if (lambdaFilepath) {
-              debug('serve', `fallback, serve dynamic page ${req.url}`)
+        formatLog({
+          action: 'serve',
+          meta: '•',
+          description: req.url
+        })
+      } catch (e) {
+        debug('serve error', e)
 
-              const {
-                handler,
-              }: {
-                handler: Lambda['handler'],
-              } = require(lambdaFilepath)
+        // expect ENOENT, log everything else
+        if (!/ENOENT|EISDIR/.test(e.message)) {
+          console.error(e)
+        }
 
-              const time = timer()
-              // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L208
-              const remoteAddress =
-                String(req.headers['x-forwarded-for']) || req.connection.remoteAddress
-              const ip = remoteAddress
-                .split(remoteAddress.includes('.') ? ':' : ',')
-                .pop()
-                .trim()
-              const isBase64Encoded = shouldBase64Encode(
-                req.headers['content-type']
-              )
-              const body = req.headers['content-length']
-                ? await rawBody(req, {
-                    limit: '1mb',
-                    encoding:
-                      mime.charset(req.headers['content-type']) || undefined
-                  })
-                : undefined
-              const response = await handler(
-                {
-                  path: req.url,
-                  httpMethod: req.method,
-                  // @ts-ignore TODO test set-cookie coming in as array
-                  headers: {
-                    ...req.headers,
-                    'client-ip': ip
-                  },
-                  // TODO should these headers be exclusively single value vs multi?
-                  multiValueHeaders: Object.keys(req.headers).reduce(
-                    (headers, key) => {
-                      if (!req.headers[key].includes(',')) return headers // only include multi-value headers here
-                      return {
-                        ...headers,
-                        // @ts-ignore TODO again, array headers
-                        [key]: req.headers[key].split(',')
-                      }
-                    },
-                    {}
-                  ),
-                  // @ts-ignore TODO do I need to keep these separate?
-                  queryStringParameters: parseQuery(parseUrl(req.url).query),
-                  body: body
-                    ? new Buffer(body).toString(isBase64Encoded ? 'base64' : 'utf8')
-                    : undefined,
-                  isBase64Encoded
-                },
-                {}
-              )
+        try {
+          /*
+           * No asset file, no static file, try dynamic
+           */
+          const manifest = require(config.routesManifest)
+          const routes = Object.keys(manifest)
+          const lambdaFilepath = routes
+            .map(route => ({
+              matcher: toRegExp(route),
+              route,
+            }))
+            .filter(({ matcher }) => {
+              return matcher.pattern.test(req.url.split('?')[0])
+            })
+            .map(({ route }) => manifest[route])[0]
 
-              const ok = response.statusCode < 300
-              const redir =
-                response.statusCode > 299 && response.statusCode < 399
+          /**
+           * If we have a serverless function, delegate to it, otherwise 404
+           */
+          if (lambdaFilepath) {
+            debug('serve', `fallback, serve dynamic page ${req.url}`)
 
-              // get mime type
-              const type = response.headers['Content-Type']
-              const ext = type ? mime.extension(type) : 'html'
+            const { handler }: { handler: AWS['Handler'] } = require(lambdaFilepath)
+            const time = timer()
+            const event = await requestToEvent(req)
+            const response = await handler(event, {})
+            const ok = response.statusCode < 300
+            const redir =
+              response.statusCode > 299 && response.statusCode < 399
 
-              formatLog({
-                color: ok ? 'blue' : 'magenta',
-                action: redir ? 'redir' : 'serve',
-                meta: '⚡︎' + time(),
-                description: String(redir ? response.headers.Location : req.url)
-              })
+            // get mime type
+            const type = response.headers['Content-Type']
+            const ext = type ? mime.extension(type) : 'html'
 
-              send({
-                statusCode: response.statusCode,
-                headers: response.headers,
-                multiValueHeaders: response.multiValueHeaders,
-                // only html can be live-reloaded, duh
-                body:
-                  ext === 'html'
-                    ? response.body.split('</body>')[0] +
-                      devClient +
-                      devServerIcon
-                    : response.body
-              })
-            } else {
-              debug('serve', `fallback, serve static 404 page ${req.url}`)
-
-              /*
-               * Try to fall back to a static 404 page
-               */
-              try {
-                const file =
-                  resolveHTML(staticDir, '404') + devClient + devServerIcon
-
-                formatLog({
-                  color: 'magenta',
-                  action: 'serve',
-                  meta: '•',
-                  description: req.url
-                })
-
-                send({
-                  statusCode: 404,
-                  body: file
-                })
-              } catch (e) {
-                if (!e.message.includes('ENOENT')) {
-                  console.error(e)
-                }
-
-                debug('serve', `failure, serve default 404 page ${req.url}`)
-
-                send404()
-              }
-            }
-          } catch (e) {
-            send({
-              statusCode: 500,
-              body: '' + devClient + devServerIcon
+            formatLog({
+              color: ok ? 'blue' : 'magenta',
+              action: redir ? 'redir' : 'serve',
+              meta: '⚡︎' + time(),
+              description: String(redir ? response.headers.Location : req.url)
             })
 
-            log(`\n  ${c.red('error')} ${req.url}\n\n  > ${e.stack || e}\n`)
+            sendServerlessResponse(res, {
+              statusCode: response.statusCode,
+              headers: response.headers,
+              multiValueHeaders: response.multiValueHeaders,
+              // only html can be live-reloaded, duh
+              body:
+                ext === 'html'
+                  ? response.body.split('</body>')[0] +
+                    devClient +
+                    devServerIcon
+                  : response.body
+            })
+          } else {
+            debug('serve', `fallback, serve static 404 page ${req.url}`)
+
+            /*
+             * Try to fall back to a static 404 page
+             */
+            try {
+              const file =
+                resolveHTML(staticDir, '404') + devClient + devServerIcon
+
+              formatLog({
+                color: 'magenta',
+                action: 'serve',
+                meta: '•',
+                description: req.url
+              })
+
+              sendServerlessResponse(res, {
+                statusCode: 404,
+                body: file
+              })
+            } catch (e) {
+              if (!e.message.includes('ENOENT')) {
+                console.error(e)
+              }
+
+              debug('serve', `failure, serve default 404 page ${req.url}`)
+
+              formatLog({
+                color: 'magenta',
+                action: 'serve',
+                meta: '⚠︎ ',
+                description: req.url
+              })
+
+              sendServerlessResponse(res, {
+                statusCode: 404,
+                body: default404 + devClient + devServerIcon
+              })
+            }
           }
+        } catch (e) {
+          sendServerlessResponse(res, {
+            statusCode: 500,
+            body: '' + devClient + devServerIcon // TODO default 500 screen
+          })
+
+          log(`\n  ${c.red('error')} ${req.url}\n\n  > ${e.stack || e}\n`)
         }
       }
-    })
-    .listen(port, () => {
-      if (!noBanner) {
-        log(`${c.blue(`presta serve`)} – http://localhost:${port}\n`)
-      }
-    })
+    }
+  }
+}
 
+export async function serve (config: Presta) {
+  const port = await getPort({ port: 4000 })
+  const server = http
+    .createServer(createServerHandler({ port, config }))
+    .listen(port)
   const socket = require('pocket.io')(server, { serveClient: false })
 
   config.events.on('refresh', () => {
