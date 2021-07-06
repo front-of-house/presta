@@ -17,7 +17,7 @@ export default async function (test, assert) {
 
     const config = createConfig({
       env,
-      cliArgs: {
+      cli: {
         files: 'app/*.js',
         output: 'dist'
       }
@@ -25,18 +25,14 @@ export default async function (test, assert) {
 
     assert.equal(config.env, env)
     assert(!!config.configFilepath)
-    assert(!!config.dynamicEntryFilepath)
 
-    assert.deepEqual(config.configFile, {})
+    assert(path.isAbsolute(config.files[0]))
 
-    assert(path.isAbsolute(config.cliArgs.files[0]))
+    assert(path.isAbsolute(config.files[0]))
+    assert(path.isAbsolute(config.output))
+    assert(path.isAbsolute(config.assets))
 
-    assert(path.isAbsolute(config.merged.files[0]))
-    assert(path.isAbsolute(config.merged.output))
-    assert(path.isAbsolute(config.merged.assets))
-
-    assert(config.merged.output.includes('dist'))
-    assert(config.dynamicEntryFilepath.includes('dist'))
+    assert(config.output.includes('dist'))
   })
 
   test('config - no files', async () => {
@@ -44,10 +40,10 @@ export default async function (test, assert) {
 
     const config = createConfig({
       env,
-      cliArgs: {}
+      cli: {}
     })
 
-    assert.deepEqual(config.merged.files, [])
+    assert.deepEqual(config.files, [])
   })
 
   test('config - output', async () => {
@@ -55,14 +51,14 @@ export default async function (test, assert) {
 
     const config = createConfig({
       env,
-      cliArgs: {
+      cli: {
         files: 'app/*.js',
         output: 'dist'
       }
     })
 
-    assert(path.isAbsolute(config.merged.output))
-    assert(config.merged.output.includes('dist'))
+    assert(path.isAbsolute(config.output))
+    assert(config.output.includes('dist'))
   })
 
   test('config - assets', async () => {
@@ -70,14 +66,14 @@ export default async function (test, assert) {
 
     const config = createConfig({
       env,
-      cliArgs: {
+      cli: {
         files: 'app/*.js',
         assets: 'assets'
       }
     })
 
-    assert(path.isAbsolute(config.merged.assets))
-    assert(config.merged.assets.includes('assets'))
+    assert(path.isAbsolute(config.assets))
+    assert(config.assets.includes('assets'))
   })
 
   test('config - staticOutputDir', async () => {
@@ -85,7 +81,7 @@ export default async function (test, assert) {
 
     const config = createConfig({
       env,
-      cliArgs: {
+      cli: {
         files: 'app/*.js',
         assets: 'assets'
       }
@@ -108,12 +104,12 @@ export default async function (test, assert) {
     const configFile = getConfigFile(fsx.files.config)
     const config = createConfig({
       env,
-      configFile,
-      cliArgs: {}
+      config: configFile,
+      cli: {}
     })
 
-    assert(config.merged.files[0].includes(file))
-    assert(config.merged.output.includes(output))
+    assert(config.files[0].includes(file))
+    assert(config.output.includes(output))
 
     fsx.cleanup()
   })
@@ -130,15 +126,15 @@ export default async function (test, assert) {
     const configFile = getConfigFile(fsx.files.config)
     const config = createConfig({
       env,
-      configFile,
-      cliArgs: {
+      config: configFile,
+      cli: {
         files: 'foo.js',
         output: 'out'
       }
     })
 
-    assert(config.merged.files[0].includes('foo.js'))
-    assert(config.merged.output.includes('out'))
+    assert(config.files[0].includes('foo.js'))
+    assert(config.output.includes('out'))
 
     fsx.cleanup()
   })
@@ -147,49 +143,48 @@ export default async function (test, assert) {
     _clearCurrentConfig()
 
     const config = createConfig({
-      configFile: {
+      config: {
         output: 'out'
       }
     })
 
-    assert(config.merged.output.includes('out'))
-    assert(config.dynamicEntryFilepath.includes('out'))
+    assert(config.output.includes('out'))
   })
 
   test('config - merging updates', async () => {
     _clearCurrentConfig()
 
     const config = createConfig({
-      configFile: {
+      config: {
         output: 'output'
       }
     })
 
-    assert(config.merged.output.includes('output'))
+    assert(config.output.includes('output'))
 
     const merged = createConfig({
-      configFile: {
+      config: {
         output: 'output',
         assets: 'assets'
       }
     })
 
-    assert(merged.merged.assets.includes('assets'))
+    assert(merged.assets.includes('assets'))
   })
 
   test('config - removeConfigValues', async () => {
     _clearCurrentConfig()
 
     const config = createConfig({
-      configFile: {
+      config: {
         output: 'output'
       }
     })
 
-    assert(config.merged.output.includes('output'))
+    assert(config.output.includes('output'))
 
     const unmerged = removeConfigValues()
 
-    assert(unmerged.merged.output.includes('build'))
+    assert(unmerged.output.includes('build'))
   })
 }

@@ -1,27 +1,30 @@
 import fs from 'fs-extra'
-import path from 'path'
-import c from 'ansi-colors'
 import { build as esbuild } from 'esbuild'
 
-import { debug } from './debug'
-import { createDynamicEntry } from './createDynamicEntry'
-import { log, formatLog } from './log'
+import { outputLambdas } from './outputLambdas'
 import { getFiles, isStatic, isDynamic } from './getFiles'
 import { renderStaticEntries } from './renderStaticEntries'
 import { timer } from './timer'
+import * as logger from './log'
 
-import type { Presta } from '../'
+import { Presta } from '../'
 
 export async function build (config: Presta) {
-  debug('watch initialized with config', config)
-
   const totalTime = timer()
   const files = getFiles(config)
   const staticIds = files.filter(isStatic)
   const dynamicIds = files.filter(isDynamic)
 
+  logger.debug({
+    label: 'build',
+    message: 'starting build'
+  })
+
   if (!staticIds.length && !dynamicIds.length) {
-    log(`  ${c.gray('nothing to build')}\n`)
+    logger.warn({
+      label: 'files',
+      message: 'no files were found, nothing to build'
+    })
   } else {
     let staticTime = ''
     let staticFileAmount = 0
@@ -46,11 +49,11 @@ export async function build (config: Presta) {
         if (dynamicIds.length) {
           const time = timer()
 
-          createDynamicEntry(dynamicIds, config)
+          outputLambdas(dynamicIds, config)
 
           await esbuild({
-            entryPoints: [config.dynamicEntryFilepath],
-            outfile: path.join(config.merged.output, 'functions', 'presta.js'),
+            entryPoints: Object.values(require(config.routesManifest)),
+            outdir: config.functionsOutputDir,
             bundle: true,
             platform: 'node',
             target: ['node12'],
@@ -59,23 +62,13 @@ export async function build (config: Presta) {
           })
 
           dynamicTime = time()
-
-          formatLog({
-            color: 'green',
-            action: 'build',
-            meta: '⚡︎' + dynamicTime,
-            description: ''
-          })
         }
       })(),
       (async () => {
-        if (fs.existsSync(config.merged.assets)) {
+        if (fs.existsSync(config.assets)) {
           const time = timer()
 
-          fs.copySync(
-            config.merged.assets,
-            config.staticOutputDir
-          )
+          fs.copySync(config.assets, config.staticOutputDir)
 
           copyTime = time()
         }
@@ -84,47 +77,57 @@ export async function build (config: Presta) {
 
     // since we're building (not watch) if any task fails, exit with error
     if (tasks.find(task => task.status === 'rejected')) {
+      logger.debug({
+        label: 'build',
+        message: 'build partially failed'
+      })
+
       // log out errors
       tasks
         .filter(task => task.status === 'rejected')
         .forEach((task: PromiseRejectedResult) =>
-          log(
-            `\n  ${c.red('error')}\n\n  > ${task.reason.stack || task.reason}\n`
-          )
+          logger.error({
+            label: 'error',
+            error: task.reason
+          })
         )
 
       process.exit(1)
       return
     }
 
-    log('')
+    logger.newline()
 
     if (staticTime) {
-      log(
-        `  ${c.blue(`static`)} ${c.gray(
-          `built ${staticFileAmount} files in ${staticTime}`
-        )}`
-      )
+      logger.info({
+        label: 'static',
+        message: `rendered ${staticFileAmount} file(s)`,
+        duration: staticTime
+      })
     }
 
     if (dynamicTime) {
-      log(
-        `  ${c.blue(`dynamic`)} ${c.gray(
-          `compiled function in ${dynamicTime}`
-        )}`
-      )
+      logger.info({
+        label: 'lambda',
+        message: `compiled ${dynamicIds.length} function(s)`,
+        duration: dynamicTime
+      })
     }
 
     if (copyTime) {
-      log(`  ${c.blue(`copied`)} ${c.gray(`static assets in ${copyTime}`)}`)
+      logger.info({
+        label: 'assets',
+        message: `copied in ${copyTime}`
+      })
     }
 
     if (staticTime || dynamicTime) {
-      log('') // leave a 1-line buffer
-
-      log(`  ${c.blue(`build complete`)} ${c.gray(`in ${totalTime()}`)}`)
-
-      log('') // leave a 1-line buffer
+      logger.newline()
+      logger.info({
+        label: 'complete',
+        message: `in ${totalTime()}`
+      })
+      logger.newline()
     }
   }
 }

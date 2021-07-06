@@ -3,15 +3,7 @@ import path from 'path'
 import assert from 'assert'
 
 import { getCurrentConfig } from './config'
-
-export function hash (content: string) {
-  var h = 5381,
-    i = content.length
-
-  while (i) h = (h * 33) ^ content.charCodeAt(--i)
-
-  return (h >>> 0).toString(36)
-}
+import { hashContent } from './hashContent'
 
 export function extract (raw: string, ext: string, key: string) {
   assert(!!raw, 'Nothing to extract')
@@ -21,7 +13,7 @@ export function extract (raw: string, ext: string, key: string) {
   const { env, staticOutputDir } = getCurrentConfig()
   const PROD = env === 'production'
 
-  const filename = PROD ? key + '-' + hash(raw) : key
+  const filename = PROD ? key + '-' + hashContent(raw) : key
   const publicPath = '/' + filename + '.' + ext
 
   fs.outputFileSync(path.join(staticOutputDir, publicPath), raw)

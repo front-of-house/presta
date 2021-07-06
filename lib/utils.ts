@@ -1,2 +1,1 @@
-export { createRouter } from './createRouter'
-export { createHandler } from './createHandler'
+export { wrapHandler } from './wrapHandler'

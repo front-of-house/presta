@@ -1,4 +1,4 @@
-import type { PrestaContext } from 'presta'
+import { PrestaContext } from 'presta'
 
 const name = 'Presta'
 const image = `/og.png`

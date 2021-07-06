@@ -3,14 +3,15 @@ import path from 'path'
 
 import * as fixtures from './fixtures'
 
-import { hash, extract } from '../lib/extract'
+import { extract } from '../lib/extract'
 import { createConfig, getCurrentConfig, Env } from '../lib/config'
+import { hashContent } from '../lib/hashContent'
 
 export default (test, assert) => {
   test('extract', async () => {
     createConfig({
       env: Env.TEST,
-      configFile: { output: path.join(fixtures.getRoot(), 'extract') }
+      config: { output: path.join(fixtures.getRoot(), 'extract') }
     })
 
     const config = getCurrentConfig()
@@ -26,7 +27,7 @@ export default (test, assert) => {
     assert(content === 'content')
   })
 
-  test('extract - hash', async () => {
-    assert(hash('test') === hash('test'))
+  test('extract - hashContent', async () => {
+    assert(hashContent('test') === hashContent('test'))
   })
 }

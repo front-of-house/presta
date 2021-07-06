@@ -1,13 +1,10 @@
 import path from 'path'
-import c from 'ansi-colors'
 
-import { debug } from './debug'
-import { log } from './log'
+import * as logger from './log'
 import { createEmitter } from './createEmitter'
 
-import { PrestaConfig, Presta } from '../'
+import { Presta, Config, CLI } from '../'
 
-const cwd = process.cwd()
 const defaultConfigFilepath = 'presta.config.js'
 
 export enum Env {
@@ -20,22 +17,19 @@ global.__presta__ =
   global.__presta__ ||
   ({
     pid: process.pid,
-    cwd,
+    cwd: process.cwd(),
     env: Env.TEST,
-    cliArgs: {},
-    configFile: {}
+    debug: false
   } as Presta)
 
-function resolveAbsolutePaths (configFile: PrestaConfig) {
-  if (configFile.files)
-    configFile.files = []
-      .concat(configFile.files)
-      .map(p => path.resolve(cwd, p))
-  if (configFile.output)
-    configFile.output = path.resolve(cwd, configFile.output)
-  if (configFile.assets)
-    configFile.assets = path.resolve(cwd, configFile.assets)
-  return configFile
+function resolveAbsolutePaths (config: Config) {
+  const cwd = process.cwd()
+
+  if (config.files)
+    config.files = [].concat(config.files).map(p => path.resolve(cwd, p))
+  if (config.output) config.output = path.resolve(cwd, config.output)
+  if (config.assets) config.assets = path.resolve(cwd, config.assets)
+  return config
 }
 
 /**
@@ -45,10 +39,8 @@ export function _clearCurrentConfig () {
   // @ts-ignore
   global.__presta__ = {
     pid: process.pid,
-    cwd,
-    env: Env.TEST,
-    cliArgs: {},
-    configFile: {}
+    cwd: process.cwd(),
+    env: Env.TEST
   }
 }
 
@@ -63,7 +55,10 @@ export function getConfigFile (filepath: string, shouldExit: boolean = false) {
   } catch (e) {
     // if user specified a file, must be a syntax error
     if (!!filepath) {
-      log(`${c.red('~ error')} ${filepath}\n\n  > ${e.stack || e}\n`)
+      logger.error({
+        label: 'error',
+        error: e
+      })
 
       // we're not in watch mode, exit
       if (shouldExit) process.exit(1)
@@ -78,25 +73,17 @@ export function getConfigFile (filepath: string, shouldExit: boolean = false) {
  * This is used when the user deletes their config file.
  */
 export function removeConfigValues () {
+  logger.debug({
+    label: 'debug',
+    message: `config file values cleared`,
+  })
+
   global.__presta__ = createConfig({
     ...global.__presta__,
-    configFile: {}
+    config: {}
   })
 
   return global.__presta__
-}
-
-/**
- * Extract serialize-able props to merge with user config within generated
- * files
- */
-export function serialize (config: Presta) {
-  return JSON.stringify({
-    cwd: config.cwd,
-    files: config.merged.files,
-    output: config.merged.output,
-    assets: config.merged.assets
-  })
 }
 
 export function getCurrentConfig () {
@@ -105,38 +92,46 @@ export function getCurrentConfig () {
 
 export function createConfig ({
   env = global.__presta__.env,
-  configFile = global.__presta__.configFile,
-  cliArgs = global.__presta__.cliArgs
+  config = {},
+  cli = {}
+}: {
+  env?: Env
+  config?: Partial<Config>
+  cli?: Partial<CLI>
 }) {
-  configFile = resolveAbsolutePaths({ ...configFile }) // clone read-only obj
-  cliArgs = resolveAbsolutePaths({ ...cliArgs })
+  config = resolveAbsolutePaths({ ...config }) // clone read-only obj
+  cli = resolveAbsolutePaths({ ...cli })
 
   // combined config, preference to CLI args
   const merged = {
-    output: cliArgs.output || configFile.output || path.resolve('build'),
-    assets: cliArgs.assets || configFile.assets || path.resolve('public'),
+    output: cli.output || config.output || path.resolve('build'),
+    assets: cli.assets || config.assets || path.resolve('public'),
     files:
-      cliArgs.files && cliArgs.files.length
-        ? cliArgs.files
-        : configFile.files
-        ? [].concat(configFile.files)
+      cli.files && cli.files.length
+        ? cli.files
+        : config.files
+        ? [].concat(config.files)
         : []
   }
 
   // set instance
   global.__presta__ = {
     ...global.__presta__,
+    ...merged, // overwrites every time
     env,
-    configFile,
-    cliArgs,
-    merged,
-    configFilepath: path.resolve(cliArgs.config || defaultConfigFilepath),
-    dynamicEntryFilepath: path.join(merged.output, 'functions/presta.js'),
+    debug: cli.debug || global.__presta__.debug,
+    cwd: process.cwd(),
+    configFilepath: path.resolve(cli.config || defaultConfigFilepath),
+    functionsOutputDir: path.join(merged.output, 'functions'),
     staticOutputDir: path.join(merged.output, 'static'),
-    emitter: createEmitter()
+    routesManifest: path.join(merged.output, 'routes.json'),
+    events: createEmitter()
   }
 
-  debug('config created', global.__presta__)
+  logger.debug({
+    label: 'debug',
+    message: `config created ${JSON.stringify(global.__presta__)}`,
+  })
 
   return global.__presta__
 }

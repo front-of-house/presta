@@ -19,7 +19,7 @@ export default async (test, assert) => {
     })
     const config = createConfig({
       env: Env.TEST,
-      cliArgs: {
+      cli: {
         files: fsx.files.a,
         output: path.join(fixtures.getRoot(), 'build/static-files')
       }
@@ -47,7 +47,7 @@ export default async (test, assert) => {
     })
     const config = createConfig({
       env: Env.TEST,
-      cliArgs: {
+      cli: {
         files: fsx.files.dynamic,
         output: path.join(fixtures.getRoot(), 'build/dynamic-files')
       }

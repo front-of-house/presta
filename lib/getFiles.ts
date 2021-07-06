@@ -18,7 +18,7 @@ export function isPrestaFile (file: string) {
 
 export function getFiles (config: Presta): string[] {
   return []
-    .concat(config.merged.files)
+    .concat(config.files)
     .map(file => path.resolve(config.cwd, file)) // make absolute
     .map(glob => matched.sync(glob, { cwd: config.cwd }))
     .flat()

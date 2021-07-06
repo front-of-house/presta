@@ -1,12 +1,10 @@
 import fs from 'fs-extra'
-import c from 'ansi-colors'
 import graph from 'watch-dependency-graph'
 import chokidar from 'chokidar'
 import match from 'picomatch'
 
-import { debug } from './debug'
-import { createDynamicEntry } from './createDynamicEntry'
-import { log, formatLog } from './log'
+import { outputLambdas } from './outputLambdas'
+import * as logger from './log'
 import { getFiles, isStatic, isDynamic } from './getFiles'
 import { renderStaticEntries } from './renderStaticEntries'
 import { timer } from './timer'
@@ -17,54 +15,25 @@ import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 import type { Presta } from '..'
 
 /*
- * Handles the actual writing of the dyanmic entry by updating the file and
- * then clearing require cache
+ * Wraps outputLambdas for logging
  */
-function updateDynamicEntry (ids: string[], config: Presta) {
+function updateLambdas (inputs: string[], config: Presta) {
   const time = timer()
 
-  createDynamicEntry(ids, config)
-  delete require.cache[config.dynamicEntryFilepath]
+  // always write this, even if inputs = []
+  outputLambdas(inputs, config)
 
   // if user actually has routes configured, give feedback
-  if (ids.length) {
-    formatLog({
-      color: 'green',
-      action: 'build',
-      meta: '⚡︎' + time(),
-      description: ''
+  if (inputs.length) {
+    logger.info({
+      label: 'built',
+      message: `lambdas`,
+      duration: time()
     })
   }
 }
 
-/**
- * Util for other helpers, like source
- */
-export async function buildFiles (ids: string[], config: Presta) {
-  if (!ids.length) return
-
-  const staticIds = ids.filter(isStatic)
-  // const dynamicIds = ids.filter(isDynamic)
-
-  if (staticIds.length) {
-    await renderStaticEntries(staticIds, config)
-  }
-
-  /**
-   * TODO can't do this, will overwrite any dynamic routes that exist
-   *
-   * This could be alleviated IF we decided to output separate functions
-   * for each route. But at the moment this breaks.
-   */
-  // if (dynamicIds.length) updateDynamicEntry(dynamicIds, config)
-
-  config.emitter.emit('refresh')
-  config.emitter.emit('done', ids)
-}
-
 export async function watch (config: Presta) {
-  debug('watch initialized with config', config)
-
   /*
    * Get files that match static/dynamic patters at startup
    */
@@ -72,14 +41,17 @@ export async function watch (config: Presta) {
   let hasConfigFile = fs.existsSync(config.configFilepath)
 
   if (!files.length) {
-    log(`  ${c.gray('no files configured')}\n`)
+    logger.warn({
+      label: 'paths',
+      message: 'no files configured'
+    })
   }
 
   /*
    * Create initial dynamic entry regardless of if the user has routes, bc we
    * need this file to serve 404 locally
    */
-  updateDynamicEntry(files.filter(isDynamic), config)
+  updateLambdas(files.filter(isDynamic), config)
 
   /*
    * Set up all watchers
@@ -87,7 +59,7 @@ export async function watch (config: Presta) {
   const fileWatcher = graph({ alias: { '@': config.cwd } })
   const globalWatcher = chokidar.watch(config.cwd, {
     ignoreInitial: true,
-    ignored: [config.merged.output, config.merged.assets]
+    ignored: [config.output, config.assets]
   })
 
   /*
@@ -97,7 +69,8 @@ export async function watch (config: Presta) {
    */
   async function handleConfigUpdate () {
     files = getFiles(config)
-    buildFiles(files, config)
+    await renderStaticEntries(files.filter(isStatic), config)
+    updateLambdas(files.filter(isDynamic), config)
   }
 
   /*
@@ -111,22 +84,24 @@ export async function watch (config: Presta) {
 
     // update dynamic entry with ALL dynamic files
     if (isDynamic(file)) {
-      delete require.cache[config.dynamicEntryFilepath]
-      updateDynamicEntry(files.filter(isDynamic), config)
+      updateLambdas(files.filter(isDynamic), config)
     }
 
-    config.emitter.emit('refresh')
-    config.emitter.emit('done', [file])
+    config.events.emit('refresh')
+    config.events.emit('done', [file])
   }
 
   fileWatcher.on('remove', ([id]) => {
-    debug('fileWatcher - removed', id)
+    logger.debug({
+      label: 'watch',
+      message: `fileWatcher - removed ${id}`
+    })
 
     // remove from local hash
     files.splice(files.indexOf(id), 1)
 
     // update this regardless, not sure if [id] was dynamic or static
-    updateDynamicEntry(files.filter(isDynamic), config)
+    updateLambdas(files.filter(isDynamic), config)
 
     // if it was config, we gotta do a restart
     if (id === config.configFilepath) {
@@ -143,11 +118,14 @@ export async function watch (config: Presta) {
       removeBuiltStaticFile(file, config)
     )
 
-    config.emitter.emit('remove', id)
+    config.events.emit('remove', id)
   })
 
   fileWatcher.on('change', ([id]) => {
-    debug('fileWatcher - changed', id)
+    logger.debug({
+      label: 'watch',
+      message: `fileWatcher - changed ${id}`
+    })
 
     if (id === config.configFilepath) {
       // clear config file for re-require
@@ -156,22 +134,28 @@ export async function watch (config: Presta) {
       try {
         // merge in new values from config file
         config = createConfig({
-          configFile: getConfigFile(config.configFilepath)
+          config: getConfigFile(config.configFilepath)
         })
 
         handleConfigUpdate()
       } catch (e) {
-        log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
+        logger.error({
+          label: 'error',
+          error: e,
+        })
       }
     } else {
       handleFileChange(id)
     }
 
-    config.emitter.emit('change', id)
+    config.events.emit('change', id)
   })
 
   fileWatcher.on('error', e => {
-    log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
+    logger.error({
+      label: 'error',
+      error: e,
+    })
   })
 
   /*
@@ -190,8 +174,11 @@ export async function watch (config: Presta) {
       return
 
     // if a file change matches any pages globs
-    if (match(config.merged.files)(file) && !files.includes(file)) {
-      debug('globalWatcher - add file')
+    if (match(config.files)(file) && !files.includes(file)) {
+      logger.debug({
+        label: 'watch',
+        message: `globalWatcher - add ${file}`
+      })
 
       files.push(file)
 
@@ -202,25 +189,31 @@ export async function watch (config: Presta) {
 
     // if file matches config file and we don't already have one
     if (file === config.configFilepath && !hasConfigFile) {
-      debug('globalWatcher - add config file')
+      logger.debug({
+        label: 'watch',
+        message: `globalWatcher - add config file ${file}`
+      })
 
       fileWatcher.add(config.configFilepath)
 
       try {
         // merge in new values from config file
         config = createConfig({
-          configFile: getConfigFile(config.configFilepath)
+          config: getConfigFile(config.configFilepath)
         })
 
         hasConfigFile = true
 
         handleConfigUpdate()
       } catch (e) {
-        log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
+        logger.error({
+          label: 'error',
+          error: e,
+        })
       }
     }
 
-    config.emitter.emit('add', file)
+    config.events.emit('add', file)
   })
 
   /**
@@ -235,6 +228,9 @@ export async function watch (config: Presta) {
   try {
     files.map(require)
   } catch (e) {
-    log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
+    logger.error({
+      label: 'error',
+      error: e,
+    })
   }
 }

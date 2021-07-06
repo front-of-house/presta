@@ -2,11 +2,10 @@
 
 import fs from 'fs-extra'
 import sade from 'sade'
-import c from 'ansi-colors'
 
 import pkg from '../package.json'
 
-import { log } from './log'
+import * as logger from './log'
 import { createConfig, getConfigFile, Env } from './config'
 import { watch } from './watch'
 import { build } from './build'
@@ -38,6 +37,10 @@ prog
     '--assets, -a',
     `Specify static asset directory — defaults to ./public`
   )
+  .option(
+    '--debug, -d',
+    `Enable debug mode (prints more logs)`
+  )
 
 prog
   .command('build', 'Render files(s) to output directory.', { default: true })
@@ -51,16 +54,17 @@ prog
 
     const config = createConfig({
       env: Env.PRODUCTION,
-      configFile: getConfigFile(opts.config, true),
-      cliArgs: {
+      config: getConfigFile(opts.config, true),
+      cli: {
         ...opts,
         files: opts._
       }
     })
 
-    fs.emptyDirSync(config.merged.output)
+    fs.emptyDirSync(config.output)
 
-    log(`${c.blue('~ presta build')}\n`)
+    logger.raw(`${logger.colors.blue('presta build')}`)
+    logger.newline()
 
     await build(config)
   })
@@ -80,28 +84,48 @@ prog
 
     const config = createConfig({
       env: Env.DEVELOPMENT,
-      configFile: getConfigFile(opts.config),
-      cliArgs: {
+      config: getConfigFile(opts.config),
+      cli: {
         ...opts,
         files: opts._
       }
     })
 
-    fs.emptyDirSync(config.merged.output)
+    fs.emptyDirSync(config.output)
 
     if (!opts.n) {
-      const server = await serve(config, { noBanner: true })
+      const server = await serve(config)
 
-      log(
-        `${c.blue('~ presta watch')}${
-          !opts.n ? ` – http://localhost:${server.port}` : ''
-        }\n`
-      )
+      logger.raw(`${logger.colors.blue('presta dev')} - http://localhost:${server.port}`)
+      logger.newline()
     } else {
-      log(`${c.blue('~ presta watch')}\n`)
+      logger.info({
+        label: 'dev'
+      })
+      logger.newline()
     }
 
     watch(config)
+  })
+
+prog
+  .command('serve')
+  .describe('Serve built files.')
+  .example(`serve`)
+  .example(`serve -o ./out`)
+  .example(`watch -c ${CONFIG_DEFAULT}`)
+  .action(async opts => {
+    console.clear()
+
+    const config = createConfig({
+      env: Env.PRODUCTION,
+      config: getConfigFile(opts.config),
+      cli: opts
+    })
+    const server = await serve(config)
+
+    logger.raw(`${logger.colors.blue('presta serve')} - http://localhost:${server.port}`)
+    logger.newline()
   })
 
 prog.parse(process.argv)

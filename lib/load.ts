@@ -1,8 +1,6 @@
 import path from 'path'
 import fs from 'fs-extra'
-import c from 'ansi-colors'
 
-import { log } from './log'
 import { getCurrentConfig, Env } from './config'
 
 const requests = {}
@@ -75,7 +73,7 @@ export function createLoadCache (name: string, { dir = process.cwd() } = {}) {
 }
 
 export function loadError (key: string, e: Error) {
-  log(`\n  ${c.red('error')} load { ${key} }\n\n${e}\n`)
+  if (getCurrentConfig().env !== Env.TEST) console.error(e)
   errors[key] = e
   delete requests[key]
 }
@@ -133,6 +131,8 @@ export async function flush (run: () => any, data = {}) {
     await Promise.allSettled(Object.values(requests))
     return flush(run, data)
   }
+
+  // TODO clear all cache here
 
   return { content, data: loadCache.dump() }
 }
