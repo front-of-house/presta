@@ -33,31 +33,6 @@ function updateLambdas (inputs: string[], config: Presta) {
   }
 }
 
-/**
- * Util for other helpers, like source
- */
-export async function buildFiles (ids: string[], config: Presta) {
-  if (!ids.length) return
-
-  const staticIds = ids.filter(isStatic)
-  // const dynamicIds = ids.filter(isDynamic)
-
-  if (staticIds.length) {
-    await renderStaticEntries(staticIds, config)
-  }
-
-  /**
-   * TODO can't do this, will overwrite any dynamic routes that exist
-   *
-   * This could be alleviated IF we decided to output separate functions
-   * for each route. But at the moment this breaks.
-   */
-  // if (dynamicIds.length) updateLambdas(dynamicIds, config)
-
-  config.events.emit('refresh')
-  config.events.emit('done', ids)
-}
-
 export async function watch (config: Presta) {
   /*
    * Get files that match static/dynamic patters at startup
@@ -94,7 +69,8 @@ export async function watch (config: Presta) {
    */
   async function handleConfigUpdate () {
     files = getFiles(config)
-    buildFiles(files, config)
+    await renderStaticEntries(files.filter(isStatic), config)
+    updateLambdas(files.filter(isDynamic), config)
   }
 
   /*

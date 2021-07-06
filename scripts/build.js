@@ -7,7 +7,6 @@ require('esbuild').buildSync({
       'lib/html.ts',
       'lib/load.ts',
       'lib/utils.ts',
-      'lib/source-filesystem.js',
    ],
    outdir: process.cwd(),
    bundle: true,
