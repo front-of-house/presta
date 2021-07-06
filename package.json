@@ -27,6 +27,8 @@
   },
   "scripts": {
     "prepare": "pnpx husky install",
-    "test": "TESTING=true jest && pnpm -r test"
+    "test": "TESTING=true jest && pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "build": "pnpm -r build"
   }
 }
