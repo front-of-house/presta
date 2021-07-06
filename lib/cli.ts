@@ -2,11 +2,10 @@
 
 import fs from 'fs-extra'
 import sade from 'sade'
-import c from 'ansi-colors'
 
 import pkg from '../package.json'
 
-import { log } from './log'
+import * as logger from './log'
 import { createConfig, getConfigFile, Env } from './config'
 import { watch } from './watch'
 import { build } from './build'
@@ -38,6 +37,10 @@ prog
     '--assets, -a',
     `Specify static asset directory — defaults to ./public`
   )
+  .option(
+    '--debug, -d',
+    `Enable debug mode (prints more logs)`
+  )
 
 prog
   .command('build', 'Render files(s) to output directory.', { default: true })
@@ -60,7 +63,8 @@ prog
 
     fs.emptyDirSync(config.output)
 
-    log(`${c.blue('~ presta build')}\n`)
+    logger.raw(`${logger.colors.blue('presta build')}`)
+    logger.newline()
 
     await build(config)
   })
@@ -92,13 +96,13 @@ prog
     if (!opts.n) {
       const server = await serve(config)
 
-      log(
-        `${c.blue('~ presta watch')}${
-          !opts.n ? ` – http://localhost:${server.port}` : ''
-        }\n`
-      )
+      logger.raw(`${logger.colors.blue('presta dev')} - http://localhost:${server.port}`)
+      logger.newline()
     } else {
-      log(`${c.blue('~ presta watch')}\n`)
+      logger.info({
+        label: 'dev'
+      })
+      logger.newline()
     }
 
     watch(config)
@@ -120,11 +124,8 @@ prog
     })
     const server = await serve(config)
 
-    log(
-      `${c.blue('~ presta serve')}${
-        !opts.n ? ` – http://localhost:${server.port}` : ''
-      }\n`
-    )
+    logger.raw(`${logger.colors.blue('presta serve')} - http://localhost:${server.port}`)
+    logger.newline()
   })
 
 prog.parse(process.argv)

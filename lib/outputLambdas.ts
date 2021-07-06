@@ -4,6 +4,7 @@ import rsort from 'route-sort'
 
 import { Env } from './config'
 import { hashContent } from './hashContent'
+import * as logger from './log'
 
 import type { Presta } from '../'
 
@@ -19,6 +20,11 @@ export function outputLambda(input: string, config: Presta): [string, string] {
     )
   )
 
+  logger.debug({
+    label: 'debug',
+    message: `generating ${name} lambda`,
+  })
+
   fs.outputFileSync(output, `import { wrapHandler } from 'presta/utils';
 import * as file from '${input}';
 export const route = file.route
@@ -31,7 +37,19 @@ export const handler = wrapHandler(file)`)
 }
 
 export function outputLambdas (inputs: string[], config: Presta) {
-  const lambdas = inputs.map(input => outputLambda(input, config))
+  const lambdas = inputs
+    .map(input => {
+      try {
+        return outputLambda(input, config)
+      } catch (e) {
+        logger.error({
+          label: 'error',
+          error: e
+        })
+        return null
+      }
+    })
+    .filter(Boolean)
   const sorted = rsort(lambdas.map(l => l[0]))
   const manifest = {}
 

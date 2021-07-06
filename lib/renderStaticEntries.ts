@@ -1,10 +1,8 @@
 import fs from 'fs-extra'
 import path from 'path'
-import c from 'ansi-colors'
 import mime from 'mime-types'
 
-import { debug } from './debug'
-import { log, formatLog } from './log'
+import * as logger from './log'
 import { timer } from './timer'
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
@@ -24,7 +22,10 @@ export function pathnameToFile (pathname: string, ext = 'html') {
 
 export function renderStaticEntries (entries: string[], config: Presta): Promise<{ allGeneratedFiles: string[] }> {
   return new Promise(async (y, n) => {
-    debug('renderStaticEntries', entries)
+    logger.debug({
+      label: 'debug',
+      message: `rendering ${JSON.stringify(entries)}`,
+    })
 
     const allGeneratedFiles: string[] = []
 
@@ -42,11 +43,9 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
         const nextFiles: string[] = []
 
         if (!paths || !paths.length) {
-          formatLog({
-            color: 'yellow',
-            action: 'build',
-            meta: ' ',
-            description: `${location} - no paths to render`
+          logger.warn({
+            label: 'paths',
+            message: `${location} - no paths to render`
           })
 
           prevFiles.forEach(file => removeBuiltStaticFile(file, config))
@@ -75,11 +74,10 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
             'utf-8'
           )
 
-          formatLog({
-            color: 'green',
-            action: 'build',
-            meta: '• ' + time(),
-            description: url
+          logger.info({
+            label: 'built',
+            message: url,
+            duration: time()
           })
         }
 
@@ -93,14 +91,18 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
         builtStaticFiles[entry] = nextFiles
       } catch (e) {
         if (config.env === 'development') {
-          log(
-            `\n  ${c.red('error')} ${location}\n\n  > ${e.stack ||
-              e}\n\n${c.gray(`  errors detected, pausing...`)}\n`
-          )
+          logger.error({
+            label: 'error',
+            message: 'errors detected, pausing...',
+            error: e,
+          })
 
           y({ allGeneratedFiles })
         } else {
-          log(`\n  ${c.red('error')} ${location}\n\n  > ${e.stack || e}\n`)
+          logger.error({
+            label: 'error',
+            error: e,
+          })
 
           n(e)
         }
@@ -111,7 +113,7 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
     }
 
     // clear to prevent memory leak
-    loadCache.clearAllMemory()
+    loadCache.clearAllMemory() // TODO probs can't — emit?
 
     y({ allGeneratedFiles })
   })

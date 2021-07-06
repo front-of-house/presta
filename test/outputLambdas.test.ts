@@ -3,14 +3,12 @@ import path from 'path'
 
 import * as fixtures from './fixtures'
 
-import { createConfig, Env } from '../lib/config'
+import { createConfig } from '../lib/config'
 import { outputLambda } from '../lib/outputLambdas'
-import { hashContent } from '../lib/hashContent'
 
 export default (test, assert) => {
   test('lambda', () => {
     const content = 'export const route = "*"'
-    const hash = hashContent(content)
     const fsx = fixtures.create({
       a: {
         url: './outputLambda/lambda.min.js',
@@ -18,7 +16,6 @@ export default (test, assert) => {
       }
     })
     const config = createConfig({
-      env: Env.PRODUCTION,
       cli: {
         files: './outputLambda/*.js',
         output: path.join(fixtures.getRoot(), 'output')
@@ -28,7 +25,7 @@ export default (test, assert) => {
     const [route, filename] = outputLambda(fsx.files.a, config)
     const lambda = fs.readFileSync(filename, 'utf8')
 
-    assert(filename.includes(`lambda.min-${hash}.js`))
+    assert(filename.includes(`lambda.min.js`))
     assert(lambda.includes(fsx.files.a))
     assert.equal(route, '*')
 

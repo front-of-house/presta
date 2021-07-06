@@ -2,15 +2,13 @@ import fs from 'fs'
 import path from 'path'
 import http from 'http'
 import getPort from 'get-port'
-import c from 'ansi-colors'
 import sirv from 'sirv'
 import chokidar from 'chokidar'
 import mime from 'mime-types'
 import toRegExp from 'regexparam'
 
-import { debug } from './debug'
 import { timer } from './timer'
-import { log, formatLog } from './log'
+import * as logger from './log'
 import { default404 } from './default404'
 import { requestToEvent } from './requestToEvent'
 import { sendServerlessResponse } from './sendServerlessResponse'
@@ -87,11 +85,16 @@ export function createServerHandler ({ port, config }: { port: number, config: P
   const assetDir = config.assets
 
   return async function serveHandler(req: http.IncomingMessage, res: http.ServerResponse) {
+    const time = timer()
+
     /*
      * If this is an asset other than HTML files, just serve it
      */
     if (/^.+\..+$/.test(req.url) && !/\.html?$/.test(req.url)) {
-      debug('serve', `serve asset ${req.url}`)
+      logger.debug({
+        label: 'debug',
+        message: `attempting to serve static asset ${req.url}`
+      })
 
       /*
        * first check the vcs-tracked static folder,
@@ -101,16 +104,15 @@ export function createServerHandler ({ port, config }: { port: number, config: P
        */
       sirv(assetDir, { dev: true })(req, res, () => {
         sirv(staticDir, { dev: true })(req, res, () => {
-          formatLog({
-            color: 'magenta',
-            action: 'serve',
-            meta: '⚠︎ ',
-            description: req.url
+          logger.warn({
+            label: 'serve',
+            message: `404 ${req.url}`,
+            duration: time()
           })
 
           sendServerlessResponse(res, {
             statusCode: 404,
-            body: default404 + devClient + devServerIcon
+            body: default404 + devClient + devServerIcon,
           })
         })
       })
@@ -119,18 +121,27 @@ export function createServerHandler ({ port, config }: { port: number, config: P
        * Try to resolve a static route normally
        */
       try {
+        logger.debug({
+          label: 'debug',
+          message: `attempting to render static HTML for ${req.url}`,
+        })
+
         const file =
           resolveHTML(staticDir, req.url) + devClient + devServerIcon
 
-        sendServerlessResponse(res, { body: file })
-
-        formatLog({
-          action: 'serve',
-          meta: '•',
-          description: req.url
+        logger.info({
+          label: 'serve',
+          message: `200 ${req.url}`,
+          duration: time()
         })
+
+        sendServerlessResponse(res, { body: file })
       } catch (e) {
-        debug('serve error', e)
+        logger.debug({
+          label: 'debug',
+          message: `serve error`,
+          error: e
+        })
 
         // expect ENOENT, log everything else
         if (!/ENOENT|EISDIR/.test(e.message)) {
@@ -157,13 +168,14 @@ export function createServerHandler ({ port, config }: { port: number, config: P
            * If we have a serverless function, delegate to it, otherwise 404
            */
           if (lambdaFilepath) {
-            debug('serve', `fallback, serve dynamic page ${req.url}`)
+            logger.debug({
+              label: 'debug',
+              message: `attempting to render lambda for ${req.url}`,
+            })
 
             const { handler }: { handler: AWS['Handler'] } = require(lambdaFilepath)
-            const time = timer()
             const event = await requestToEvent(req)
             const response = await handler(event, {})
-            const ok = response.statusCode < 300
             const redir =
               response.statusCode > 299 && response.statusCode < 399
 
@@ -171,11 +183,10 @@ export function createServerHandler ({ port, config }: { port: number, config: P
             const type = response.headers['Content-Type']
             const ext = type ? mime.extension(type) : 'html'
 
-            formatLog({
-              color: ok ? 'blue' : 'magenta',
-              action: redir ? 'redir' : 'serve',
-              meta: '⚡︎' + time(),
-              description: String(redir ? response.headers.Location : req.url)
+            logger.info({
+              label: 'serve',
+              message: `${response.statusCode} ${redir ? response.headers.Location : req.url}`,
+              duration: time()
             })
 
             sendServerlessResponse(res, {
@@ -191,7 +202,10 @@ export function createServerHandler ({ port, config }: { port: number, config: P
                   : response.body
             })
           } else {
-            debug('serve', `fallback, serve static 404 page ${req.url}`)
+            logger.debug({
+              label: 'debug',
+              message: `attempting to render static 404.html page for ${req.url}`,
+            })
 
             /*
              * Try to fall back to a static 404 page
@@ -200,11 +214,10 @@ export function createServerHandler ({ port, config }: { port: number, config: P
               const file =
                 resolveHTML(staticDir, '404') + devClient + devServerIcon
 
-              formatLog({
-                color: 'magenta',
-                action: 'serve',
-                meta: '•',
-                description: req.url
+              logger.warn({
+                label: 'serve',
+                message: `404 ${req.url}`, 
+                duration: time()
               })
 
               sendServerlessResponse(res, {
@@ -216,13 +229,15 @@ export function createServerHandler ({ port, config }: { port: number, config: P
                 console.error(e)
               }
 
-              debug('serve', `failure, serve default 404 page ${req.url}`)
+              logger.debug({
+                label: 'debug',
+                message: `rendering default 404 HTML page for ${req.url}`,
+              })
 
-              formatLog({
-                color: 'magenta',
-                action: 'serve',
-                meta: '⚠︎ ',
-                description: req.url
+              logger.warn({
+                label: 'serve',
+                message: `404 ${req.url}`,
+                duration: time()
               })
 
               sendServerlessResponse(res, {
@@ -232,12 +247,22 @@ export function createServerHandler ({ port, config }: { port: number, config: P
             }
           }
         } catch (e) {
+          logger.debug({
+            label: 'debug',
+            message: `rendering default 500 HTML page for ${req.url}`,
+          })
+
+          logger.error({
+            label: 'serve',
+            message: `500 ${req.url}`,
+            error: e, 
+            duration: time()
+          })
+
           sendServerlessResponse(res, {
             statusCode: 500,
             body: '' + devClient + devServerIcon // TODO default 500 screen
           })
-
-          log(`\n  ${c.red('error')} ${req.url}\n\n  > ${e.stack || e}\n`)
         }
       }
     }
@@ -252,7 +277,11 @@ export async function serve (config: Presta) {
   const socket = require('pocket.io')(server, { serveClient: false })
 
   config.events.on('refresh', () => {
-    debug('serve', `refresh event received`)
+    logger.debug({
+      label: 'debug',
+      message: `refresh event received`,
+    })
+
     socket.emit('refresh')
   })
 

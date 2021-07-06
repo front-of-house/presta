@@ -1,8 +1,6 @@
 import path from 'path'
-import c from 'ansi-colors'
 
-import { debug } from './debug'
-import { log } from './log'
+import * as logger from './log'
 import { createEmitter } from './createEmitter'
 
 import { Presta, Config, CLI } from '../'
@@ -21,19 +19,16 @@ global.__presta__ =
     pid: process.pid,
     cwd: process.cwd(),
     env: Env.TEST,
+    debug: false
   } as Presta)
 
 function resolveAbsolutePaths (config: Config) {
   const cwd = process.cwd()
 
   if (config.files)
-    config.files = []
-      .concat(config.files)
-      .map(p => path.resolve(cwd, p))
-  if (config.output)
-    config.output = path.resolve(cwd, config.output)
-  if (config.assets)
-    config.assets = path.resolve(cwd, config.assets)
+    config.files = [].concat(config.files).map(p => path.resolve(cwd, p))
+  if (config.output) config.output = path.resolve(cwd, config.output)
+  if (config.assets) config.assets = path.resolve(cwd, config.assets)
   return config
 }
 
@@ -45,7 +40,7 @@ export function _clearCurrentConfig () {
   global.__presta__ = {
     pid: process.pid,
     cwd: process.cwd(),
-    env: Env.TEST,
+    env: Env.TEST
   }
 }
 
@@ -60,7 +55,10 @@ export function getConfigFile (filepath: string, shouldExit: boolean = false) {
   } catch (e) {
     // if user specified a file, must be a syntax error
     if (!!filepath) {
-      log(`${c.red('~ error')} ${filepath}\n\n  > ${e.stack || e}\n`)
+      logger.error({
+        label: 'error',
+        error: e
+      })
 
       // we're not in watch mode, exit
       if (shouldExit) process.exit(1)
@@ -75,6 +73,11 @@ export function getConfigFile (filepath: string, shouldExit: boolean = false) {
  * This is used when the user deletes their config file.
  */
 export function removeConfigValues () {
+  logger.debug({
+    label: 'debug',
+    message: `config file values cleared`,
+  })
+
   global.__presta__ = createConfig({
     ...global.__presta__,
     config: {}
@@ -116,6 +119,7 @@ export function createConfig ({
     ...global.__presta__,
     ...merged, // overwrites every time
     env,
+    debug: cli.debug || global.__presta__.debug,
     cwd: process.cwd(),
     configFilepath: path.resolve(cli.config || defaultConfigFilepath),
     functionsOutputDir: path.join(merged.output, 'functions'),
@@ -124,7 +128,10 @@ export function createConfig ({
     events: createEmitter()
   }
 
-  debug('config created', global.__presta__)
+  logger.debug({
+    label: 'debug',
+    message: `config created ${JSON.stringify(global.__presta__)}`,
+  })
 
   return global.__presta__
 }

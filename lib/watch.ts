@@ -1,12 +1,10 @@
 import fs from 'fs-extra'
-import c from 'ansi-colors'
 import graph from 'watch-dependency-graph'
 import chokidar from 'chokidar'
 import match from 'picomatch'
 
-import { debug } from './debug'
 import { outputLambdas } from './outputLambdas'
-import { log, formatLog } from './log'
+import * as logger from './log'
 import { getFiles, isStatic, isDynamic } from './getFiles'
 import { renderStaticEntries } from './renderStaticEntries'
 import { timer } from './timer'
@@ -27,11 +25,10 @@ function updateLambdas (inputs: string[], config: Presta) {
 
   // if user actually has routes configured, give feedback
   if (inputs.length) {
-    formatLog({
-      color: 'green',
-      action: 'build',
-      meta: '⚡︎' + time(),
-      description: ''
+    logger.info({
+      label: 'built',
+      message: `lambdas`,
+      duration: time()
     })
   }
 }
@@ -62,8 +59,6 @@ export async function buildFiles (ids: string[], config: Presta) {
 }
 
 export async function watch (config: Presta) {
-  debug('watch initialized with config', config)
-
   /*
    * Get files that match static/dynamic patters at startup
    */
@@ -71,7 +66,10 @@ export async function watch (config: Presta) {
   let hasConfigFile = fs.existsSync(config.configFilepath)
 
   if (!files.length) {
-    log(`  ${c.gray('no files configured')}\n`)
+    logger.warn({
+      label: 'paths',
+      message: 'no files configured'
+    })
   }
 
   /*
@@ -118,7 +116,10 @@ export async function watch (config: Presta) {
   }
 
   fileWatcher.on('remove', ([id]) => {
-    debug('fileWatcher - removed', id)
+    logger.debug({
+      label: 'watch',
+      message: `fileWatcher - removed ${id}`
+    })
 
     // remove from local hash
     files.splice(files.indexOf(id), 1)
@@ -145,7 +146,10 @@ export async function watch (config: Presta) {
   })
 
   fileWatcher.on('change', ([id]) => {
-    debug('fileWatcher - changed', id)
+    logger.debug({
+      label: 'watch',
+      message: `fileWatcher - changed ${id}`
+    })
 
     if (id === config.configFilepath) {
       // clear config file for re-require
@@ -159,7 +163,10 @@ export async function watch (config: Presta) {
 
         handleConfigUpdate()
       } catch (e) {
-        log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
+        logger.error({
+          label: 'error',
+          error: e,
+        })
       }
     } else {
       handleFileChange(id)
@@ -169,7 +176,10 @@ export async function watch (config: Presta) {
   })
 
   fileWatcher.on('error', e => {
-    log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
+    logger.error({
+      label: 'error',
+      error: e,
+    })
   })
 
   /*
@@ -189,7 +199,10 @@ export async function watch (config: Presta) {
 
     // if a file change matches any pages globs
     if (match(config.files)(file) && !files.includes(file)) {
-      debug('globalWatcher - add file')
+      logger.debug({
+        label: 'watch',
+        message: `globalWatcher - add ${file}`
+      })
 
       files.push(file)
 
@@ -200,7 +213,10 @@ export async function watch (config: Presta) {
 
     // if file matches config file and we don't already have one
     if (file === config.configFilepath && !hasConfigFile) {
-      debug('globalWatcher - add config file')
+      logger.debug({
+        label: 'watch',
+        message: `globalWatcher - add config file ${file}`
+      })
 
       fileWatcher.add(config.configFilepath)
 
@@ -214,7 +230,10 @@ export async function watch (config: Presta) {
 
         handleConfigUpdate()
       } catch (e) {
-        log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
+        logger.error({
+          label: 'error',
+          error: e,
+        })
       }
     }
 
@@ -233,6 +252,9 @@ export async function watch (config: Presta) {
   try {
     files.map(require)
   } catch (e) {
-    log(`\n  ${c.red('error')}\n\n  > ${e.stack || e}\n`)
+    logger.error({
+      label: 'error',
+      error: e,
+    })
   }
 }
