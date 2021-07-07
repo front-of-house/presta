@@ -2,7 +2,7 @@ import http from 'http'
 import { parse as parseUrl } from 'url'
 import { parse as parseQuery } from 'query-string'
 import rawBody from 'raw-body'
-import { charset } from 'es-mime-types'
+import mime from 'mime-types'
 
 import type { AWS } from '..'
 
@@ -23,7 +23,7 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<AWS['Ha
   const body = req.headers['content-length']
     ? await rawBody(req, {
         limit: '1mb',
-        encoding: charset(req.headers['content-type'] || '') || undefined,
+        encoding: mime.charset(req.headers['content-type'] || '') || undefined,
       })
     : undefined
 

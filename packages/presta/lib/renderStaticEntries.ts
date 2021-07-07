@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { extension } from 'es-mime-types'
+import mime from 'mime-types'
 
 import * as logger from './log'
 import { timer } from './timer'
@@ -59,8 +59,8 @@ export function renderStaticEntries(entries: string[], config: Presta): Promise<
           }
 
           const response = normalizeResponse(await file.handler(event, {}))
-          const type = response.headers ? response.headers['Content-Type'] : null
-          const ext = type ? extension(type) : 'html'
+          const type = response.headers ? response.headers['Content-Type'] : ''
+          const ext = type ? mime.extension(type as string) || 'html' : 'html'
           const filename = pathnameToFile(url, ext)
 
           allGeneratedFiles.push(filename)

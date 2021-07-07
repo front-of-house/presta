@@ -4,7 +4,7 @@ import http from 'http'
 import getPort from 'get-port'
 import sirv from 'sirv'
 import chokidar from 'chokidar'
-import { extension } from 'es-mime-types'
+import mime from 'mime-types'
 import toRegExp from 'regexparam'
 
 import { timer } from './timer'
@@ -180,8 +180,8 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
             const redir = response.statusCode > 299 && response.statusCode < 399
 
             // get mime type
-            const type = headers['Content-Type']
-            const ext = type ? extension(type) : 'html'
+            const type = headers['Content-Type'] as string
+            const ext = type ? mime.extension(type) : 'html'
 
             logger.info({
               label: 'serve',
