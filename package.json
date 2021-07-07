@@ -28,7 +28,7 @@
     "build": "pnpm -r build",
     "lint": "prettier --check \"./**/*.{ts,js,md}\"",
     "format": "prettier --write \"./**/*.{ts,js,md}\"",
-    "changeset": "changeset && changeset version",
+    "changeset": "changeset",
     "release": "changeset publish"
   }
 }
