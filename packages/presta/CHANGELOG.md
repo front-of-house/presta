@@ -1,5 +1,11 @@
 # presta
 
+## 0.34.3
+
+### Patch Changes
+
+- Test changeset with new config
+
 ## 0.34.2
 
 ### Patch Changes
