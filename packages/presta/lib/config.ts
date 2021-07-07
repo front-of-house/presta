@@ -3,7 +3,7 @@ import path from 'path'
 import * as logger from './log'
 import { createEmitter } from './createEmitter'
 
-import { Presta, Config, CLI } from '../'
+import { Presta, Config, CLI } from '..'
 
 const defaultConfigFilepath = 'presta.config.js'
 
@@ -26,7 +26,7 @@ function resolveAbsolutePaths (config: Config) {
   const cwd = process.cwd()
 
   if (config.files)
-    config.files = [].concat(config.files).map(p => path.resolve(cwd, p))
+    config.files = ([] as string[]).concat(config.files).map(p => path.resolve(cwd, p))
   if (config.output) config.output = path.resolve(cwd, config.output)
   if (config.assets) config.assets = path.resolve(cwd, config.assets)
   return config
@@ -110,7 +110,7 @@ export function createConfig ({
       cli.files && cli.files.length
         ? cli.files
         : config.files
-        ? [].concat(config.files)
+        ? ([] as string[]).concat(config.files)
         : []
   }
 

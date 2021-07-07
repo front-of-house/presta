@@ -4,7 +4,7 @@ import http from 'http'
 import getPort from 'get-port'
 import sirv from 'sirv'
 import chokidar from 'chokidar'
-import mime from 'mime-types'
+import { extension } from 'es-mime-types'
 import toRegExp from 'regexparam'
 
 import { timer } from './timer'
@@ -86,14 +86,15 @@ export function createServerHandler ({ port, config }: { port: number, config: P
 
   return async function serveHandler(req: http.IncomingMessage, res: http.ServerResponse) {
     const time = timer()
+    const url = req.url as string
 
     /*
      * If this is an asset other than HTML files, just serve it
      */
-    if (/^.+\..+$/.test(req.url) && !/\.html?$/.test(req.url)) {
+    if (/^.+\..+$/.test(url) && !/\.html?$/.test(url)) {
       logger.debug({
         label: 'debug',
-        message: `attempting to serve static asset ${req.url}`
+        message: `attempting to serve static asset ${url}`
       })
 
       /*
@@ -106,7 +107,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
         sirv(staticDir, { dev: true })(req, res, () => {
           logger.warn({
             label: 'serve',
-            message: `404 ${req.url}`,
+            message: `404 ${url}`,
             duration: time()
           })
 
@@ -123,15 +124,15 @@ export function createServerHandler ({ port, config }: { port: number, config: P
       try {
         logger.debug({
           label: 'debug',
-          message: `attempting to render static HTML for ${req.url}`,
+          message: `attempting to render static HTML for ${url}`,
         })
 
         const file =
-          resolveHTML(staticDir, req.url) + devClient + devServerIcon
+          resolveHTML(staticDir, url) + devClient + devServerIcon
 
         logger.info({
           label: 'serve',
-          message: `200 ${req.url}`,
+          message: `200 ${url}`,
           duration: time()
         })
 
@@ -160,7 +161,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
               route,
             }))
             .filter(({ matcher }) => {
-              return matcher.pattern.test(req.url.split('?')[0])
+              return matcher.pattern.test(url.split('?')[0])
             })
             .map(({ route }) => manifest[route])[0]
 
@@ -170,22 +171,23 @@ export function createServerHandler ({ port, config }: { port: number, config: P
           if (lambdaFilepath) {
             logger.debug({
               label: 'debug',
-              message: `attempting to render lambda for ${req.url}`,
+              message: `attempting to render lambda for ${url}`,
             })
 
             const { handler }: { handler: AWS['Handler'] } = require(lambdaFilepath)
             const event = await requestToEvent(req)
             const response = await handler(event, {})
+            const headers = response.headers || {}
             const redir =
               response.statusCode > 299 && response.statusCode < 399
 
             // get mime type
-            const type = response.headers['Content-Type']
-            const ext = type ? mime.extension(type) : 'html'
+            const type = headers['Content-Type']
+            const ext = type ? extension(type) : 'html'
 
             logger.info({
               label: 'serve',
-              message: `${response.statusCode} ${redir ? response.headers.Location : req.url}`,
+              message: `${response.statusCode} ${redir ? headers.Location : url}`,
               duration: time()
             })
 
@@ -196,7 +198,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
               // only html can be live-reloaded, duh
               body:
                 ext === 'html'
-                  ? response.body.split('</body>')[0] +
+                  ? (response.body || '').split('</body>')[0] +
                     devClient +
                     devServerIcon
                   : response.body
@@ -204,7 +206,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
           } else {
             logger.debug({
               label: 'debug',
-              message: `attempting to render static 404.html page for ${req.url}`,
+              message: `attempting to render static 404.html page for ${url}`,
             })
 
             /*
@@ -216,7 +218,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
 
               logger.warn({
                 label: 'serve',
-                message: `404 ${req.url}`, 
+                message: `404 ${url}`, 
                 duration: time()
               })
 
@@ -231,12 +233,12 @@ export function createServerHandler ({ port, config }: { port: number, config: P
 
               logger.debug({
                 label: 'debug',
-                message: `rendering default 404 HTML page for ${req.url}`,
+                message: `rendering default 404 HTML page for ${url}`,
               })
 
               logger.warn({
                 label: 'serve',
-                message: `404 ${req.url}`,
+                message: `404 ${url}`,
                 duration: time()
               })
 
@@ -249,12 +251,12 @@ export function createServerHandler ({ port, config }: { port: number, config: P
         } catch (e) {
           logger.debug({
             label: 'debug',
-            message: `rendering default 500 HTML page for ${req.url}`,
+            message: `rendering default 500 HTML page for ${url}`,
           })
 
           logger.error({
             label: 'serve',
-            message: `500 ${req.url}`,
+            message: `500 ${url}`,
             error: e, 
             duration: time()
           })

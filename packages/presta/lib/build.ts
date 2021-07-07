@@ -7,7 +7,7 @@ import { renderStaticEntries } from './renderStaticEntries'
 import { timer } from './timer'
 import * as logger from './log'
 
-import { Presta } from '../'
+import type { Presta } from '..'
 
 export async function build (config: Presta) {
   const totalTime = timer()
@@ -84,13 +84,14 @@ export async function build (config: Presta) {
 
       // log out errors
       tasks
-        .filter(task => task.status === 'rejected')
-        .forEach((task: PromiseRejectedResult) =>
-          logger.error({
-            label: 'error',
-            error: task.reason
-          })
-        )
+        .forEach(task => {
+          if (task.status === 'rejected') {
+            logger.error({
+              label: 'error',
+              error: task.reason
+            })
+          }
+        })
 
       process.exit(1)
       return

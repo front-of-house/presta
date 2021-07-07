@@ -1,5 +1,4 @@
 import {
-  Handler as LambdaHandler,
   HandlerEvent as LambdaHandlerEvent,
   HandlerContext as LambdaHandlerContext,
   HandlerResponse as LambdaHandlerResponse

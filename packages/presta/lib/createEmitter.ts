@@ -1,7 +1,7 @@
 type callable = (...args: any[]) => void
 
 export function createEmitter () {
-  let events = {}
+  let events: { [event: string]: callable[] } = {}
 
   function emit (ev: string, ...args: any[]): void {
     events[ev] ? events[ev].map((fn: callable) => fn(...args)) : []

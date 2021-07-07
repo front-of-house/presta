@@ -1,8 +1,8 @@
 import fs from 'fs-extra'
 import path from 'path'
-import matched from 'matched'
+import globSync from 'tiny-glob/sync'
 
-import { Presta } from '../'
+import { Presta } from '..'
 
 export function isDynamic (file: string) {
   return /export\s.+\sroute\s+\=/.test(fs.readFileSync(file, 'utf-8'))
@@ -17,9 +17,9 @@ export function isPrestaFile (file: string) {
 }
 
 export function getFiles (config: Presta): string[] {
-  return []
+  return ([] as string[])
     .concat(config.files)
     .map(file => path.resolve(config.cwd, file)) // make absolute
-    .map(glob => matched.sync(glob, { cwd: config.cwd }))
+    .map(glob => globSync(glob, { cwd: config.cwd }))
     .flat()
 }

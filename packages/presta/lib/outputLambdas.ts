@@ -6,7 +6,7 @@ import { Env } from './config'
 import { hashContent } from './hashContent'
 import * as logger from './log'
 
-import type { Presta } from '../'
+import type { Presta } from '..'
 
 export function outputLambda(input: string, config: Presta): [string, string] {
   const { route } = require(input)
@@ -49,12 +49,17 @@ export function outputLambdas (inputs: string[], config: Presta) {
         return null
       }
     })
-    .filter(Boolean)
+    .filter(Boolean) as [string, string][]
+
   const sorted = rsort(lambdas.map(l => l[0]))
-  const manifest = {}
+  const manifest: { [route: string]: string } = {}
 
   for (const route of sorted) {
-    manifest[route] = lambdas.find(l => l[0] === route)[1]
+    const match = lambdas.find(l => l[0] === route)
+
+    if (match) {
+      manifest[route] = match[1]
+    }
   }
 
   fs.outputFileSync(config.routesManifest, JSON.stringify(manifest))

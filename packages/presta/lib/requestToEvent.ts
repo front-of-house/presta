@@ -2,7 +2,7 @@ import http from 'http'
 import { parse as parseUrl } from 'url'
 import { parse as parseQuery } from 'query-string'
 import rawBody from 'raw-body'
-import mime from 'mime-types'
+import { charset } from 'es-mime-types'
 
 import type { AWS } from '..'
 
@@ -15,25 +15,22 @@ function shouldBase64Encode (contentType: string) {
 export async function requestToEvent(req: http.IncomingMessage): Promise<AWS['HandlerEvent']> {
   // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L208
   const remoteAddress =
-    String(req.headers['x-forwarded-for']) || req.connection.remoteAddress
-  const ip = remoteAddress
-    .split(remoteAddress.includes('.') ? ':' : ',')
-    .pop()
-    .trim()
+    String(req.headers['x-forwarded-for']) || req.connection.remoteAddress || ''
+  const ip = remoteAddress.split(remoteAddress.includes('.') ? ':' : ',').pop()?.trim()
   const isBase64Encoded = shouldBase64Encode(
-    req.headers['content-type']
+    req.headers['content-type'] || ''
   )
   const body = req.headers['content-length']
     ? await rawBody(req, {
         limit: '1mb',
         encoding:
-          mime.charset(req.headers['content-type']) || undefined
+          charset(req.headers['content-type'] || '') || undefined
       })
     : undefined
 
   return {
-    path: req.url,
-    httpMethod: req.method,
+    path: req.url as string,
+    httpMethod: req.method as string,
     // @ts-ignore TODO test set-cookie coming in as array
     headers: {
       ...req.headers,
@@ -42,12 +39,13 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<AWS['Ha
     // TODO should these headers be exclusively single value vs multi?
     multiValueHeaders: Object.keys(req.headers).reduce(
       (headers, key) => {
-        if (!req.headers[key].includes(',')) return headers // only include multi-value headers here
-          return {
-            ...headers,
-            // @ts-ignore TODO again, array headers
-            [key]: req.headers[key].split(',')
-          }
+        if (req.headers[key] && !(req.headers[key] as string).includes(',')) return headers // only include multi-value headers here
+
+        return {
+          ...headers,
+          // @ts-ignore TODO again, array headers
+          [key]: req.headers[key].split(',')
+        }
       },
       {}
     ),
@@ -55,7 +53,7 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<AWS['Ha
     queryStringParameters: parseQuery(parseUrl(req.url).query),
     body: body
       ? new Buffer(body).toString(isBase64Encoded ? 'base64' : 'utf8')
-      : undefined,
+      : null,
       isBase64Encoded
   }
 }

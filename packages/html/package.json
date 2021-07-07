@@ -4,9 +4,11 @@
   "description": "HTML utilities for Presta",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "node scripts/build && pnpx tsc --emitDeclarationOnly",
     "typecheck": "pnpx tsc --noEmit"
   },
   "repository": {

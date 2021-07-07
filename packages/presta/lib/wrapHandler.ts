@@ -7,7 +7,7 @@ import { normalizeResponse } from './normalizeResponse'
 
 import type { AWS, Event, Context, Lambda } from '..'
 
-export function wrapHandler (file: Lambda) {
+export function wrapHandler (file: Lambda): (event: AWS['HandlerEvent'], context: Context) => Promise<AWS['HandlerResponse']> {
   return async (event: AWS['HandlerEvent'], context: Context) => {
     event = {
       ...event,

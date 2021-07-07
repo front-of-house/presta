@@ -1,4 +1,4 @@
-import c from 'kleur'
+import c, { Kleur } from 'kleur'
 
 import { getCurrentConfig, Env } from './config'
 
@@ -17,7 +17,7 @@ export type Message = {
   error?: Error
 }
 
-let logs = []
+let logs: any[] = []
 
 const colors = {
   [Levels.Debug]: 'magenta',
@@ -48,7 +48,7 @@ export function logger (message: Message) {
     console.log(
       [
         c.gray(context),
-        c[colors[message.level]](message.label),
+        c[colors[message.level || 'info'] as keyof Kleur](message.label),
         message.message,
         message.duration ? c.gray('+' + message.duration) : '',
         message.error ? `\n\n${message.error.stack || message.error}\n\n` : ''
