@@ -50,3 +50,13 @@ jobs:
         run: pnpm test
       - name: build
         run: pnpm build
+
+        # publish to npm
+      - name: release
+        id: changesets
+        uses: changesets/action@master
+        with:
+          publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
