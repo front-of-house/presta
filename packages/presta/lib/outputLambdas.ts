@@ -21,6 +21,10 @@ export function outputLambda(input: string, config: Presta): [string, string] {
     message: `generating ${name} lambda`,
   })
 
+  // important for watch task
+  delete require.cache[input]
+  delete require.cache[output]
+
   fs.outputFileSync(
     output,
     `import { wrapHandler } from 'presta';
