@@ -1,5 +1,11 @@
 # presta
 
+## 0.34.4
+
+### Patch Changes
+
+- ff08a59: Test changesets with new config
+
 ## 0.34.3
 
 ### Patch Changes
