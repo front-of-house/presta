@@ -27,6 +27,8 @@
     "typecheck": "pnpm -r typecheck",
     "build": "pnpm -r build",
     "lint": "prettier --check \"./**/*.{ts,js,md}\"",
-    "format": "prettier --write \"./**/*.{ts,js,md}\""
+    "format": "prettier --write \"./**/*.{ts,js,md}\"",
+    "changeset": "changeset && changeset version",
+    "release": "changeset publish"
   }
 }
