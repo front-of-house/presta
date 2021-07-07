@@ -10,7 +10,7 @@ env:
 
 jobs:
   release:
-    name: CD
+    name: CI
     runs-on: ubuntu-latest
 
     steps:
