@@ -27,11 +27,11 @@ Here's what using React could look like:
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
-export function getStaticPaths () {
+export function getStaticPaths() {
   return ['/']
 }
 
-export function handler () {
+export function handler() {
   return renderToStaticMarkup(<div>Hello world!</div>)
 }
 ```

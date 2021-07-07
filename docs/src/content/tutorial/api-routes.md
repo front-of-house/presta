@@ -16,13 +16,13 @@ Below is a working example.
 ```javascript
 export const route = '/api/posts'
 
-export async function handler () {
+export async function handler() {
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      posts: [{ title: 'Hello world!' }]
-    })
+      posts: [{ title: 'Hello world!' }],
+    }),
   }
 }
 ```
@@ -36,11 +36,11 @@ you, so to send a successful JSON response, all you really need is this:
 ```javascript
 export const route = '/api/posts'
 
-export async function handler () {
+export async function handler() {
   return {
     json: {
-      posts: [{ title: 'Hello world!' }]
-    }
+      posts: [{ title: 'Hello world!' }],
+    },
   }
 }
 ```

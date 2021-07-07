@@ -21,7 +21,7 @@ Below is another working example of a homepage in Presta.
 ```javascript
 export const route = '/'
 
-export async function handler () {
+export async function handler() {
   return `<h1>Hello world</h1>`
 }
 ```
@@ -38,11 +38,11 @@ To do this, export a `getStaticPaths` function that returns an array of URL
 pathname strings. Below, an `/index.html` file will be generated.
 
 ```javascript
-export async function getStaticPaths () {
+export async function getStaticPaths() {
   return ['/']
 }
 
-export async function handler () {
+export async function handler() {
   return `<h1>Hello world</h1>`
 }
 ```
@@ -58,11 +58,11 @@ route while simultaneously defining which paths should be built statically.
 ```javascript
 export const route = ':slug'
 
-export async function getStaticPaths () {
+export async function getStaticPaths() {
   return ['/']
 }
 
-export async function handler (props) {
+export async function handler(props) {
   return `<h1>${props.path} and ${props.params.slug}</h1>`
 }
 ```
@@ -84,7 +84,7 @@ To render a custom HTML document, just return it from your `handler`.
 ```javascript
 export const route = '/'
 
-export async function handler () {
+export async function handler() {
   return `
     <!DOCTYPE html>
     <html>
@@ -108,13 +108,13 @@ import { html } from 'presta/html'
 
 export const route = '/'
 
-export async function handler () {
+export async function handler() {
   return html({
     head: {
       title: 'My Site',
-      description: 'My SEO description'
+      description: 'My SEO description',
     },
-    body: `<h1>Hello world!</h1>`
+    body: `<h1>Hello world!</h1>`,
   })
 }
 ```

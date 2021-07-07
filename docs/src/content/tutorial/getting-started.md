@@ -51,11 +51,11 @@ Below is a working example of a HTML page in Presta.
 ```javascript
 export const route = '*'
 
-export async function handler (props) {
+export async function handler(props) {
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'text/html' },
-    body: `<h1>You're on ${props.path}</h1>`
+    body: `<h1>You're on ${props.path}</h1>`,
   }
 }
 ```
@@ -65,13 +65,13 @@ Similarly, here's an API route that returns JSON.
 ```javascript
 export const route = '/api/posts'
 
-export async function handler (props) {
+export async function handler(props) {
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      posts: [{ title: 'Hello world!' }]
-    })
+      posts: [{ title: 'Hello world!' }],
+    }),
   }
 }
 ```
