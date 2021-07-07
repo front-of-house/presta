@@ -29,6 +29,7 @@
     "lint": "prettier --check \"./**/*.{ts,js,md}\"",
     "format": "prettier --write \"./**/*.{ts,js,md}\"",
     "changeset": "changeset",
-    "release": "changeset publish"
+    "release": "pnpm build && changeset publish",
+    "gutcheck": "pnpm typecheck && pnpm test && pnpm format"
   }
 }
