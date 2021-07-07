@@ -19,7 +19,7 @@ export function isPrestaFile(file: string) {
 export function getFiles(config: Presta): string[] {
   return ([] as string[])
     .concat(config.files)
-    .map((file) => path.resolve(config.cwd, file)) // make absolute
-    .map((glob) => globSync(glob, { cwd: config.cwd }))
+    .map((file) => globSync(file, { cwd: config.cwd }))
     .flat()
+    .map((file) => path.resolve(config.cwd, file)) // make absolute
 }
