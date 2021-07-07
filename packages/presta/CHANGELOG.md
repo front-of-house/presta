@@ -1,5 +1,11 @@
 # presta
 
+## 0.34.5
+
+### Patch Changes
+
+- 0d514fd: New tiny-glob package was returning relative filepaths — the opposite of previous library, matched.
+
 ## 0.34.4
 
 ### Patch Changes
