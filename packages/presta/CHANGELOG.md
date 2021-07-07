@@ -1,5 +1,11 @@
 # presta
 
+## 0.34.6
+
+### Patch Changes
+
+- [`0e6130e`](https://github.com/sure-thing/presta/commit/0e6130e3ceb3f5bcac3b9ac94ff95b590400f05f) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Test new changeset config
+
 ## 0.34.5
 
 ### Patch Changes
