@@ -80,7 +80,7 @@ export function filterUnique(arr: HeadElement[]) {
     res.push(a)
   }
 
-  return res
+  return res.reverse()
 }
 
 export function tag(name: string) {
