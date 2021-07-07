@@ -1,3 +1,3 @@
-export function title (strs = '') {
+export function title(strs = '') {
   return [].concat(strs).join(' | ')
 }

@@ -18,7 +18,7 @@ import { extract } from 'presta/extract'
 
 export const route = '*'
 
-export async function handler () {
+export async function handler() {
   const body = '<h1>Hello world</h1>'
 
   const stylesheet = extract(
@@ -29,9 +29,9 @@ export async function handler () {
 
   return html({
     head: {
-      link: [{ rel: 'stylesheet', href: stylesheet }]
+      link: [{ rel: 'stylesheet', href: stylesheet }],
     },
-    body
+    body,
   })
 }
 ```

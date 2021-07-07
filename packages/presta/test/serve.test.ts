@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
 import http from 'http'
-import { makeFetch } from 'supertest-fetch';
+import { makeFetch } from 'supertest-fetch'
 
 import { createConfig } from '../lib/config'
 import { createServerHandler as base } from '../lib/serve'
@@ -18,22 +18,19 @@ export default async (test, assert) => {
     let called = false
 
     const config = createConfig({
-      cli: { assets }
+      cli: { assets },
     })
-    const expectedDirs = [
-      path.join(process.cwd(), assets),
-      config.staticOutputDir
-    ]
+    const expectedDirs = [path.join(process.cwd(), assets), config.staticOutputDir]
     const { createServerHandler }: CreateServerHandler = require('proxyquire')('../lib/serve', {
-      'sirv': (dir) => (req, res, cb) => {
+      sirv: (dir) => (req, res, cb) => {
         dirs.push(dir)
         cb()
       },
       './sendServerlessResponse': {
-        sendServerlessResponse () {
+        sendServerlessResponse() {
           called = true
-        }
-      }
+        },
+      },
     })
     const serverHandler = createServerHandler({ port: 4000, config })
     const imageFilepath = path.join(config.staticOutputDir, 'image.png')
@@ -61,10 +58,10 @@ export default async (test, assert) => {
     const config = createConfig({})
     const { createServerHandler }: CreateServerHandler = require('proxyquire')('../lib/serve', {
       './sendServerlessResponse': {
-        sendServerlessResponse () {
+        sendServerlessResponse() {
           found = true
-        }
-      }
+        },
+      },
     })
     const serverHandler = createServerHandler({ port: 4000, config })
     const indexRouteFilepath = path.join(config.staticOutputDir, 'index.html')
@@ -91,22 +88,25 @@ export default async (test, assert) => {
     const config = createConfig({})
     const { createServerHandler }: CreateServerHandler = require('proxyquire')('../lib/serve', {
       './sendServerlessResponse': {
-        sendServerlessResponse (_, response) {
+        sendServerlessResponse(_, response) {
           if (response.statusCode !== 404) {
             responses.push(true)
           } else {
             responses.push(false)
           }
-        }
-      }
+        },
+      },
     })
     const serverHandler = createServerHandler({ port: 4000, config })
 
     const functionFilepath = path.join(config.functionsOutputDir, 'Route.js')
     const routesManifestFilepath = path.join(config.output, 'routes.json')
-    fs.outputFileSync(routesManifestFilepath, JSON.stringify({
-      '/:slug?': functionFilepath,
-    }))
+    fs.outputFileSync(
+      routesManifestFilepath,
+      JSON.stringify({
+        '/:slug?': functionFilepath,
+      })
+    )
     fs.outputFileSync(functionFilepath, `module.exports = { handler () {} }`)
 
     const server = http.createServer(async (req, res) => {
@@ -131,19 +131,22 @@ export default async (test, assert) => {
     const config = createConfig({})
     const { createServerHandler }: CreateServerHandler = require('proxyquire')('../lib/serve', {
       './sendServerlessResponse': {
-        sendServerlessResponse (_, response) {
+        sendServerlessResponse(_, response) {
           if (response.statusCode === 500) {
             did500 = true
           }
-        }
-      }
+        },
+      },
     })
     const serverHandler = createServerHandler({ port: 4000, config })
 
     const functionFilepath = path.join(config.functionsOutputDir, 'Route.js')
-    fs.outputFileSync(path.join(config.output, 'routes.json'), JSON.stringify({
-      '*': functionFilepath,
-    }))
+    fs.outputFileSync(
+      path.join(config.output, 'routes.json'),
+      JSON.stringify({
+        '*': functionFilepath,
+      })
+    )
     fs.outputFileSync(functionFilepath, `module.exports = { handler () { throw 'error' } }`)
 
     const server = http.createServer(async (req, res) => {

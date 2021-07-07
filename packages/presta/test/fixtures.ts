@@ -3,15 +3,15 @@ import path from 'path'
 
 let root = process.cwd()
 
-export function getRoot () {
+export function getRoot() {
   return root
 }
 
-export function setRoot (r) {
+export function setRoot(r) {
   root = r
 }
 
-export function create (files: {
+export function create(files: {
   [filename: string]: {
     url: string
     content: string
@@ -27,7 +27,7 @@ export function create (files: {
   }
 
   return {
-    cleanup () {
+    cleanup() {
       for (const url of Object.values(outputFiles)) {
         try {
           fs.removeSync(url)
@@ -36,6 +36,6 @@ export function create (files: {
         }
       }
     },
-    files: outputFiles
+    files: outputFiles,
   }
 }

@@ -5,7 +5,7 @@ export default async (test, assert) => {
     assert.deepEqual(getRouteParams('/a', '/:slug'), { slug: 'a' })
     assert.deepEqual(getRouteParams('/a/b', '/:page/:slug'), {
       page: 'a',
-      slug: 'b'
+      slug: 'b',
     })
     assert.deepEqual(getRouteParams('/a', '*'), { wild: 'a' })
   })

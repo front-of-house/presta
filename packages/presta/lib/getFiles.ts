@@ -4,22 +4,22 @@ import globSync from 'tiny-glob/sync'
 
 import { Presta } from '..'
 
-export function isDynamic (file: string) {
+export function isDynamic(file: string) {
   return /export\s.+\sroute\s+\=/.test(fs.readFileSync(file, 'utf-8'))
 }
 
-export function isStatic (file: string) {
+export function isStatic(file: string) {
   return /export\s.+\sgetStaticPaths/.test(fs.readFileSync(file, 'utf-8'))
 }
 
-export function isPrestaFile (file: string) {
+export function isPrestaFile(file: string) {
   return isStatic(file) || isDynamic(file)
 }
 
-export function getFiles (config: Presta): string[] {
+export function getFiles(config: Presta): string[] {
   return ([] as string[])
     .concat(config.files)
-    .map(file => path.resolve(config.cwd, file)) // make absolute
-    .map(glob => globSync(glob, { cwd: config.cwd }))
+    .map((file) => path.resolve(config.cwd, file)) // make absolute
+    .map((glob) => globSync(glob, { cwd: config.cwd }))
     .flat()
 }

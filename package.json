@@ -24,6 +24,8 @@
     "prepare": "pnpx husky install",
     "test": "TESTING=true jest && pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "build": "pnpm -r build"
+    "build": "pnpm -r build",
+    "lint": "prettier --check \"./**/*.{ts,js,md}\"",
+    "format": "prettier --write \"./**/*.{ts,js,md}\""
   }
 }

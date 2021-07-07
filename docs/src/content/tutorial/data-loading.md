@@ -12,17 +12,17 @@ loading data should look pretty familiar in most cases.
 ```javascript
 export const route = '/products/:category'
 
-export async function handler (props) {
+export async function handler(props) {
   const products = await getProducts({
-    category: props.params.category
+    category: props.params.category,
   })
 
   return {
     html: `
       <ul>
-        ${products.map(prod => `<li>${prod.title}</li>`)}
+        ${products.map((prod) => `<li>${prod.title}</li>`)}
       </ul>
-    `
+    `,
   }
 }
 ```
@@ -61,37 +61,32 @@ import { load, cache, flush } from 'presta/load'
 
 export const route = '/posts/:category'
 
-function Nav () {
+function Nav() {
   const links = load(getNav, { key: 'nav', duration: 60 * 1000 })
 
   return `
     <ul>
-      ${links.map(
-        link => `<li><a href='${link.href}'>${link.label}</a></li>`
-      )}
+      ${links.map((link) => `<li><a href='${link.href}'>${link.label}</a></li>`)}
     </ul>
   `
 }
 
-export async function handler () {
-  const posts = cache(
-    () => await getPosts({ category: props.params.category }),
-    { key: 'posts', duration: 60 * 1000 }
-  )
+export async function handler() {
+  const posts = cache(() => await getPosts({ category: props.params.category }), { key: 'posts', duration: 60 * 1000 })
 
-  const body = flush(() => `
+  const body = flush(
+    () => `
     ${Nav()}
 
     <ul>
-      ${posts.map(
-        post => `<li>${post.title}</li>`
-      )}
+      ${posts.map((post) => `<li>${post.title}</li>`)}
     </ul>
-  `)
+  `
+  )
 
   return html({
     head: { title: 'Blog' },
-    body
+    body,
   })
 }
 ```

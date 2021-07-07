@@ -14,23 +14,20 @@ export default async (test, assert) => {
         content: `
           export const getStaticPaths = () => ([ 'url' ])
           export const handler = () => 'page'
-        `
-      }
+        `,
+      },
     })
     const config = createConfig({
       env: Env.TEST,
       cli: {
         files: fsx.files.a,
-        output: path.join(fixtures.getRoot(), 'build/static-files')
-      }
+        output: path.join(fixtures.getRoot(), 'build/static-files'),
+      },
     })
 
     await build(config)
 
-    const contents = fs.readFileSync(
-      path.join(config.staticOutputDir, 'url/index.html'),
-      'utf8'
-    )
+    const contents = fs.readFileSync(path.join(config.staticOutputDir, 'url/index.html'), 'utf8')
 
     assert(contents === 'page')
   })
@@ -42,25 +39,25 @@ export default async (test, assert) => {
         content: `
           export const route = '*'
           export const handler = () => 'page'
-        `
-      }
+        `,
+      },
     })
     const config = createConfig({
       env: Env.TEST,
       cli: {
         files: fsx.files.dynamic,
-        output: path.join(fixtures.getRoot(), 'build/dynamic-files')
-      }
+        output: path.join(fixtures.getRoot(), 'build/dynamic-files'),
+      },
     })
 
     let called = false
 
     const { build } = require('proxyquire')('../lib/build', {
-      'esbuild': {
-        build () {
+      esbuild: {
+        build() {
           called = true
-        }
-      }
+        },
+      },
     })
 
     await build(config)

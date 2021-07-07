@@ -7,23 +7,23 @@ const requests: { [key: string]: ReturnType<Loader> } = {}
 const errors: { [key: string]: Error } = {}
 export const loadCache = createLoadCache('presta-load-cache')
 
-function writeFileCache (filepath: string, json: object) {
+function writeFileCache(filepath: string, json: object) {
   fs.writeFileSync(filepath, JSON.stringify(json), 'utf-8')
 }
 
-function readFileCache (filepath: string) {
+function readFileCache(filepath: string) {
   if (!fs.existsSync(filepath)) fs.writeFileSync(filepath, '{}', 'utf-8')
   return JSON.parse(fs.readFileSync(filepath, 'utf8'))
 }
 
-export function createLoadCache (name: string, { dir = process.cwd() } = {}) {
+export function createLoadCache(name: string, { dir = process.cwd() } = {}) {
   const filename = '.' + name
   const filepath = path.join(dir, filename)
 
   let cache = readFileCache(filepath)
 
   return {
-    get (key: string) {
+    get(key: string) {
       const [value, expiration] = cache[key] || []
 
       if (expiration !== null && Date.now() > expiration) {
@@ -34,23 +34,23 @@ export function createLoadCache (name: string, { dir = process.cwd() } = {}) {
         return value
       }
     },
-    set (key: string, value: any, duration?: number) {
+    set(key: string, value: any, duration?: number) {
       const expiration = duration ? Date.now() + duration : null
       cache[key] = [value, expiration]
 
       if (expiration) writeFileCache(filepath, cache)
     },
-    clear (key: string) {
+    clear(key: string) {
       delete cache[key]
       writeFileCache(filepath, cache)
     },
-    clearAllMemory () {
+    clearAllMemory() {
       for (const key of Object.keys(cache)) {
         const [value, expiration] = cache[key] || []
         if (!expiration) delete cache[key]
       }
     },
-    cleanup () {
+    cleanup() {
       cache = {}
 
       // no persistent cache may have been created
@@ -58,7 +58,7 @@ export function createLoadCache (name: string, { dir = process.cwd() } = {}) {
         fs.unlinkSync(filepath)
       } catch (e) {}
     },
-    dump () {
+    dump() {
       const res: { [key: string]: any } = {}
 
       for (const key of Object.keys(cache)) {
@@ -66,24 +66,21 @@ export function createLoadCache (name: string, { dir = process.cwd() } = {}) {
       }
 
       return res
-    }
+    },
   }
 }
 
-export function loadError (key: string, e: Error) {
+export function loadError(key: string, e: Error) {
   if (!process.env.TESTING) console.error(e)
   errors[key] = e
   delete requests[key]
 }
 
-export function prime (key: string, value: any, duration?: number) {
+export function prime(key: string, value: any, duration?: number) {
   loadCache.set(key, value, duration)
 }
 
-export async function cache (
-  loader: () => Promise<any>,
-  { key, duration }: { key: string; duration?: number }
-) {
+export async function cache(loader: () => Promise<any>, { key, duration }: { key: string; duration?: number }) {
   let value = loadCache.get(key)
 
   if (!value) {
@@ -94,10 +91,7 @@ export async function cache (
   return value
 }
 
-export function load (
-  loader: Loader,
-  { key, duration }: { key: string; duration?: number }
-) {
+export function load(loader: Loader, { key, duration }: { key: string; duration?: number }) {
   let value = loadCache.get(key)
 
   if (!value && !errors[key]) {
@@ -122,7 +116,10 @@ export function load (
   return value
 }
 
-export async function flush (run: () => any, data = {}): Promise<{
+export async function flush(
+  run: () => any,
+  data = {}
+): Promise<{
   content: string
   data: { [key: string]: any }
 }> {

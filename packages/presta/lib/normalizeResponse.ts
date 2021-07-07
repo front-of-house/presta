@@ -1,12 +1,10 @@
 import { AWS, Response } from '..'
 
-function stringify (obj: object | string) {
+function stringify(obj: object | string) {
   return typeof obj === 'object' ? JSON.stringify(obj) : obj
 }
 
-export function normalizeResponse (
-  response: Partial<Response> | string
-): AWS['HandlerResponse'] {
+export function normalizeResponse(response: Partial<Response> | string): AWS['HandlerResponse'] {
   const {
     isBase64Encoded = false,
     statusCode = 200,
@@ -15,13 +13,12 @@ export function normalizeResponse (
     body = '',
     html = undefined,
     json = undefined,
-    xml = undefined
-  } =
-    typeof response === 'string'
-      ? {
-          body: response
-        }
-      : response
+    xml = undefined,
+  } = typeof response === 'string'
+    ? {
+        body: response,
+      }
+    : response
 
   let contentType = 'text/html; charset=utf-8'
 
@@ -36,9 +33,9 @@ export function normalizeResponse (
     statusCode,
     headers: {
       'Content-Type': contentType,
-      ...headers
+      ...headers,
     },
     multiValueHeaders,
-    body: stringify(body || html || json || xml || '')
+    body: stringify(body || html || json || xml || ''),
   }
 }

@@ -1,7 +1,7 @@
 import {
   HandlerEvent as LambdaHandlerEvent,
   HandlerContext as LambdaHandlerContext,
-  HandlerResponse as LambdaHandlerResponse
+  HandlerResponse as LambdaHandlerResponse,
 } from '@netlify/functions'
 
 import { createEmitter } from './lib/createEmitter'
@@ -11,10 +11,7 @@ export type AWS = {
   HandlerEvent: LambdaHandlerEvent
   HandlerContext: LambdaHandlerContext
   HandlerResponse: LambdaHandlerResponse
-  Handler: (
-    event: LambdaHandlerEvent,
-    context: Partial<LambdaHandlerContext>
-  ) => Promise<LambdaHandlerResponse>
+  Handler: (event: LambdaHandlerEvent, context: Partial<LambdaHandlerContext>) => Promise<LambdaHandlerResponse>
 }
 
 export type Config = {

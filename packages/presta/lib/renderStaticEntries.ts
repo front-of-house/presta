@@ -11,7 +11,7 @@ import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 
 import type { Presta } from '..'
 
-export function pathnameToFile (pathname: string, ext = 'html') {
+export function pathnameToFile(pathname: string, ext = 'html') {
   return !!path.extname(pathname)
     ? pathname // if path has extension, use it
     : ext === 'html'
@@ -19,7 +19,7 @@ export function pathnameToFile (pathname: string, ext = 'html') {
     : `${pathname}.${ext}` // anything but HTML will need an extension, otherwise browsers will render as text
 }
 
-export function renderStaticEntries (entries: string[], config: Presta): Promise<{ allGeneratedFiles: string[] }> {
+export function renderStaticEntries(entries: string[], config: Presta): Promise<{ allGeneratedFiles: string[] }> {
   return new Promise(async (y, n) => {
     logger.debug({
       label: 'debug',
@@ -37,17 +37,16 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
         const file = require(entry)
         const paths = await file.getStaticPaths()
 
-        const prevFiles = (builtStaticFiles[entry] =
-          builtStaticFiles[entry] || [])
+        const prevFiles = (builtStaticFiles[entry] = builtStaticFiles[entry] || [])
         const nextFiles: string[] = []
 
         if (!paths || !paths.length) {
           logger.warn({
             label: 'paths',
-            message: `${location} - no paths to render`
+            message: `${location} - no paths to render`,
           })
 
-          prevFiles.forEach(file => removeBuiltStaticFile(file, config))
+          prevFiles.forEach((file) => removeBuiltStaticFile(file, config))
 
           continue
         }
@@ -56,7 +55,7 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
           const time = timer()
           const event = {
             path: url,
-            params: file.route ? getRouteParams(url, file.route) : {}
+            params: file.route ? getRouteParams(url, file.route) : {},
           }
 
           const response = normalizeResponse(await file.handler(event, {}))
@@ -67,16 +66,12 @@ export function renderStaticEntries (entries: string[], config: Presta): Promise
           allGeneratedFiles.push(filename)
           nextFiles.push(filename)
 
-          fs.outputFileSync(
-            path.join(config.staticOutputDir, filename),
-            response.body,
-            'utf-8'
-          )
+          fs.outputFileSync(path.join(config.staticOutputDir, filename), response.body, 'utf-8')
 
           logger.info({
             label: 'built',
             message: url,
-            duration: time()
+            duration: time(),
           })
         }
 

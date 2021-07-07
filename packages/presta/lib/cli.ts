@@ -14,10 +14,10 @@ import { serve } from './serve'
 const prog = sade('presta')
 const CONFIG_DEFAULT = 'presta.config.js'
 
-function registerRuntime (options = {}) {
+function registerRuntime(options = {}) {
   require('module-alias').addAliases({
     '@': process.cwd(),
-    'presta:internal': __dirname // wherever this is running from
+    'presta:internal': __dirname, // wherever this is running from
   })
 
   require('esbuild-register/dist/node').register(options)
@@ -25,29 +25,17 @@ function registerRuntime (options = {}) {
 
 prog
   .version(pkg.version)
-  .option(
-    '--config, -c',
-    `Path to a config file — defaults to ${CONFIG_DEFAULT}`
-  )
-  .option(
-    '--output, -o',
-    `Specify output directory for built files — defaults to ./build`
-  )
-  .option(
-    '--assets, -a',
-    `Specify static asset directory — defaults to ./public`
-  )
-  .option(
-    '--debug, -d',
-    `Enable debug mode (prints more logs)`
-  )
+  .option('--config, -c', `Path to a config file — defaults to ${CONFIG_DEFAULT}`)
+  .option('--output, -o', `Specify output directory for built files — defaults to ./build`)
+  .option('--assets, -a', `Specify static asset directory — defaults to ./public`)
+  .option('--debug, -d', `Enable debug mode (prints more logs)`)
 
 prog
   .command('build', 'Render files(s) to output directory.', { default: true })
   .example(`build`)
   .example(`build files/**/*.js`)
   .example(`build -c ${CONFIG_DEFAULT}`)
-  .action(async opts => {
+  .action(async (opts) => {
     registerRuntime()
 
     console.clear()
@@ -57,8 +45,8 @@ prog
       config: getConfigFile(opts.config, true),
       cli: {
         ...opts,
-        files: opts._
-      }
+        files: opts._,
+      },
     })
 
     fs.emptyDirSync(config.output)
@@ -77,7 +65,7 @@ prog
   .example(`watch ./files/**/*.js`)
   .example(`watch ./files/**/*.js -o ./out`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
-  .action(async opts => {
+  .action(async (opts) => {
     registerRuntime()
 
     console.clear()
@@ -87,8 +75,8 @@ prog
       config: getConfigFile(opts.config),
       cli: {
         ...opts,
-        files: opts._
-      }
+        files: opts._,
+      },
     })
 
     fs.emptyDirSync(config.output)
@@ -100,7 +88,7 @@ prog
       logger.newline()
     } else {
       logger.info({
-        label: 'dev'
+        label: 'dev',
       })
       logger.newline()
     }
@@ -114,13 +102,13 @@ prog
   .example(`serve`)
   .example(`serve -o ./out`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
-  .action(async opts => {
+  .action(async (opts) => {
     console.clear()
 
     const config = createConfig({
       env: Env.PRODUCTION,
       config: getConfigFile(opts.config),
-      cli: opts
+      cli: opts,
     })
     const server = await serve(config)
 

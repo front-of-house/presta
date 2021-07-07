@@ -8,12 +8,8 @@ export type HeadElementWithChildren<T> = {
 
 export type Meta = Partial<Omit<HTMLMetaElement, 'children'>>
 export type Link = Partial<Omit<HTMLLinkElement, 'children'>>
-export type Style = Partial<
-  HeadElementWithChildren<Omit<HTMLStyleElement, 'children'>>
->
-export type Script = Partial<
-  HeadElementWithChildren<Omit<HTMLScriptElement, 'children'>>
->
+export type Style = Partial<HeadElementWithChildren<Omit<HTMLStyleElement, 'children'>>>
+export type Script = Partial<HeadElementWithChildren<Omit<HTMLScriptElement, 'children'>>>
 export type HeadElement = Meta | Link | Style | Script | string
 
 type Social = {
@@ -47,14 +43,14 @@ const defaults: PrestaHead = {
   meta: [
     // @ts-ignore
     { charset: 'UTF-8' },
-    { name: 'viewport', content: 'width=device-width,initial-scale=1' }
+    { name: 'viewport', content: 'width=device-width,initial-scale=1' },
   ],
   link: [],
   script: [],
-  style: []
+  style: [],
 }
 
-export function pruneEmpty (obj: GenericObject) {
+export function pruneEmpty(obj: GenericObject) {
   let res: GenericObject = {}
 
   for (const k of Object.keys(obj)) {
@@ -64,7 +60,7 @@ export function pruneEmpty (obj: GenericObject) {
   return res
 }
 
-export function filterUnique (arr: HeadElement[]) {
+export function filterUnique(arr: HeadElement[]) {
   let res: HeadElement[] = []
 
   outer: for (const a of arr.reverse()) {
@@ -87,14 +83,14 @@ export function filterUnique (arr: HeadElement[]) {
   return res
 }
 
-export function tag (name: string) {
+export function tag(name: string) {
   return (props: HeadElement) => {
     if (typeof props === 'string') return props
 
     const attr = Object.keys(props)
-      .filter(p => p !== 'children')
+      .filter((p) => p !== 'children')
       // @ts-ignore
-      .map(p => `${p}="${props[p]}"`)
+      .map((p) => `${p}="${props[p]}"`)
       .join(' ')
 
     const attributes = attr ? ' ' + attr : ''
@@ -108,17 +104,14 @@ export function tag (name: string) {
   }
 }
 
-export function prefixToObjects (
-  prefix: string,
-  props: Social
-): HeadElementWithChildren<Partial<HTMLMetaElement>>[] {
-  return Object.keys(props).map(p => ({
+export function prefixToObjects(prefix: string, props: Social): HeadElementWithChildren<Partial<HTMLMetaElement>>[] {
+  return Object.keys(props).map((p) => ({
     [prefix === 'og' ? 'property' : 'name']: `${prefix}:${p}`,
-    content: props[p]
+    content: props[p],
   }))
 }
 
-export function createHeadTags (config: Partial<PrestaHead> = {}) {
+export function createHeadTags(config: Partial<PrestaHead> = {}) {
   const { title, description, image, url, ...o } = merge(defaults, config)
 
   const meta = o.meta ? filterUnique(o.meta) : []
@@ -130,33 +123,29 @@ export function createHeadTags (config: Partial<PrestaHead> = {}) {
     description,
     url,
     image,
-    ...(o.og || {})
+    ...(o.og || {}),
   })
   const twitter = pruneEmpty({
     title,
     description,
     url,
     image,
-    ...(o.twitter || {})
+    ...(o.twitter || {}),
   })
 
   const tags = [
-    meta
-      .concat(description ? { name: 'description', content: description } : [])
-      .map(tag('meta')),
+    meta.concat(description ? { name: 'description', content: description } : []).map(tag('meta')),
     prefixToObjects('og', og).map(tag('meta')),
     prefixToObjects('twitter', twitter).map(tag('meta')),
     link.map(tag('link')),
     script.map(tag('script')),
-    style.map(tag('style'))
+    style.map(tag('style')),
   ].flat(2)
 
   return `<title>${title}</title>${tags.join('')}`
 }
 
-export function createFootTags (
-  config: Partial<Pick<PrestaHead, 'script' | 'style'>> = {}
-) {
+export function createFootTags(config: Partial<Pick<PrestaHead, 'script' | 'style'>> = {}) {
   const o = merge({ script: [], style: [] }, config)
   const script = filterUnique(o.script)
   const style = filterUnique(o.style)
@@ -166,12 +155,12 @@ export function createFootTags (
   return tags.join('')
 }
 
-export function html ({
+export function html({
   body = '',
   head = {},
   foot = {},
   htmlAttributes = {},
-  bodyAttributes = {}
+  bodyAttributes = {},
 }: {
   body?: string
   head?: Partial<PrestaHead>
@@ -180,28 +169,25 @@ export function html ({
   bodyAttributes?: Partial<HTMLBodyElement>
 }) {
   // insert favicon during dev, if not otherwise specified
-  if (
-    head.link &&
-    !head.link.find(m => m.rel === 'icon' || /rel="icon/.test(m + ''))
-  ) {
+  if (head.link && !head.link.find((m) => m.rel === 'icon' || /rel="icon/.test(m + ''))) {
     head.link.push({
       rel: 'icon',
       type: 'image/png',
-      href: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJSSURBVHgB7ZbdcdpAEIB3T6DE9otLwB3YFQRXEFyBYWwYv5kOAhWEvGHxEFIBcQWQCkwqiNIBDwHHKNJmTzCKjO9AAiYzmew3oxmd7va0f7e3AIIgCIIgCIIgCILwf4JZFlGzeRxMp5eEWObhKQuVFhM0AUSfn7Eiui943mf4y6w1QCv+aza7JaImK3kMm9HGdNy7uw+wB54ajW+Js1K4npforWzCP+r10/ls9kAArYzKa0oclc6cf/x4c1OGHUEi038n6YHRAK28CzA0WZ+RkhNFw6DReAdbwg4oWRznpwfKJFhEHOTwuhUdPU6DAVWr+fcKw7Lpc4T4PT1+YYAThh938PwLeK9K4LoPsUdzoBCN0SsQDZ6tSw8e6/UqLCqNGaIRheFFqNRJ/ETROX9r0kpYDcQpldUInXo2JwZKfUmPn1Uh26mPUarmdrt9sMCyLZbdmPO8plX0vLZtXisfFw6jMPa5wtVW9lsKXl+XSamhSY43bL/yvBZs4OnqqgKO8z5DCvq6WqHjfC0soxcscv5yXQboqB90uz6YDFjjQZ/r7glkRKeJ4nTZ5znS2JyYnAFEfGOWpHvIgfZQpNQ5v45hf4xtGZAYwLdtybQgdJzc7YE2gqN2pr0Gu+Nz6lzYJv9EwBJyLqsT2BLttZColqFKmeGqVzw8PFvN+zSF5A1xlPqeCBTnc6twFg56vT6fixGfiyq3BreZLkhuEvnCar/u9TqblmbqRveFbg5/TqcVvqTe4qJvStqFZZTGqL1+dPQJO52tIy8IgiAIgiD8I/wGlKzp9SA8zyUAAAAASUVORK5CYII=`
+      href: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJSSURBVHgB7ZbdcdpAEIB3T6DE9otLwB3YFQRXEFyBYWwYv5kOAhWEvGHxEFIBcQWQCkwqiNIBDwHHKNJmTzCKjO9AAiYzmew3oxmd7va0f7e3AIIgCIIgCIIgCILwf4JZFlGzeRxMp5eEWObhKQuVFhM0AUSfn7Eiui943mf4y6w1QCv+aza7JaImK3kMm9HGdNy7uw+wB54ajW+Js1K4npforWzCP+r10/ls9kAArYzKa0oclc6cf/x4c1OGHUEi038n6YHRAK28CzA0WZ+RkhNFw6DReAdbwg4oWRznpwfKJFhEHOTwuhUdPU6DAVWr+fcKw7Lpc4T4PT1+YYAThh938PwLeK9K4LoPsUdzoBCN0SsQDZ6tSw8e6/UqLCqNGaIRheFFqNRJ/ETROX9r0kpYDcQpldUInXo2JwZKfUmPn1Uh26mPUarmdrt9sMCyLZbdmPO8plX0vLZtXisfFw6jMPa5wtVW9lsKXl+XSamhSY43bL/yvBZs4OnqqgKO8z5DCvq6WqHjfC0soxcscv5yXQboqB90uz6YDFjjQZ/r7glkRKeJ4nTZ5znS2JyYnAFEfGOWpHvIgfZQpNQ5v45hf4xtGZAYwLdtybQgdJzc7YE2gqN2pr0Gu+Nz6lzYJv9EwBJyLqsT2BLttZColqFKmeGqVzw8PFvN+zSF5A1xlPqeCBTnc6twFg56vT6fixGfiyq3BreZLkhuEvnCar/u9TqblmbqRveFbg5/TqcVvqTe4qJvStqFZZTGqL1+dPQJO52tIy8IgiAIgiD8I/wGlKzp9SA8zyUAAAAASUVORK5CYII=`,
     })
   }
 
   // insert default charset and viewport, if not otherwise specified
   if (head.meta) {
     // @ts-ignore TODO wtf
-    if (!head.meta.find(m => !!m.charset)) {
+    if (!head.meta.find((m) => !!m.charset)) {
       // @ts-ignore
       head.meta.push({ charset: 'UTF-8' })
     }
-    if (!head.meta.find(m => m.name === 'viewport')) {
+    if (!head.meta.find((m) => m.name === 'viewport')) {
       head.meta.push({
         name: 'viewport',
-        content: 'width=device-width,initial-scale=1'
+        content: 'width=device-width,initial-scale=1',
       })
     }
   }

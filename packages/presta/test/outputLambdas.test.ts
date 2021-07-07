@@ -13,13 +13,13 @@ export default (test, assert) => {
       a: {
         url: './outputLambda/lambda.min.js',
         content,
-      }
+      },
     })
     const config = createConfig({
       cli: {
         files: './outputLambda/*.js',
-        output: path.join(fixtures.getRoot(), 'output')
-      }
+        output: path.join(fixtures.getRoot(), 'output'),
+      },
     })
 
     const [route, filename] = outputLambda(fsx.files.a, config)

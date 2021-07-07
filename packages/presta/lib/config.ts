@@ -10,7 +10,7 @@ const defaultConfigFilepath = 'presta.config.js'
 export enum Env {
   PRODUCTION = 'production',
   DEVELOPMENT = 'development',
-  TEST = 'test'
+  TEST = 'test',
 }
 
 global.__presta__ =
@@ -19,14 +19,13 @@ global.__presta__ =
     pid: process.pid,
     cwd: process.cwd(),
     env: Env.TEST,
-    debug: false
+    debug: false,
   } as Presta)
 
-function resolveAbsolutePaths (config: Config) {
+function resolveAbsolutePaths(config: Config) {
   const cwd = process.cwd()
 
-  if (config.files)
-    config.files = ([] as string[]).concat(config.files).map(p => path.resolve(cwd, p))
+  if (config.files) config.files = ([] as string[]).concat(config.files).map((p) => path.resolve(cwd, p))
   if (config.output) config.output = path.resolve(cwd, config.output)
   if (config.assets) config.assets = path.resolve(cwd, config.assets)
   return config
@@ -35,12 +34,12 @@ function resolveAbsolutePaths (config: Config) {
 /**
  * @private
  */
-export function _clearCurrentConfig () {
+export function _clearCurrentConfig() {
   // @ts-ignore
   global.__presta__ = {
     pid: process.pid,
     cwd: process.cwd(),
-    env: Env.TEST
+    env: Env.TEST,
   }
 }
 
@@ -49,7 +48,7 @@ export function _clearCurrentConfig () {
  * anything goes wrong. Outside watch mode, this should exit(1) if the user
  * provided a config and there was an error
  */
-export function getConfigFile (filepath: string, shouldExit: boolean = false) {
+export function getConfigFile(filepath: string, shouldExit: boolean = false) {
   try {
     return require(path.resolve(filepath || defaultConfigFilepath))
   } catch (e) {
@@ -57,7 +56,7 @@ export function getConfigFile (filepath: string, shouldExit: boolean = false) {
     if (!!filepath) {
       logger.error({
         label: 'error',
-        error: e
+        error: e,
       })
 
       // we're not in watch mode, exit
@@ -72,7 +71,7 @@ export function getConfigFile (filepath: string, shouldExit: boolean = false) {
  * Creates a new instance _without_ any values provided by the config file.
  * This is used when the user deletes their config file.
  */
-export function removeConfigValues () {
+export function removeConfigValues() {
   logger.debug({
     label: 'debug',
     message: `config file values cleared`,
@@ -80,20 +79,20 @@ export function removeConfigValues () {
 
   global.__presta__ = createConfig({
     ...global.__presta__,
-    config: {}
+    config: {},
   })
 
   return global.__presta__
 }
 
-export function getCurrentConfig () {
+export function getCurrentConfig() {
   return global.__presta__
 }
 
-export function createConfig ({
+export function createConfig({
   env = global.__presta__.env,
   config = {},
-  cli = {}
+  cli = {},
 }: {
   env?: Env
   config?: Partial<Config>
@@ -106,12 +105,7 @@ export function createConfig ({
   const merged = {
     output: cli.output || config.output || path.resolve('build'),
     assets: cli.assets || config.assets || path.resolve('public'),
-    files:
-      cli.files && cli.files.length
-        ? cli.files
-        : config.files
-        ? ([] as string[]).concat(config.files)
-        : []
+    files: cli.files && cli.files.length ? cli.files : config.files ? ([] as string[]).concat(config.files) : [],
   }
 
   // set instance
@@ -125,7 +119,7 @@ export function createConfig ({
     functionsOutputDir: path.join(merged.output, 'functions'),
     staticOutputDir: path.join(merged.output, 'static'),
     routesManifest: path.join(merged.output, 'routes.json'),
-    events: createEmitter()
+    events: createEmitter(),
   }
 
   logger.debug({

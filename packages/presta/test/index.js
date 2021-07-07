@@ -7,7 +7,7 @@ const path = require('path')
 // proxy self back to self
 require('module-alias').addAliases({
   '@': process.cwd(),
-  'presta:internal': path.join(__dirname, '..')
+  'presta:internal': path.join(__dirname, '..'),
 })
 
 const fs = require('fs-extra')

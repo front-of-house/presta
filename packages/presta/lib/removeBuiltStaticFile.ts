@@ -5,7 +5,7 @@ import * as logger from './log'
 
 import type { Presta } from '..'
 
-export function removeBuiltStaticFile (file: string, config: Presta) {
+export function removeBuiltStaticFile(file: string, config: Presta) {
   logger.debug({
     label: 'debug',
     message: `removing old static file ${file}`,

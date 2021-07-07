@@ -1,6 +1,6 @@
 import { prime, load, flush, createLoadCache } from './index'
 
-const wait = (t: number) => new Promise(r => setTimeout(r, t))
+const wait = (t: number) => new Promise((r) => setTimeout(r, t))
 
 test('runs', async () => {
   let i = 0
@@ -10,7 +10,7 @@ test('runs', async () => {
     return { value: 'runs' }
   }
 
-  function component () {
+  function component() {
     i++
     const data = load(loader, { key: 'runs' })
     return data ? data.value : null
@@ -31,13 +31,13 @@ test('nested - cached', async () => {
     return { value: 'nested' }
   }
 
-  function child () {
+  function child() {
     i++
     const data = load(loader, { key: 'nested' })
     return data ? data.value : null
   }
 
-  function entry () {
+  function entry() {
     i++
     const data = load(loader, { key: 'nested' })
     return data ? child() : null
@@ -58,13 +58,13 @@ test('nested - not cached', async () => {
     return { value: 'nested' }
   }
 
-  function child () {
+  function child() {
     i++
     const data = load(loader, { key: 'nested_child' })
     return data ? data.value : null
   }
 
-  function entry () {
+  function entry() {
     i++
     const data = load(loader, { key: 'nested_entry' })
     return data ? child() : null
@@ -87,7 +87,7 @@ test('no recursion on error', async () => {
     return { value: 'runs' }
   }
 
-  function component () {
+  function component() {
     i++
     const data = load(loader, { key: 'runs' })
     return data ? data.value : null
@@ -105,7 +105,7 @@ test('prime', async () => {
     return { value: 'val' }
   }
 
-  function component () {
+  function component() {
     i++
     const data = load(loader, { key: 'runs' })
     return data ? data.value : null
@@ -131,12 +131,12 @@ test('catches sync and async errors', async () => {
     return { value: 'sync' }
   }
 
-  function asyncComponent () {
+  function asyncComponent() {
     one++
     const data = load(asyncLoader, { key: 'async' })
     return data ? data.value : null
   }
-  function syncComponent () {
+  function syncComponent() {
     two++
     // @ts-ignore
     const data = load(syncLoader, { key: 'async' })

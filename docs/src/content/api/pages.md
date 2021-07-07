@@ -21,7 +21,7 @@ export const route = '/:slug?'
 /**
  * Any paths returned here will be passed to the handler and rendered statically
  */
-export async function getStaticPaths () {
+export async function getStaticPaths() {
   return ['/']
 }
 
@@ -35,17 +35,11 @@ export async function getStaticPaths () {
  *    lambda.event     the full lambda event
  *    lambda.context   the full lambda context
  */
-export async function handler ({
-  path,
-  headers,
-  params,
-  query,
-  lambda: { event, context }
-}) {
+export async function handler({ path, headers, params, query, lambda: { event, context } }) {
   return {
     statusCode: 200,
     headers: {
-      'Cache-Control': 'max-age=3600, public'
+      'Cache-Control': 'max-age=3600, public',
     },
     /*
      * You can return a response as a string,
@@ -63,12 +57,12 @@ export async function handler ({
      * serialize an object into JSON.
      */
     json: {
-      posts: [{ title: 'My First Blog Post' }]
+      posts: [{ title: 'My First Blog Post' }],
     },
     /*
      * There's even an `xml` option for sitemaps!
      */
-    xml: generateSitemap()
+    xml: generateSitemap(),
   }
 }
 ```

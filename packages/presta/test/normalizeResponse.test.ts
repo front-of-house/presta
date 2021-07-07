@@ -9,7 +9,7 @@ export default async function (test, assert) {
 
   test('normalizeResponse - html', async () => {
     const res = normalizeResponse({
-      html: 'body'
+      html: 'body',
     })
     assert(String(res.headers['Content-Type']).includes('text/html'))
     assert(res.body === 'body')
@@ -41,7 +41,7 @@ export default async function (test, assert) {
 
   test('normalizeResponse - multiValueHeaders', async () => {
     const res = normalizeResponse({
-      multiValueHeaders: { 'Set-Cookie': ['foo', 'bar'] }
+      multiValueHeaders: { 'Set-Cookie': ['foo', 'bar'] },
     })
     assert(res.multiValueHeaders['Set-Cookie'][0] === 'foo')
   })

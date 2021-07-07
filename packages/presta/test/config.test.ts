@@ -1,13 +1,7 @@
 import path from 'path'
 
 import * as fixtures from './fixtures'
-import {
-  createConfig,
-  removeConfigValues,
-  getConfigFile,
-  _clearCurrentConfig,
-  Env,
-} from '../lib/config'
+import { createConfig, removeConfigValues, getConfigFile, _clearCurrentConfig, Env } from '../lib/config'
 
 const env = Env.TEST
 
@@ -19,8 +13,8 @@ export default async function (test, assert) {
       env,
       cli: {
         files: 'app/*.js',
-        output: 'dist'
-      }
+        output: 'dist',
+      },
     })
 
     assert.equal(config.env, env)
@@ -40,7 +34,7 @@ export default async function (test, assert) {
 
     const config = createConfig({
       env,
-      cli: {}
+      cli: {},
     })
 
     assert.deepEqual(config.files, [])
@@ -53,8 +47,8 @@ export default async function (test, assert) {
       env,
       cli: {
         files: 'app/*.js',
-        output: 'dist'
-      }
+        output: 'dist',
+      },
     })
 
     assert(path.isAbsolute(config.output))
@@ -68,8 +62,8 @@ export default async function (test, assert) {
       env,
       cli: {
         files: 'app/*.js',
-        assets: 'assets'
-      }
+        assets: 'assets',
+      },
     })
 
     assert(path.isAbsolute(config.assets))
@@ -83,8 +77,8 @@ export default async function (test, assert) {
       env,
       cli: {
         files: 'app/*.js',
-        assets: 'assets'
-      }
+        assets: 'assets',
+      },
     })
 
     assert(path.isAbsolute(config.staticOutputDir))
@@ -98,14 +92,14 @@ export default async function (test, assert) {
     const fsx = fixtures.create({
       config: {
         url: 'presta.config.js',
-        content: `export const files = '${file}'; export const output = '${output}'`
-      }
+        content: `export const files = '${file}'; export const output = '${output}'`,
+      },
     })
     const configFile = getConfigFile(fsx.files.config)
     const config = createConfig({
       env,
       config: configFile,
-      cli: {}
+      cli: {},
     })
 
     assert(config.files[0].includes(file))
@@ -120,8 +114,8 @@ export default async function (test, assert) {
     const fsx = fixtures.create({
       config: {
         url: 'presta.config.js',
-        content: `export const files = 'file.js'; export const output = 'output'`
-      }
+        content: `export const files = 'file.js'; export const output = 'output'`,
+      },
     })
     const configFile = getConfigFile(fsx.files.config)
     const config = createConfig({
@@ -129,8 +123,8 @@ export default async function (test, assert) {
       config: configFile,
       cli: {
         files: 'foo.js',
-        output: 'out'
-      }
+        output: 'out',
+      },
     })
 
     assert(config.files[0].includes('foo.js'))
@@ -144,8 +138,8 @@ export default async function (test, assert) {
 
     const config = createConfig({
       config: {
-        output: 'out'
-      }
+        output: 'out',
+      },
     })
 
     assert(config.output.includes('out'))
@@ -156,8 +150,8 @@ export default async function (test, assert) {
 
     const config = createConfig({
       config: {
-        output: 'output'
-      }
+        output: 'output',
+      },
     })
 
     assert(config.output.includes('output'))
@@ -165,8 +159,8 @@ export default async function (test, assert) {
     const merged = createConfig({
       config: {
         output: 'output',
-        assets: 'assets'
-      }
+        assets: 'assets',
+      },
     })
 
     assert(merged.assets.includes('assets'))
@@ -177,8 +171,8 @@ export default async function (test, assert) {
 
     const config = createConfig({
       config: {
-        output: 'output'
-      }
+        output: 'output',
+      },
     })
 
     assert(config.output.includes('output'))

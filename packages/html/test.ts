@@ -1,20 +1,14 @@
-import {
-  html,
-  filterUnique,
-  tag,
-  prefixToObjects,
-  createHeadTags
-} from '.'
+import { html, filterUnique, tag, prefixToObjects, createHeadTags } from '.'
 
 test('html - works on its own', async () => {
   const doc = html({
     body: 'original',
     head: {
-      title: 'original'
-    }
+      title: 'original',
+    },
   })
 
-  expect(doc).toContain('<title>original<\/title>')
+  expect(doc).toContain('<title>original</title>')
   expect(doc).toContain('original')
 })
 
@@ -22,19 +16,19 @@ test('html - attributes work', async () => {
   const doc = html({
     body: 'original',
     head: {
-      title: 'original'
+      title: 'original',
     },
     bodyAttributes: {
       // @ts-ignore TODO
-      class: 'foo'
+      class: 'foo',
     },
     htmlAttributes: {
-      lang: 'en'
-    }
+      lang: 'en',
+    },
   })
 
   expect(doc).toContain('<html lang="en"')
-  expect(doc).toContain('<title>original<\/title>')
+  expect(doc).toContain('<title>original</title>')
   expect(doc).toContain('original')
   expect(doc).toContain('class="foo')
 })
@@ -46,30 +40,14 @@ test('filterUnique', async () => {
       { name: 'author', content: 'foo' },
       { name: 'author', content: 'bar' },
     ])
-  ).toEqual(
-    [{ name: 'author', content: 'bar' }]
-  )
+  ).toEqual([{ name: 'author', content: 'bar' }])
+
+  expect(filterUnique([{ href: 'style.css' }, { href: 'style.css' }]).length).toEqual(1)
+
+  expect(filterUnique([{ src: 'index.js' }, { src: 'index.js' }, { src: 'vendor.js' }]).length).toEqual(2)
 
   expect(
-    filterUnique([
-      { href: 'style.css' },
-      { href: 'style.css' },
-    ]).length
-  ).toEqual(1)
-
-  expect(
-    filterUnique([
-      { src: 'index.js' },
-      { src: 'index.js' },
-      { src: 'vendor.js' },
-    ]).length
-  ).toEqual(2)
-
-  expect(
-    filterUnique([
-      `<style>.class { color: blue }</style>`,
-      `<style>.class { color: blue }</style>`,
-    ]).length
+    filterUnique([`<style>.class { color: blue }</style>`, `<style>.class { color: blue }</style>`]).length
   ).toEqual(1)
 })
 
@@ -92,7 +70,7 @@ test('objectToTag', async () => {
 
 test('prefixToObjects', () => {
   const objects = prefixToObjects('og', {
-    url: 'test.com'
+    url: 'test.com',
   })
   expect(objects[0].content).toEqual('test.com')
 })
@@ -110,13 +88,13 @@ test('createHeadTags - basic', async () => {
     title: 'test',
     description: 'test description',
     og: {
-      url: 'test.com'
+      url: 'test.com',
     },
     twitter: {
-      card: 'summary_large_image'
+      card: 'summary_large_image',
     },
     meta: [{ name: 'author', content: 'test' }],
-    script: [`<script src="/test.js"></script>`]
+    script: [`<script src="/test.js"></script>`],
   })
 
   expect(head).toContain('<title>test')
@@ -128,7 +106,7 @@ test('createHeadTags - basic', async () => {
 test('twitter and og', async () => {
   const head = createHeadTags({
     title: 'test',
-    description: 'test description'
+    description: 'test description',
   })
 
   expect(head).toContain('og:title')
@@ -139,7 +117,7 @@ test('twitter and og', async () => {
 
 test('image shorthand', async () => {
   const head = createHeadTags({
-    image: 'foo'
+    image: 'foo',
   })
 
   expect(head).toContain('og:image')
@@ -148,7 +126,7 @@ test('image shorthand', async () => {
 
 test('url shorthand', async () => {
   const head = createHeadTags({
-    url: 'foo'
+    url: 'foo',
   })
 
   expect(head).toContain('og:url')

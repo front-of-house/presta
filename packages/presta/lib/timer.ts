@@ -1,4 +1,4 @@
-export function timer () {
+export function timer() {
   const start = process.hrtime()
   return () => {
     const [s, nanos] = process.hrtime(start)

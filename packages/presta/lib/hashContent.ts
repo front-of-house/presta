@@ -1,4 +1,4 @@
-export function hashContent (content: string) {
+export function hashContent(content: string) {
   var h = 5381,
     i = content.length
 

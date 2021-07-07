@@ -28,14 +28,14 @@ const style = [
   'font-weight: bold',
   'text-align: center',
   'line-height: 31px',
-  'box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 24px 32px rgba(0, 0, 0, 0.04)'
+  'box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 24px 32px rgba(0, 0, 0, 0.04)',
 ]
 
 const devServerIcon = `
   <div style="${style.join(';')}">~</div>
 `
 
-function resolveHTML (dir: string, url: string) {
+function resolveHTML(dir: string, url: string) {
   let file = path.join(dir, url)
 
   // if no extension, it's probably intended to be an HTML file
@@ -48,7 +48,7 @@ function resolveHTML (dir: string, url: string) {
   return fs.readFileSync(file, 'utf8')
 }
 
-function createDevClient ({ port }: { port: number }) {
+function createDevClient({ port }: { port: number }) {
   return `
     <script>
       (function (global) {
@@ -79,7 +79,7 @@ function createDevClient ({ port }: { port: number }) {
   `
 }
 
-export function createServerHandler ({ port, config }: { port: number, config: Presta }) {
+export function createServerHandler({ port, config }: { port: number; config: Presta }) {
   const devClient = createDevClient({ port })
   const staticDir = config.staticOutputDir
   const assetDir = config.assets
@@ -94,7 +94,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
     if (/^.+\..+$/.test(url) && !/\.html?$/.test(url)) {
       logger.debug({
         label: 'debug',
-        message: `attempting to serve static asset ${url}`
+        message: `attempting to serve static asset ${url}`,
       })
 
       /*
@@ -108,7 +108,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
           logger.warn({
             label: 'serve',
             message: `404 ${url}`,
-            duration: time()
+            duration: time(),
           })
 
           sendServerlessResponse(res, {
@@ -127,13 +127,12 @@ export function createServerHandler ({ port, config }: { port: number, config: P
           message: `attempting to render static HTML for ${url}`,
         })
 
-        const file =
-          resolveHTML(staticDir, url) + devClient + devServerIcon
+        const file = resolveHTML(staticDir, url) + devClient + devServerIcon
 
         logger.info({
           label: 'serve',
           message: `200 ${url}`,
-          duration: time()
+          duration: time(),
         })
 
         sendServerlessResponse(res, { body: file })
@@ -141,7 +140,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
         logger.debug({
           label: 'debug',
           message: `serve error`,
-          error: e
+          error: e,
         })
 
         // expect ENOENT, log everything else
@@ -156,7 +155,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
           const manifest = require(config.routesManifest)
           const routes = Object.keys(manifest)
           const lambdaFilepath = routes
-            .map(route => ({
+            .map((route) => ({
               matcher: toRegExp(route),
               route,
             }))
@@ -178,8 +177,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
             const event = await requestToEvent(req)
             const response = await handler(event, {})
             const headers = response.headers || {}
-            const redir =
-              response.statusCode > 299 && response.statusCode < 399
+            const redir = response.statusCode > 299 && response.statusCode < 399
 
             // get mime type
             const type = headers['Content-Type']
@@ -188,7 +186,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
             logger.info({
               label: 'serve',
               message: `${response.statusCode} ${redir ? headers.Location : url}`,
-              duration: time()
+              duration: time(),
             })
 
             sendServerlessResponse(res, {
@@ -197,11 +195,7 @@ export function createServerHandler ({ port, config }: { port: number, config: P
               multiValueHeaders: response.multiValueHeaders,
               // only html can be live-reloaded, duh
               body:
-                ext === 'html'
-                  ? (response.body || '').split('</body>')[0] +
-                    devClient +
-                    devServerIcon
-                  : response.body
+                ext === 'html' ? (response.body || '').split('</body>')[0] + devClient + devServerIcon : response.body,
             })
           } else {
             logger.debug({
@@ -213,18 +207,17 @@ export function createServerHandler ({ port, config }: { port: number, config: P
              * Try to fall back to a static 404 page
              */
             try {
-              const file =
-                resolveHTML(staticDir, '404') + devClient + devServerIcon
+              const file = resolveHTML(staticDir, '404') + devClient + devServerIcon
 
               logger.warn({
                 label: 'serve',
-                message: `404 ${url}`, 
-                duration: time()
+                message: `404 ${url}`,
+                duration: time(),
               })
 
               sendServerlessResponse(res, {
                 statusCode: 404,
-                body: file
+                body: file,
               })
             } catch (e) {
               if (!e.message.includes('ENOENT')) {
@@ -239,12 +232,12 @@ export function createServerHandler ({ port, config }: { port: number, config: P
               logger.warn({
                 label: 'serve',
                 message: `404 ${url}`,
-                duration: time()
+                duration: time(),
               })
 
               sendServerlessResponse(res, {
                 statusCode: 404,
-                body: default404 + devClient + devServerIcon
+                body: default404 + devClient + devServerIcon,
               })
             }
           }
@@ -257,13 +250,13 @@ export function createServerHandler ({ port, config }: { port: number, config: P
           logger.error({
             label: 'serve',
             message: `500 ${url}`,
-            error: e, 
-            duration: time()
+            error: e,
+            duration: time(),
           })
 
           sendServerlessResponse(res, {
             statusCode: 500,
-            body: '' + devClient + devServerIcon // TODO default 500 screen
+            body: '' + devClient + devServerIcon, // TODO default 500 screen
           })
         }
       }
@@ -271,11 +264,9 @@ export function createServerHandler ({ port, config }: { port: number, config: P
   }
 }
 
-export async function serve (config: Presta) {
+export async function serve(config: Presta) {
   const port = await getPort({ port: 4000 })
-  const server = http
-    .createServer(createServerHandler({ port, config }))
-    .listen(port)
+  const server = http.createServer(createServerHandler({ port, config })).listen(port)
   const socket = require('pocket.io')(server, { serveClient: false })
 
   config.events.on('refresh', () => {
@@ -287,11 +278,9 @@ export async function serve (config: Presta) {
     socket.emit('refresh')
   })
 
-  chokidar
-    .watch(config.assets, { ignoreInitial: true })
-    .on('all', () => {
-      config.events.emit('refresh')
-    })
+  chokidar.watch(config.assets, { ignoreInitial: true }).on('all', () => {
+    config.events.emit('refresh')
+  })
 
   return { port }
 }

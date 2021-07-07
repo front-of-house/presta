@@ -17,7 +17,7 @@ import type { Presta } from '..'
 /*
  * Wraps outputLambdas for logging
  */
-function updateLambdas (inputs: string[], config: Presta) {
+function updateLambdas(inputs: string[], config: Presta) {
   const time = timer()
 
   // always write this, even if inputs = []
@@ -28,12 +28,12 @@ function updateLambdas (inputs: string[], config: Presta) {
     logger.info({
       label: 'built',
       message: `lambdas`,
-      duration: time()
+      duration: time(),
     })
   }
 }
 
-export async function watch (config: Presta) {
+export async function watch(config: Presta) {
   /*
    * Get files that match static/dynamic patters at startup
    */
@@ -43,7 +43,7 @@ export async function watch (config: Presta) {
   if (!files.length) {
     logger.warn({
       label: 'paths',
-      message: 'no files configured'
+      message: 'no files configured',
     })
   }
 
@@ -59,7 +59,7 @@ export async function watch (config: Presta) {
   const fileWatcher = graph({ alias: { '@': config.cwd } })
   const globalWatcher = chokidar.watch(config.cwd, {
     ignoreInitial: true,
-    ignored: [config.output, config.assets]
+    ignored: [config.output, config.assets],
   })
 
   /*
@@ -67,7 +67,7 @@ export async function watch (config: Presta) {
    * other global config required by all files, so we need to re-fetch all
    * files and rebuild everything.
    */
-  async function handleConfigUpdate () {
+  async function handleConfigUpdate() {
     files = getFiles(config)
     await renderStaticEntries(files.filter(isStatic), config)
     updateLambdas(files.filter(isDynamic), config)
@@ -76,7 +76,7 @@ export async function watch (config: Presta) {
   /*
    * On a changed file, we can just render it
    */
-  async function handleFileChange (file: string) {
+  async function handleFileChange(file: string) {
     // render just file that changed
     if (isStatic(file)) {
       await renderStaticEntries([file], config)
@@ -94,7 +94,7 @@ export async function watch (config: Presta) {
   fileWatcher.on('remove', ([id]) => {
     logger.debug({
       label: 'watch',
-      message: `fileWatcher - removed ${id}`
+      message: `fileWatcher - removed ${id}`,
     })
 
     // remove from local hash
@@ -114,9 +114,7 @@ export async function watch (config: Presta) {
       handleConfigUpdate()
     }
 
-    ;(builtStaticFiles[id] || []).forEach(file =>
-      removeBuiltStaticFile(file, config)
-    )
+    ;(builtStaticFiles[id] || []).forEach((file) => removeBuiltStaticFile(file, config))
 
     config.events.emit('remove', id)
   })
@@ -124,7 +122,7 @@ export async function watch (config: Presta) {
   fileWatcher.on('change', ([id]) => {
     logger.debug({
       label: 'watch',
-      message: `fileWatcher - changed ${id}`
+      message: `fileWatcher - changed ${id}`,
     })
 
     if (id === config.configFilepath) {
@@ -134,7 +132,7 @@ export async function watch (config: Presta) {
       try {
         // merge in new values from config file
         config = createConfig({
-          config: getConfigFile(config.configFilepath)
+          config: getConfigFile(config.configFilepath),
         })
 
         handleConfigUpdate()
@@ -151,7 +149,7 @@ export async function watch (config: Presta) {
     config.events.emit('change', id)
   })
 
-  fileWatcher.on('error', e => {
+  fileWatcher.on('error', (e) => {
     logger.error({
       label: 'error',
       error: e,
@@ -166,18 +164,13 @@ export async function watch (config: Presta) {
    */
   globalWatcher.on('all', async (event, file) => {
     // ignore events handled by wdg, or any directory events
-    if (
-      !/add|change/.test(event) ||
-      !fs.existsSync(file) ||
-      fs.lstatSync(file).isDirectory()
-    )
-      return
+    if (!/add|change/.test(event) || !fs.existsSync(file) || fs.lstatSync(file).isDirectory()) return
 
     // if a file change matches any pages globs
     if (match(config.files)(file) && !files.includes(file)) {
       logger.debug({
         label: 'watch',
-        message: `globalWatcher - add ${file}`
+        message: `globalWatcher - add ${file}`,
       })
 
       files.push(file)
@@ -191,7 +184,7 @@ export async function watch (config: Presta) {
     if (file === config.configFilepath && !hasConfigFile) {
       logger.debug({
         label: 'watch',
-        message: `globalWatcher - add config file ${file}`
+        message: `globalWatcher - add config file ${file}`,
       })
 
       fileWatcher.add(config.configFilepath)
@@ -199,7 +192,7 @@ export async function watch (config: Presta) {
       try {
         // merge in new values from config file
         config = createConfig({
-          config: getConfigFile(config.configFilepath)
+          config: getConfigFile(config.configFilepath),
         })
 
         hasConfigFile = true

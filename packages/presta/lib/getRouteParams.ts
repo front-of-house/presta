@@ -3,7 +3,7 @@ import toRegExp from 'regexparam'
 import { RouteParams } from '..'
 
 // @see https://github.com/lukeed/regexparam#usage
-export function getRouteParams (url: string, route: string): RouteParams {
+export function getRouteParams(url: string, route: string): RouteParams {
   const result = toRegExp(route)
   let i = 0
   let out: RouteParams = {}

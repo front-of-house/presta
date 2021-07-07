@@ -9,7 +9,7 @@ import * as logger from './log'
 
 import type { Presta } from '..'
 
-export async function build (config: Presta) {
+export async function build(config: Presta) {
   const totalTime = timer()
   const files = getFiles(config)
   const staticIds = files.filter(isStatic)
@@ -17,13 +17,13 @@ export async function build (config: Presta) {
 
   logger.debug({
     label: 'build',
-    message: 'starting build'
+    message: 'starting build',
   })
 
   if (!staticIds.length && !dynamicIds.length) {
     logger.warn({
       label: 'files',
-      message: 'no files were found, nothing to build'
+      message: 'no files were found, nothing to build',
     })
   } else {
     let staticTime = ''
@@ -36,10 +36,7 @@ export async function build (config: Presta) {
         if (staticIds.length) {
           const time = timer()
 
-          const { allGeneratedFiles } = await renderStaticEntries(
-            staticIds,
-            config
-          )
+          const { allGeneratedFiles } = await renderStaticEntries(staticIds, config)
 
           staticTime = time()
           staticFileAmount = allGeneratedFiles.length
@@ -58,7 +55,7 @@ export async function build (config: Presta) {
             platform: 'node',
             target: ['node12'],
             minify: true,
-            allowOverwrite: true
+            allowOverwrite: true,
           })
 
           dynamicTime = time()
@@ -72,26 +69,25 @@ export async function build (config: Presta) {
 
           copyTime = time()
         }
-      })()
+      })(),
     ])
 
     // since we're building (not watch) if any task fails, exit with error
-    if (tasks.find(task => task.status === 'rejected')) {
+    if (tasks.find((task) => task.status === 'rejected')) {
       logger.debug({
         label: 'build',
-        message: 'build partially failed'
+        message: 'build partially failed',
       })
 
       // log out errors
-      tasks
-        .forEach(task => {
-          if (task.status === 'rejected') {
-            logger.error({
-              label: 'error',
-              error: task.reason
-            })
-          }
-        })
+      tasks.forEach((task) => {
+        if (task.status === 'rejected') {
+          logger.error({
+            label: 'error',
+            error: task.reason,
+          })
+        }
+      })
 
       process.exit(1)
       return
@@ -103,7 +99,7 @@ export async function build (config: Presta) {
       logger.info({
         label: 'static',
         message: `rendered ${staticFileAmount} file(s)`,
-        duration: staticTime
+        duration: staticTime,
       })
     }
 
@@ -111,14 +107,14 @@ export async function build (config: Presta) {
       logger.info({
         label: 'lambda',
         message: `compiled ${dynamicIds.length} function(s)`,
-        duration: dynamicTime
+        duration: dynamicTime,
       })
     }
 
     if (copyTime) {
       logger.info({
         label: 'assets',
-        message: `copied in ${copyTime}`
+        message: `copied in ${copyTime}`,
       })
     }
 
@@ -126,7 +122,7 @@ export async function build (config: Presta) {
       logger.newline()
       logger.info({
         label: 'complete',
-        message: `in ${totalTime()}`
+        message: `in ${totalTime()}`,
       })
       logger.newline()
     }
