@@ -1,5 +1,17 @@
 # presta
 
+## 0.35.0
+
+### Minor Changes
+
+- [#105](https://github.com/sure-thing/presta/pull/105) [`bb4c1d0`](https://github.com/sure-thing/presta/commit/bb4c1d0d3505bd99639eec8d244e4a1763c77458) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - - adds `postbuild` event for adapter plugin use
+  - adds support for rudimentary plugins
+  - adds and fixes a few types
+
+### Patch Changes
+
+- [#105](https://github.com/sure-thing/presta/pull/105) [`c47957c`](https://github.com/sure-thing/presta/commit/c47957c6b9c4c97f578094a3e991a2aaeaaf8670) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Require cache was not being cleared during watch
+
 ## 0.34.6
 
 ### Patch Changes
