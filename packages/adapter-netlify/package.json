@@ -1,0 +1,30 @@
+{
+  "name": "@presta/adapter-netlify",
+  "version": "0.0.0",
+  "description": "Netlify adapter for Presta.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node scripts/build && pnpx tsc --emitDeclarationOnly",
+    "typecheck": "pnpx tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sure-thing/presta.git"
+  },
+  "author": "estrattonbailey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sure-thing/presta/issues"
+  },
+  "homepage": "https://github.com/sure-thing/presta#readme",
+  "dependencies": {
+    "fs-extra": "^10.0.0",
+    "netlify-redirect-parser": "^8.0.0",
+    "presta": "workspace:^0.34.6",
+    "toml": "^3.0.0"
+  }
+}
