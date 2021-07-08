@@ -4,3 +4,4 @@ test/fixtures
 .pnpm*
 coverage
 .presta-load-cache
+pnpm-lock.yaml
