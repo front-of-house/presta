@@ -9,6 +9,14 @@ import * as logger from './log'
 
 import type { Presta } from '..'
 
+function getRoutesManifestSafely (manifestFilepath: string) {
+  try {
+    return require(manifestFilepath)
+  } catch (e) {
+    return {}
+  }
+}
+
 export async function build(config: Presta) {
   const totalTime = timer()
   const files = getFiles(config)
@@ -93,7 +101,9 @@ export async function build(config: Presta) {
       return
     }
 
-    logger.newline()
+    if (staticTime || dynamicTime) {
+      logger.newline()
+    }
 
     if (staticTime) {
       logger.info({
@@ -126,5 +136,12 @@ export async function build(config: Presta) {
       })
       logger.newline()
     }
+
+    config.events.emit('postbuild', {
+      output: config.output,
+      staticOutput: config.staticOutputDir,
+      functionsOutput: config.functionsOutputDir,
+      functionsManifest: getRoutesManifestSafely(config.routesManifest),
+    })
   }
 }

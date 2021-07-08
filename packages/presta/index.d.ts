@@ -5,7 +5,8 @@ import {
 } from '@netlify/functions'
 
 import { createEmitter } from './lib/createEmitter'
-import { Env } from './lib/config'
+import { Env, getCurrentConfig } from './lib/config'
+import { wrapHandler } from './lib/wrapHandler'
 
 export type AWS = {
   HandlerEvent: LambdaHandlerEvent
@@ -14,10 +15,14 @@ export type AWS = {
   Handler: (event: LambdaHandlerEvent, context: Partial<LambdaHandlerContext>) => Promise<LambdaHandlerResponse>
 }
 
+export type PluginInterface = any
+export type Plugin = () => PluginInterface
+
 export type Config = {
   files?: string | string[]
   output?: string
   assets?: string
+  plugins?: Plugin[]
 }
 
 export type CLI = {
@@ -59,6 +64,9 @@ export type Lambda = {
   route: Route
   handler: Handler
 }
+
+export { getCurrentConfig }
+export { wrapHandler }
 
 declare global {
   namespace NodeJS {

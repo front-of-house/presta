@@ -3,3 +3,4 @@
  */
 
 export { wrapHandler } from './wrapHandler'
+export { getCurrentConfig } from './config'

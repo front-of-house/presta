@@ -37,7 +37,7 @@ export function getLogs() {
 }
 
 export function logger(message: Message) {
-  if (getCurrentConfig().env === Env.TEST) {
+  if (process.env.TESTING) {
     logs.push(message)
   } else {
     const debug = getCurrentConfig().debug

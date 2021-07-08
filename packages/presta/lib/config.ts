@@ -3,7 +3,7 @@ import path from 'path'
 import * as logger from './log'
 import { createEmitter } from './createEmitter'
 
-import { Presta, Config, CLI } from '..'
+import type { Presta, Config, CLI } from '..'
 
 const defaultConfigFilepath = 'presta.config.js'
 
@@ -13,14 +13,28 @@ export enum Env {
   TEST = 'test',
 }
 
-global.__presta__ =
-  global.__presta__ ||
-  ({
-    pid: process.pid,
-    cwd: process.cwd(),
-    env: Env.TEST,
-    debug: false,
-  } as Presta)
+const defaultConfig = {
+  pid: process.pid,
+  cwd: process.cwd(),
+  env: Env.TEST,
+  debug: false,
+} as Presta
+
+function setCurrentConfig(config: Presta): Presta {
+  // @ts-ignore
+  global.__presta__ = config
+  return config
+}
+
+export function getCurrentConfig(): Presta {
+  // @ts-ignore
+  if (!global.__presta__) {
+    setCurrentConfig(defaultConfig)
+  }
+
+  // @ts-ignore
+  return global.__presta__
+}
 
 function resolveAbsolutePaths(config: Config) {
   const cwd = process.cwd()
@@ -52,16 +66,13 @@ export function getConfigFile(filepath: string, shouldExit: boolean = false) {
   try {
     return require(path.resolve(filepath || defaultConfigFilepath))
   } catch (e) {
-    // if user specified a file, must be a syntax error
-    if (!!filepath) {
-      logger.error({
-        label: 'error',
-        error: e,
-      })
+    logger.error({
+      label: 'error',
+      error: e,
+    })
 
-      // we're not in watch mode, exit
-      if (shouldExit) process.exit(1)
-    }
+    // we're not in watch mode, exit
+    if (shouldExit) process.exit(1)
 
     return {}
   }
@@ -77,20 +88,16 @@ export function removeConfigValues() {
     message: `config file values cleared`,
   })
 
-  global.__presta__ = createConfig({
-    ...global.__presta__,
-    config: {},
-  })
-
-  return global.__presta__
-}
-
-export function getCurrentConfig() {
-  return global.__presta__
+  return setCurrentConfig(
+    createConfig({
+      ...getCurrentConfig(),
+      config: {},
+    })
+  )
 }
 
 export function createConfig({
-  env = global.__presta__.env,
+  env = getCurrentConfig().env,
   config = {},
   cli = {},
 }: {
@@ -109,23 +116,36 @@ export function createConfig({
   }
 
   // set instance
-  global.__presta__ = {
-    ...global.__presta__,
+  const current = setCurrentConfig({
+    ...getCurrentConfig(),
     ...merged, // overwrites every time
     env,
-    debug: cli.debug || global.__presta__.debug,
+    debug: cli.debug || getCurrentConfig().debug,
     cwd: process.cwd(),
     configFilepath: path.resolve(cli.config || defaultConfigFilepath),
     functionsOutputDir: path.join(merged.output, 'functions'),
     staticOutputDir: path.join(merged.output, 'static'),
     routesManifest: path.join(merged.output, 'routes.json'),
     events: createEmitter(),
+  })
+
+  if (config.plugins) {
+    config.plugins.map(p => {
+      try {
+        p()
+      } catch (e) {
+        logger.error({
+          label: 'error',
+          error: e
+        })
+      }
+    })
   }
 
   logger.debug({
     label: 'debug',
-    message: `config created ${JSON.stringify(global.__presta__)}`,
+    message: `config created ${JSON.stringify(current)}`,
   })
 
-  return global.__presta__
+  return current
 }
