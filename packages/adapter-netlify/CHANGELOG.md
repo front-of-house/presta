@@ -1,5 +1,11 @@
 # @presta/adapter-netlify
 
+## 0.1.1
+
+### Patch Changes
+
+- [`c6663c9`](https://github.com/sure-thing/presta/commit/c6663c9798f0618b58861d8a69a0fe34be3819e9) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Ensure output isn't removed if it's also used by Netlify
+
 ## 0.1.0
 
 ### Minor Changes
