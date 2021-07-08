@@ -31,7 +31,7 @@
     "format": "prettier --write \"./**/*.{ts,js,md}\"",
     "changeset": "changeset",
     "release": "pnpm build && changeset publish",
-    "version": "changeset version && pnpm format",
+    "version-packages": "changeset version && pnpm format",
     "gutcheck": "pnpm build && pnpm typecheck && pnpm test && pnpm format"
   }
 }
