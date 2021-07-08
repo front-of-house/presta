@@ -66,6 +66,9 @@ export function createPlugin({ cwd = process.cwd() }: { cwd?: string } = {}): Pl
   return async function plugin() {
     const netlifyConfig = getNetlifyConfig({ cwd })
 
+    if (!netlifyConfig) {
+      throw new Error(`Missing required netlify.toml config file`)
+    }
     if (!netlifyConfig.build) {
       throw new Error(`Missing required netlify.toml config: build`)
     }
