@@ -2,7 +2,6 @@ node_modules
 dist
 fixtures
 test/fixtures
-pnpm-lock.yaml
 .pnpm*
 coverage
 .presta-load-cache
