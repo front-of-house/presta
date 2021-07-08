@@ -1,6 +1,6 @@
 import { prime, load, flush, createLoadCache } from './index'
 
-const wait = (t: number) => new Promise((r) => setTimeout(r, t))
+const wait = (t: number) => new Promise((r) => setTimeout(r, t, null))
 
 test('runs', async () => {
   let i = 0

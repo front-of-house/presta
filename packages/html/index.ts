@@ -6,11 +6,11 @@ export type HeadElementWithChildren<T> = {
   children?: string
 } & T
 
-export type Meta = Partial<Omit<HTMLMetaElement, 'children'>>
-export type Link = Partial<Omit<HTMLLinkElement, 'children'>>
-export type Style = Partial<HeadElementWithChildren<Omit<HTMLStyleElement, 'children'>>>
-export type Script = Partial<HeadElementWithChildren<Omit<HTMLScriptElement, 'children'>>>
-export type HeadElement = Meta | Link | Style | Script | string
+export type Meta = Partial<Omit<HTMLMetaElement, 'children'>> | string
+export type Link = Partial<Omit<HTMLLinkElement, 'children'>> | string
+export type Style = Partial<HeadElementWithChildren<Omit<HTMLStyleElement, 'children'>>> | string
+export type Script = Partial<HeadElementWithChildren<Omit<HTMLScriptElement, 'children'>>> | string
+export type HeadElement = Meta | Link | Style | Script
 
 type Social = {
   title?: string
@@ -80,7 +80,7 @@ export function filterUnique(arr: HeadElement[]) {
     res.push(a)
   }
 
-  return res
+  return res.reverse()
 }
 
 export function tag(name: string) {
@@ -169,7 +169,7 @@ export function html({
   bodyAttributes?: Partial<HTMLBodyElement>
 }) {
   // insert favicon during dev, if not otherwise specified
-  if (head.link && !head.link.find((m) => m.rel === 'icon' || /rel="icon/.test(m + ''))) {
+  if (head.link && !head.link.find((m) => (typeof m === 'object' ? m.rel === 'icon' : /rel="icon/.test(m)))) {
     head.link.push({
       rel: 'icon',
       type: 'image/png',
@@ -184,7 +184,7 @@ export function html({
       // @ts-ignore
       head.meta.push({ charset: 'UTF-8' })
     }
-    if (!head.meta.find((m) => m.name === 'viewport')) {
+    if (!head.meta.find((m) => (typeof m === 'object' ? m.name === 'viewport' : /name="viewport/.test(m)))) {
       head.meta.push({
         name: 'viewport',
         content: 'width=device-width,initial-scale=1',

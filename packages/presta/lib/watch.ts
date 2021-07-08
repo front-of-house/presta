@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+// @ts-ignore
 import graph from 'watch-dependency-graph'
 import chokidar from 'chokidar'
 import match from 'picomatch'
@@ -91,7 +92,7 @@ export async function watch(config: Presta) {
     config.events.emit('done', [file])
   }
 
-  fileWatcher.on('remove', ([id]) => {
+  fileWatcher.on('remove', ([id]: string[]) => {
     logger.debug({
       label: 'watch',
       message: `fileWatcher - removed ${id}`,
@@ -119,7 +120,7 @@ export async function watch(config: Presta) {
     config.events.emit('remove', id)
   })
 
-  fileWatcher.on('change', ([id]) => {
+  fileWatcher.on('change', ([id]: string[]) => {
     logger.debug({
       label: 'watch',
       message: `fileWatcher - changed ${id}`,
@@ -149,7 +150,7 @@ export async function watch(config: Presta) {
     config.events.emit('change', id)
   })
 
-  fileWatcher.on('error', (e) => {
+  fileWatcher.on('error', (e: Error) => {
     logger.error({
       label: 'error',
       error: e,

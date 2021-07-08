@@ -7,7 +7,6 @@
   "compilerOptions": {
     "declaration": true,
     "declarationDir": "dist",
-    "resolveJsonModule": true,
-    "noImplicitAny": false
+    "resolveJsonModule": true
   }
 }
