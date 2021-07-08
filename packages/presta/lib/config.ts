@@ -36,9 +36,7 @@ export function getCurrentConfig(): Presta {
   return global.__presta__
 }
 
-function resolveAbsolutePaths(config: Config) {
-  const cwd = process.cwd()
-
+function resolveAbsolutePaths(config: Config, { cwd }: { cwd: string }) {
   if (config.files) config.files = ([] as string[]).concat(config.files).map((p) => path.resolve(cwd, p))
   if (config.output) config.output = path.resolve(cwd, config.output)
   if (config.assets) config.assets = path.resolve(cwd, config.assets)
@@ -97,21 +95,23 @@ export function removeConfigValues() {
 }
 
 export function createConfig({
+  cwd = process.cwd(),
   env = getCurrentConfig().env,
   config = {},
   cli = {},
 }: {
+  cwd?: string
   env?: Env
   config?: Partial<Config>
   cli?: Partial<CLI>
 }) {
-  config = resolveAbsolutePaths({ ...config }) // clone read-only obj
-  cli = resolveAbsolutePaths({ ...cli })
+  config = resolveAbsolutePaths({ ...config }, { cwd }) // clone read-only obj
+  cli = resolveAbsolutePaths({ ...cli }, { cwd })
 
   // combined config, preference to CLI args
   const merged = {
-    output: cli.output || config.output || path.resolve('build'),
-    assets: cli.assets || config.assets || path.resolve('public'),
+    output: path.resolve(cwd, cli.output || config.output || 'build'),
+    assets: path.resolve(cli.assets || config.assets || 'public'),
     files: cli.files && cli.files.length ? cli.files : config.files ? ([] as string[]).concat(config.files) : [],
   }
 
@@ -121,7 +121,7 @@ export function createConfig({
     ...merged, // overwrites every time
     env,
     debug: cli.debug || getCurrentConfig().debug,
-    cwd: process.cwd(),
+    cwd: cwd || process.cwd(),
     configFilepath: path.resolve(cli.config || defaultConfigFilepath),
     functionsOutputDir: path.join(merged.output, 'functions'),
     staticOutputDir: path.join(merged.output, 'static'),

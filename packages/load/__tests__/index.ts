@@ -1,8 +1,9 @@
-import { prime, load, flush, createLoadCache } from './index'
+import tap from 'tap'
+import { prime, load, flush, createLoadCache } from '../'
 
 const wait = (t: number) => new Promise((r) => setTimeout(r, t, null))
 
-test('runs', async () => {
+tap.test('runs', async (t) => {
   let i = 0
 
   const loader = async () => {
@@ -18,12 +19,12 @@ test('runs', async () => {
 
   const { content, data } = await flush(component)
 
-  expect(content).toEqual('runs')
-  expect(data.runs.value).toEqual('runs')
-  expect(i).toEqual(2)
+  t.equal(content, 'runs')
+  t.equal(data.runs.value, 'runs')
+  t.equal(i, 2)
 })
 
-test('nested - cached', async () => {
+tap.test('nested - cached', async (t) => {
   let i = 0
 
   const loader = async () => {
@@ -45,12 +46,12 @@ test('nested - cached', async () => {
 
   const { content, data } = await flush(entry)
 
-  expect(content).toEqual('nested')
-  expect(data.nested.value).toEqual('nested')
-  expect(i).toEqual(3)
+  t.equal(content, 'nested')
+  t.equal(data.nested.value, 'nested')
+  t.equal(i, 3)
 })
 
-test('nested - not cached', async () => {
+tap.test('nested - not cached', async (t) => {
   let i = 0
 
   const loader = async () => {
@@ -72,13 +73,13 @@ test('nested - not cached', async () => {
 
   const { content, data } = await flush(entry)
 
-  expect(content).toEqual('nested')
-  expect(data.nested_entry.value).toEqual('nested')
-  expect(data.nested_child.value).toEqual('nested')
-  expect(i).toEqual(5)
+  t.equal(content, 'nested')
+  t.equal(data.nested_entry.value, 'nested')
+  t.equal(data.nested_child.value, 'nested')
+  t.equal(i, 5)
 })
 
-test('no recursion on error', async () => {
+tap.test('no recursion on error', async (t) => {
   let i = 0
 
   const loader = async () => {
@@ -95,10 +96,10 @@ test('no recursion on error', async () => {
 
   await flush(component)
 
-  expect(i).toEqual(1)
+  t.equal(i, 1)
 })
 
-test('prime', async () => {
+tap.test('prime', async (t) => {
   let i = 0
 
   const loader = async () => {
@@ -115,10 +116,10 @@ test('prime', async () => {
 
   await flush(component)
 
-  expect(i).toEqual(1)
+  t.equal(i, 1)
 })
 
-test('catches sync and async errors', async () => {
+tap.test('catches sync and async errors', async (t) => {
   let one = 0
   let two = 0
 
@@ -144,57 +145,55 @@ test('catches sync and async errors', async () => {
   }
 
   await flush(asyncComponent)
-  expect(one).toEqual(2)
+  t.equal(one, 2)
 
   await flush(syncComponent)
-  expect(two).toEqual(1)
+  t.equal(two, 1)
 })
 
-describe('loadCache', () => {
-  test('simple', async () => {
-    const cache = createLoadCache('simple')
+tap.test('loadCache - simple', async (t) => {
+  const cache = createLoadCache('simple')
 
-    cache.set('foo', 'bar')
+  cache.set('foo', 'bar')
 
-    expect('bar').toEqual(cache.get('foo'))
+  t.equal('bar', cache.get('foo'))
 
-    cache.cleanup()
-  })
+  cache.cleanup()
+})
 
-  test('duration', async () => {
-    const cache = createLoadCache('duration')
+tap.test('loadCache - duration', async (t) => {
+  const cache = createLoadCache('duration')
 
-    cache.set('foo', 'bar', 1000)
+  cache.set('foo', 'bar', 1000)
 
-    await wait(1100)
+  await wait(1100)
 
-    expect(cache.get('foo')).toBeUndefined()
+  t.notOk(cache.get('foo'))
 
-    cache.cleanup()
-  })
+  cache.cleanup()
+})
 
-  test('clear', async () => {
-    const cache = createLoadCache('clear')
+tap.test('loadCache - clear', async (t) => {
+  const cache = createLoadCache('clear')
 
-    cache.set('foo', 'bar')
-    cache.clear('foo')
+  cache.set('foo', 'bar')
+  cache.clear('foo')
 
-    expect(cache.get('foo')).toBeUndefined()
+  t.notOk(cache.get('foo'))
 
-    cache.cleanup()
-  })
+  cache.cleanup()
+})
 
-  test('clearMemory', async () => {
-    const cache = createLoadCache('clearMemory')
+tap.test('loadCache - clearMemory', async (t) => {
+  const cache = createLoadCache('clearMemory')
 
-    cache.set('foo', 'bar')
-    cache.set('baz', 'qux', 5000)
+  cache.set('foo', 'bar')
+  cache.set('baz', 'qux', 5000)
 
-    cache.clearAllMemory()
+  cache.clearAllMemory()
 
-    expect(cache.get('foo')).toBeUndefined()
-    expect('qux').toEqual(cache.get('baz'))
+  t.notOk(cache.get('foo'))
+  t.equal('qux', cache.get('baz'))
 
-    cache.cleanup()
-  })
+  cache.cleanup()
 })
