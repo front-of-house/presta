@@ -5,12 +5,10 @@
     "build": "pnpx presta build 'pages/*.tsx'"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.1.3",
+    "@presta/adapter-netlify": "workspace:^0.1.1",
+    "@presta/html": "workspace:^0.1.4",
     "hyposcript": "^1.0.4",
     "nanoclass": "^0.0.2",
-    "presta": "workspace:^0.34.6"
-  },
-  "devDependencies": {
-    "@presta/adapter-netlify": "workspace:^0.0.1"
+    "presta": "workspace:^0.35.0"
   }
 }
