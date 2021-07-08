@@ -87,6 +87,8 @@ export function createPlugin({ cwd = process.cwd() }: { cwd?: string } = {}): Pl
       ])
     )
 
+    let canRemoveStaticOutput = false
+    let canRemoveFunctionsOutput = false
     const { events } = getCurrentConfig()
 
     events.on('postbuild', (props: PostbuildEvent) => {
@@ -101,12 +103,16 @@ export function createPlugin({ cwd = process.cwd() }: { cwd?: string } = {}): Pl
       if (hasStaticFiles) {
         if (publishDir !== staticOutput) {
           fs.copySync(staticOutput, publishDir)
+          fs.removeSync(staticOutput)
+          canRemoveStaticOutput = true
         }
       }
 
       if (hasFunctions) {
         if (functionsDir !== functionsOutput) {
           fs.copySync(functionsOutput, functionsDir as string)
+          fs.removeSync(functionsOutput)
+          canRemoveFunctionsOutput = true
         }
 
         const prestaRedirects = prestaRoutesToNetlifyRedirects(Object.entries(functionsManifest))
@@ -116,7 +122,9 @@ export function createPlugin({ cwd = process.cwd() }: { cwd?: string } = {}): Pl
         fs.outputFileSync(path.join(publishDir, '_redirects'), redirectsContent)
       }
 
-      fs.removeSync(output)
+      if (canRemoveStaticOutput && canRemoveFunctionsOutput) {
+        fs.removeSync(output)
+      }
     })
   }
 }
