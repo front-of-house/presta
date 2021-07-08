@@ -1,0 +1,44 @@
+:root {
+  --dark: #223355;
+  --blue: #4488FF;
+  --light: #D2D5DC;
+}
+html, body {
+  font-family: 'Inter', Helvetica, sans-serif;
+  color: var(--dark);
+}
+
+button.button {
+  font-family: 'Inter', Helvetica, sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 1em 3.5em;
+  border-radius: 6px;
+  background: var(--dark);
+}
+
+main {
+  padding: 2rem;
+}
+@media (min-width: 800px) {
+  main {
+    padding: 4rem;
+  }
+}
+
+.grid {
+  width: 80px;
+  height: 80px;
+  border: 2px solid currentColor;
+  transform: matrix(0.97, 0.26, -0.75, 0.58, 0, 0);
+}
+.grid .vertical {
+  width: 2px;
+  height: 100%;
+  background: currentColor;
+}
+.grid .horizontal {
+  width: 100%;
+  height: 2px;
+  background: currentColor;
+}

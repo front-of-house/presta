@@ -1,7 +1,3 @@
 [build]
   publish = "./build/static"
-
-[[redirects]]
-  from = "*"
-  to = "/"
-  status = 302
+  functions = "./build/functions"
