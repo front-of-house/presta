@@ -40,7 +40,7 @@ export function getNetlifyConfig({ cwd }: { cwd: string }): Partial<NetlifyConfi
   return json ? JSON.parse(JSON.stringify(json)) : undefined
 }
 
-export function toAbsolutePath (cwd: string, file?: string) {
+export function toAbsolutePath(cwd: string, file?: string) {
   return file ? path.join(cwd, file) : undefined
 }
 
@@ -50,24 +50,20 @@ export function normalizeNetlifyRoute(route: string) {
   return route
 }
 
-export function prestaRoutesToNetlifyRedirects (routes: [string, string][]): NetlifyRedirect[] {
+export function prestaRoutesToNetlifyRedirects(routes: [string, string][]): NetlifyRedirect[] {
   return routes.map(([route, filename]) => ({
     from: normalizeNetlifyRoute(route),
     to: `/.netlify/functions/${path.basename(filename, '.js')}`,
-    status: 200
+    status: 200,
   }))
 }
 
 export function generateRedirectsString(redirects: NetlifyRedirect[]) {
-  return redirects.map(r => [
-    r.from,
-    r.to,
-    `${r.status}${r.force ? '!' : ''}`,
-  ].join(' ')).join('\n')
+  return redirects.map((r) => [r.from, r.to, `${r.status}${r.force ? '!' : ''}`].join(' ')).join('\n')
 }
 
-export function createPlugin ({ cwd = process.cwd() }: { cwd?: string } = {}): Plugin {
-  return async function plugin () {
+export function createPlugin({ cwd = process.cwd() }: { cwd?: string } = {}): Plugin {
+  return async function plugin() {
     const netlifyConfig = getNetlifyConfig({ cwd })
     const publishDir = toAbsolutePath(cwd, netlifyConfig?.build?.publish)
 
@@ -76,10 +72,12 @@ export function createPlugin ({ cwd = process.cwd() }: { cwd?: string } = {}): P
     }
 
     const functionsDir = toAbsolutePath(cwd, netlifyConfig?.build?.functions)
-    const fileRedirects = Array.from(new Set([
-      ...(await parseFileRedirects(path.join(cwd, '_redirects'))),
-      ...(await parseFileRedirects(path.join(publishDir || cwd, '_redirects'))),
-    ]))
+    const fileRedirects = Array.from(
+      new Set([
+        ...(await parseFileRedirects(path.join(cwd, '_redirects'))),
+        ...(await parseFileRedirects(path.join(publishDir || cwd, '_redirects'))),
+      ])
+    )
 
     const { events } = getCurrentConfig()
 

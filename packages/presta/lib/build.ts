@@ -9,7 +9,7 @@ import * as logger from './log'
 
 import type { Presta } from '..'
 
-function getRoutesManifestSafely (manifestFilepath: string) {
+function getRoutesManifestSafely(manifestFilepath: string) {
   try {
     return require(manifestFilepath)
   } catch (e) {

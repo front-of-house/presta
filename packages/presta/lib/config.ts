@@ -130,13 +130,13 @@ export function createConfig({
   })
 
   if (config.plugins) {
-    config.plugins.map(p => {
+    config.plugins.map((p) => {
       try {
         p()
       } catch (e) {
         logger.error({
           label: 'error',
-          error: e
+          error: e,
         })
       }
     })
