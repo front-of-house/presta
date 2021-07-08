@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "start": "pnpx presta watch 'pages/*.tsx'",
-    "build": "pnpx presta build 'pages/*.tsx'"
+    "start": "presta watch 'pages/*.tsx'",
+    "build": "presta build 'pages/*.tsx'"
   },
   "dependencies": {
     "@presta/adapter-netlify": "^0.1.1",
