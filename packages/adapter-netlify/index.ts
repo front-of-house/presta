@@ -65,13 +65,18 @@ export function generateRedirectsString(redirects: NetlifyRedirect[]) {
 export function createPlugin({ cwd = process.cwd() }: { cwd?: string } = {}): Plugin {
   return async function plugin() {
     const netlifyConfig = getNetlifyConfig({ cwd })
-    const publishDir = toAbsolutePath(cwd, netlifyConfig?.build?.publish)
+
+    if (!netlifyConfig.build) {
+      throw new Error(`Missing required netlify.toml config: build`)
+    }
+
+    const publishDir = toAbsolutePath(cwd, netlifyConfig.build.publish)
 
     if (!publishDir) {
       throw new Error(`Missing required netlify.toml config: build.publish`)
     }
 
-    const functionsDir = toAbsolutePath(cwd, netlifyConfig?.build?.functions)
+    const functionsDir = toAbsolutePath(cwd, netlifyConfig.build.functions)
     const fileRedirects = Array.from(
       new Set([
         ...(await parseFileRedirects(path.join(cwd, '_redirects'))),
