@@ -1,5 +1,7 @@
 # Presta
 
+[![install size](https://packagephobia.com/badge?p=presta)](https://packagephobia.com/result?p=presta) [![Coverage Status](https://coveralls.io/repos/github/sure-thing/presta/badge.svg?branch=main)](https://coveralls.io/github/sure-thing/presta?branch=main)
+
 The minimalist serverless framework for SSR, SSG, serverless APIs and more.
 
 > Presta is undergoing some changes so should be considered _alpha_ software. Stay tuned for updates!

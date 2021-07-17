@@ -49,6 +49,8 @@ jobs:
         run: pnpm typecheck
       - name: test
         run: pnpm test
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
       - name: build
         run: pnpm build
 
