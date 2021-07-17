@@ -1,5 +1,7 @@
 # Presta
 
+[![install size](https://packagephobia.com/badge?p=presta)](https://packagephobia.com/result?p=presta)
+
 The minimalist serverless framework for SSR, SSG, serverless APIs and more.
 
 > Presta is undergoing some changes so should be considered _alpha_ software. Stay tuned for updates!
