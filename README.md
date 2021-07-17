@@ -1,6 +1,6 @@
 # Presta
 
-[![install size](https://packagephobia.com/badge?p=presta)](https://packagephobia.com/result?p=presta)
+[![install size](https://packagephobia.com/badge?p=presta)](https://packagephobia.com/result?p=presta) [![Coverage Status](https://coveralls.io/repos/github/sure-thing/presta/badge.svg?branch=main)](https://coveralls.io/github/sure-thing/presta?branch=main)
 
 The minimalist serverless framework for SSR, SSG, serverless APIs and more.
 
