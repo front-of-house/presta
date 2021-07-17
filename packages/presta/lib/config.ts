@@ -2,39 +2,13 @@ import path from 'path'
 
 import * as logger from './log'
 import { createEmitter } from './createEmitter'
+import { Env, setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
 
-import type { Presta, Config, CLI } from '..'
+import type { Config, CLI } from '..'
 
 const defaultConfigFilepath = 'presta.config.js'
 
-export enum Env {
-  PRODUCTION = 'production',
-  DEVELOPMENT = 'development',
-  TEST = 'test',
-}
-
-const defaultConfig = {
-  pid: process.pid,
-  cwd: process.cwd(),
-  env: Env.TEST,
-  debug: false,
-} as Presta
-
-function setCurrentConfig(config: Presta): Presta {
-  // @ts-ignore
-  global.__presta__ = config
-  return config
-}
-
-export function getCurrentConfig(): Presta {
-  // @ts-ignore
-  if (!global.__presta__) {
-    setCurrentConfig(defaultConfig)
-  }
-
-  // @ts-ignore
-  return global.__presta__
-}
+export { Env }
 
 function resolveAbsolutePaths(config: Config, { cwd }: { cwd: string }) {
   if (config.files) config.files = ([] as string[]).concat(config.files).map((p) => path.resolve(cwd, p))
@@ -51,7 +25,7 @@ export function _clearCurrentConfig() {
   global.__presta__ = {
     pid: process.pid,
     cwd: process.cwd(),
-    env: Env.TEST,
+    env: Env.PRODUCTION,
   }
 }
 
@@ -86,9 +60,9 @@ export function removeConfigValues() {
     message: `config file values cleared`,
   })
 
-  return setCurrentConfig(
+  return setCurrentPrestaInstance(
     createConfig({
-      ...getCurrentConfig(),
+      ...getCurrentPrestaInstance(),
       config: {},
     })
   )
@@ -96,7 +70,7 @@ export function removeConfigValues() {
 
 export function createConfig({
   cwd = process.cwd(),
-  env = getCurrentConfig().env,
+  env = getCurrentPrestaInstance().env,
   config = {},
   cli = {},
 }: {
@@ -116,11 +90,11 @@ export function createConfig({
   }
 
   // set instance
-  const current = setCurrentConfig({
-    ...getCurrentConfig(),
+  const current = setCurrentPrestaInstance({
+    ...getCurrentPrestaInstance(),
     ...merged, // overwrites every time
     env,
-    debug: cli.debug || getCurrentConfig().debug,
+    debug: cli.debug || getCurrentPrestaInstance().debug,
     cwd: cwd || process.cwd(),
     configFilepath: path.resolve(cli.config || defaultConfigFilepath),
     functionsOutputDir: path.join(merged.output, 'functions'),

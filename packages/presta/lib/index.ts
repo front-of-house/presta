@@ -3,4 +3,4 @@
  */
 
 export { wrapHandler } from './wrapHandler'
-export { getCurrentConfig } from './config'
+export { getCurrentPrestaInstance } from './currentPrestaInstance'

@@ -5,8 +5,9 @@ import {
 } from '@netlify/functions'
 
 import { createEmitter } from './lib/createEmitter'
-import { Env, getCurrentConfig } from './lib/config'
+import { Env } from './lib/config'
 import { wrapHandler } from './lib/wrapHandler'
+import { getCurrentPrestaInstance } from './lib/currentPrestaInstance'
 
 export type AWS = {
   HandlerEvent: LambdaHandlerEvent
@@ -65,7 +66,7 @@ export type Lambda = {
   handler: Handler
 }
 
-export { getCurrentConfig }
+export { getCurrentPrestaInstance }
 export { wrapHandler }
 
 declare global {
