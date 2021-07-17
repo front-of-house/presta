@@ -8,7 +8,6 @@
     "presta": "cli.js"
   },
   "scripts": {
-    "prepare": "pnpm build",
     "build": "node scripts/build",
     "cloc": "pnpx cloc lib/*.ts",
     "typecheck": "pnpx tsc --noEmit"
