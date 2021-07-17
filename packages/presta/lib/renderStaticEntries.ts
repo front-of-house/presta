@@ -34,9 +34,7 @@ export function renderStaticEntries(entries: string[], config: Presta): Promise<
       try {
         delete require.cache[entry]
 
-        console.log('before')
         const file = require(entry)
-        console.log('after')
         const paths = await file.getStaticPaths()
 
         const prevFiles = (builtStaticFiles[entry] = builtStaticFiles[entry] || [])

@@ -35,7 +35,7 @@ export function handler(event: Event) {
     statusCode: 302,
     headers: {
       Location: 'https://github.com/sure-thing/presta',
-    }
+    },
   }
 
   // return html({
