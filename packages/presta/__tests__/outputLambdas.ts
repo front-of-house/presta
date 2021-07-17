@@ -2,7 +2,7 @@ import tap from 'tap'
 import fs from 'fs-extra'
 import path from 'path'
 
-import { createConfig } from '../lib/config'
+import { createConfig, Env } from '../lib/config'
 import { outputLambda, outputLambdas } from '../lib/outputLambdas'
 
 tap.test('outputLambda', async (t) => {
@@ -14,6 +14,7 @@ tap.test('outputLambda', async (t) => {
   const fixture = path.join(t.testdirName, 'lambda.min.js')
 
   const config = createConfig({
+    env: Env.DEVELOPMENT,
     cli: {
       files: path.join(t.testdirName, '*.js'),
       output: path.join(t.testdirName, 'output'),
@@ -35,6 +36,7 @@ tap.test('outputLambdas', async (t) => {
   })
 
   const config = createConfig({
+    env: Env.DEVELOPMENT,
     cli: {
       files: path.join(t.testdirName, '*.js'),
       output: path.join(t.testdirName, 'output'),

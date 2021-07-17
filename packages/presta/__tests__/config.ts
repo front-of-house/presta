@@ -3,20 +3,17 @@ import path from 'path'
 
 import { createConfig, removeConfigValues, getConfigFile, _clearCurrentConfig, Env } from '../lib/config'
 
-const env = Env.TEST
-
 tap.test('config - defaults', async (t) => {
   _clearCurrentConfig()
 
   const config = createConfig({
-    env,
     cli: {
       files: 'app/*.js',
       output: 'dist',
     },
   })
 
-  t.equal(config.env, env)
+  t.equal(config.env, Env.PRODUCTION)
   t.ok(!!config.configFilepath)
 
   t.ok(path.isAbsolute(config.files[0]))
@@ -32,7 +29,6 @@ tap.test('config - no files', async (t) => {
   _clearCurrentConfig()
 
   const config = createConfig({
-    env,
     cli: {},
   })
 
@@ -43,7 +39,6 @@ tap.test('config - output', async (t) => {
   _clearCurrentConfig()
 
   const config = createConfig({
-    env,
     cli: {
       files: 'app/*.js',
       output: 'dist',
@@ -58,7 +53,6 @@ tap.test('config - assets', async (t) => {
   _clearCurrentConfig()
 
   const config = createConfig({
-    env,
     cli: {
       files: 'app/*.js',
       assets: 'assets',
@@ -73,7 +67,6 @@ tap.test('config - staticOutputDir', async (t) => {
   _clearCurrentConfig()
 
   const config = createConfig({
-    env,
     cli: {
       files: 'app/*.js',
       assets: 'assets',
@@ -96,7 +89,6 @@ tap.test('config - picks up default file if present', async (t) => {
   const configFilepath = path.join(t.testdirName, './presta.config.js')
   const configFile = getConfigFile(configFilepath)
   const config = createConfig({
-    env,
     config: configFile,
     cli: {},
   })
@@ -115,7 +107,6 @@ tap.test('config - overriden by CLI args', async (t) => {
   const configFilepath = path.join(t.testdirName, './presta.config.js')
   const configFile = getConfigFile(configFilepath)
   const config = createConfig({
-    env,
     config: configFile,
     cli: {
       files: 'foo.js',

@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { Plugin, getCurrentConfig } from 'presta'
+import { Plugin, getCurrentPrestaInstance } from 'presta'
 import { parse as toml } from 'toml'
 // @ts-ignore
 import { parseFileRedirects } from 'netlify-redirect-parser'
@@ -89,7 +89,7 @@ export function createPlugin({ cwd = process.cwd() }: { cwd?: string } = {}): Pl
 
     let canRemoveStaticOutput = false
     let canRemoveFunctionsOutput = false
-    const { events } = getCurrentConfig()
+    const { events } = getCurrentPrestaInstance()
 
     events.on('postbuild', (props: PostbuildEvent) => {
       const { output, staticOutput, functionsOutput, functionsManifest } = props

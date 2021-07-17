@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-pnpm typecheck && pnpm test && pnpm format
+pnpm typecheck && pnpm format

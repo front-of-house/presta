@@ -1,6 +1,7 @@
 import c, { Kleur } from 'kleur'
 
-import { getCurrentConfig, Env } from './config'
+import { Env } from './config'
+import { getCurrentPrestaInstance } from './currentPrestaInstance'
 
 export enum Levels {
   Debug = 'debug',
@@ -29,7 +30,7 @@ const colors = {
 export { c as colors }
 
 export function getLogs() {
-  if (getCurrentConfig().env !== Env.TEST) {
+  if (!process.env.TESTING) {
     throw new Error('Internal method was called outside test mode')
   }
 
@@ -40,8 +41,8 @@ export function logger(message: Message) {
   if (process.env.TESTING) {
     logs.push(message)
   } else {
-    const debug = getCurrentConfig().debug
-    const context = getCurrentConfig().env === Env.PRODUCTION ? 'prod' : 'dev'
+    const debug = getCurrentPrestaInstance().debug
+    const context = getCurrentPrestaInstance().env === Env.PRODUCTION ? 'prod' : 'dev'
 
     if (!debug && message.level === Levels.Debug) return
 
@@ -76,7 +77,7 @@ export function error(message: Message) {
 }
 
 export function raw(...args: any[]) {
-  if (getCurrentConfig().env === Env.TEST) {
+  if (process.env.TESTING) {
     logs.push(args)
   } else {
     console.log(...args)
@@ -84,6 +85,6 @@ export function raw(...args: any[]) {
 }
 
 export function newline() {
-  if (getCurrentConfig().env === Env.TEST) return
+  if (process.env.TESTING) return
   console.log('')
 }
