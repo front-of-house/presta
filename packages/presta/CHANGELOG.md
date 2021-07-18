@@ -1,5 +1,11 @@
 # presta
 
+## 0.35.2
+
+### Patch Changes
+
+- [`c8df2d6`](https://github.com/sure-thing/presta/commit/c8df2d692a45a9d2ff244830189bc0630c2bd28f) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Adds simple default error handling to wrapHandler for both HTML and JSON requests
+
 ## 0.35.1
 
 ### Patch Changes
