@@ -32,7 +32,7 @@ export function _clearCurrentConfig() {
  * anything goes wrong. Outside watch mode, this should exit(1) if the user
  * provided a config and there was an error
  */
-export function getConfigFile(filepath: string, shouldExit: boolean = false) {
+export function getConfigFile(filepath?: string, shouldExit: boolean = false) {
   try {
     return require(path.resolve(filepath || defaultConfigFilepath))
   } catch (e) {
@@ -42,7 +42,7 @@ export function getConfigFile(filepath: string, shouldExit: boolean = false) {
     })
 
     // we're not in watch mode, exit
-    if (shouldExit) process.exit(1)
+    if (shouldExit && filepath) process.exit(1)
 
     return {}
   }
@@ -99,8 +99,8 @@ export function createConfig({
     ...previous,
     ...merged, // overwrites every time
     env,
+    cwd,
     debug: cli.debug || getCurrentPrestaInstance().debug,
-    cwd: cwd || process.cwd(),
     configFilepath: path.resolve(cli.config || defaultConfigFilepath),
     staticOutputDir: path.join(merged.output, 'static'),
     functionsOutputDir: path.join(merged.output, 'functions'),

@@ -77,6 +77,53 @@ tap.test('config - staticOutputDir', async (t) => {
   t.ok(path.isAbsolute(config.staticOutputDir))
 })
 
+tap.test('config - getConfigFile', async (t) => {
+  t.testdir({
+    'presta.config.js': `export const files = 'path/to/*.js'`,
+  })
+
+  const configFilepath = path.join(t.testdirName, './presta.config.js')
+  const configFile = getConfigFile(configFilepath)
+
+  t.ok(configFile.files)
+})
+
+tap.test('config - getConfigFile throws', async (t) => {
+  t.testdir({
+    'presta.config.js': `export const files = 'path/to/*.js`, // syntax error
+  })
+
+  const configFilepath = path.join(t.testdirName, './presta.config.js')
+  const configFile = getConfigFile(configFilepath)
+
+  t.same(configFile, {})
+})
+
+tap.test('config - getConfigFile throws and exits', (t) => {
+  t.testdir({
+    'presta.config.js': `export const files = 'path/to/*.js`, // syntax error
+  })
+
+  const exit = process.exit
+
+  // @ts-ignore
+  process.exit = () => {
+    t.pass()
+    t.end()
+  }
+
+  const configFilepath = path.join(t.testdirName, './presta.config.js')
+  const configFile = getConfigFile(configFilepath, true)
+
+  // @ts-ignore
+  process.exit = exit
+})
+
+tap.test('config - getConfigFile throws and does not exit with no file', async (t) => {
+  const configFile = getConfigFile(undefined, true)
+  t.same(configFile, {})
+})
+
 tap.test('config - picks up default file if present', async (t) => {
   _clearCurrentConfig()
 
@@ -179,4 +226,45 @@ tap.test('config - hooks', (t) => {
   })
 
   config.events.emit('postbuild')
+})
+
+tap.test('config - plugins', (t) => {
+  _clearCurrentConfig()
+
+  createConfig({
+    config: {
+      plugins: [
+        () => {
+          t.pass()
+          t.end()
+        },
+      ],
+    },
+  })
+})
+
+tap.test('config - plugin error', async (t) => {
+  _clearCurrentConfig()
+
+  let called = false
+
+  const { createConfig } = require('proxyquire')('../lib/config', {
+    './log': {
+      error() {
+        called = true
+      },
+    },
+  })
+
+  createConfig({
+    config: {
+      plugins: [
+        () => {
+          throw Error()
+        },
+      ],
+    },
+  })
+
+  t.ok(called)
 })
