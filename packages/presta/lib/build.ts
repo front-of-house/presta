@@ -57,7 +57,7 @@ export async function build(config: Presta) {
           outputLambdas(dynamicIds, config)
 
           await esbuild({
-            entryPoints: Object.values(require(config.routesManifest)),
+            entryPoints: Object.values(require(config.functionsManifest)),
             outdir: config.functionsOutputDir,
             bundle: true,
             platform: 'node',
@@ -141,7 +141,7 @@ export async function build(config: Presta) {
       output: config.output,
       staticOutput: config.staticOutputDir,
       functionsOutput: config.functionsOutputDir,
-      functionsManifest: getRoutesManifestSafely(config.routesManifest),
+      functionsManifest: getRoutesManifestSafely(config.functionsManifest),
     })
   }
 }

@@ -61,7 +61,7 @@ export function outputLambdas(inputs: string[], config: Presta) {
     }
   }
 
-  fs.outputFileSync(config.routesManifest, JSON.stringify(manifest))
+  fs.outputFileSync(config.functionsManifest, JSON.stringify(manifest))
 
   return lambdas
 }

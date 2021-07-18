@@ -55,7 +55,7 @@ tap.test('outputLambdas', async (t) => {
   t.equal(fallback[0], `/:slug?`)
   t.ok(fallback[1].includes(`fallback.js`))
 
-  const manifest = require(config.routesManifest)
+  const manifest = require(config.functionsManifest)
 
   t.equal(manifest[slug[0]], slug[1])
   t.equal(manifest[fallback[0]], fallback[1])

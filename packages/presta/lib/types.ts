@@ -56,9 +56,9 @@ export type Presta = {
   env: Env
   debug: boolean
   configFilepath: string
-  functionsOutputDir: string
   staticOutputDir: string
-  routesManifest: string
+  functionsOutputDir: string
+  functionsManifest: string
   events: ReturnType<typeof createEmitter>
   hooks: Hooks
 } & Required<Config>

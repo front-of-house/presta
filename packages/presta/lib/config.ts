@@ -102,9 +102,9 @@ export function createConfig({
     debug: cli.debug || getCurrentPrestaInstance().debug,
     cwd: cwd || process.cwd(),
     configFilepath: path.resolve(cli.config || defaultConfigFilepath),
-    functionsOutputDir: path.join(merged.output, 'functions'),
     staticOutputDir: path.join(merged.output, 'static'),
-    routesManifest: path.join(merged.output, 'routes.json'),
+    functionsOutputDir: path.join(merged.output, 'functions'),
+    functionsManifest: path.join(merged.output, 'routes.json'),
     events: emitter,
     hooks: {
       postbuild: createHook('postbuild', emitter),

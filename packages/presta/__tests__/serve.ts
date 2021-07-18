@@ -103,9 +103,9 @@ tap.test('createServerHandler - resolves a lambda', async (t) => {
   const serverHandler = createServerHandler({ port: 4000, config })
 
   const functionFilepath = path.join(config.functionsOutputDir, 'Route.js')
-  const routesManifestFilepath = path.join(config.output, 'routes.json')
+  const functionsManifestFilepath = path.join(config.output, 'routes.json')
   fs.outputFileSync(
-    routesManifestFilepath,
+    functionsManifestFilepath,
     JSON.stringify({
       '/:slug?': functionFilepath,
     })
@@ -125,7 +125,7 @@ tap.test('createServerHandler - resolves a lambda', async (t) => {
   t.same(responses, [true, false])
 
   fs.removeSync(functionFilepath)
-  fs.removeSync(routesManifestFilepath)
+  fs.removeSync(functionsManifestFilepath)
 })
 
 tap.test('createServerHandler - throws 500', async (t) => {
