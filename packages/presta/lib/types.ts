@@ -66,7 +66,7 @@ export type Presta = {
 export type RouteParams = { [param: string]: string }
 export type Event = LambdaHandlerEvent & { params: RouteParams }
 export type Context = LambdaHandlerContext
-export type Response = LambdaHandlerResponse & {
+export type Response = Partial<LambdaHandlerResponse> & {
   html?: string
   json?: object
   xml?: string
