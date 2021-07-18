@@ -1,6 +1,6 @@
 # Presta
 
-[![install size](https://packagephobia.com/badge?p=presta)](https://packagephobia.com/result?p=presta) [![Coverage Status](https://coveralls.io/repos/github/sure-thing/presta/badge.svg?branch=main)](https://coveralls.io/github/sure-thing/presta?branch=main)
+[![npm version](https://img.shields.io/npm/v/presta?style=flat&colorA=4488FF&colorB=4488FF)](https://www.npmjs.com/package/presta) [![test coverage](https://img.shields.io/coveralls/github/sure-thing/presta?style=flat&colorA=223355&colorB=223355)](https://coveralls.io/github/sure-thing/presta?branch=main) [![npm bundle size](https://badgen.net/packagephobia/install/presta?color=223355&labelColor=223355)](https://packagephobia.com/result?p=presta)
 
 The minimalist serverless framework for SSR, SSG, serverless APIs and more.
 
