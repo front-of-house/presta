@@ -1,5 +1,16 @@
 # @presta/adapter-netlify
 
+## 0.1.2
+
+### Patch Changes
+
+- [`17ba054`](https://github.com/sure-thing/presta/commit/17ba054a323e44a6c62270cc74dbd88eba8cdfa8) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Adds additional export of getCurrentPrestaInstance
+
+* [`241aa30`](https://github.com/sure-thing/presta/commit/241aa304316a32d098564308a22eed822c8828f9) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - add typed hooks to Presta instance
+
+* Updated dependencies [[`17ba054`](https://github.com/sure-thing/presta/commit/17ba054a323e44a6c62270cc74dbd88eba8cdfa8), [`241aa30`](https://github.com/sure-thing/presta/commit/241aa304316a32d098564308a22eed822c8828f9)]:
+  - presta@0.35.1
+
 ## 0.1.1
 
 ### Patch Changes
