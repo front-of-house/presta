@@ -2,8 +2,9 @@ import tap from 'tap'
 import fs from 'fs-extra'
 import path from 'path'
 
-import { createConfig, Env } from '../lib/config'
+import { createConfig } from '../lib/config'
 import { build } from '../lib/build'
+import { Env } from '../lib/types'
 
 tap.test('build - static files', async (t) => {
   t.testdir({

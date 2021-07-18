@@ -1,7 +1,7 @@
 import path from 'path'
 
 import * as logger from './log'
-import { createEmitter } from './createEmitter'
+import { createEmitter, createHook } from './createEmitter'
 import { setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
 
 import { Env, Config, CLI } from './types'
@@ -87,9 +87,16 @@ export function createConfig({
     files: cli.files && cli.files.length ? cli.files : config.files ? ([] as string[]).concat(config.files) : [],
   }
 
+  const previous = getCurrentPrestaInstance()
+  // only create once
+  const emitter = previous.events || createEmitter()
+
+  // deregister old events
+  emitter.clear()
+
   // set instance
-  const current = setCurrentPrestaInstance({
-    ...getCurrentPrestaInstance(),
+  const next = setCurrentPrestaInstance({
+    ...previous,
     ...merged, // overwrites every time
     env,
     debug: cli.debug || getCurrentPrestaInstance().debug,
@@ -98,7 +105,10 @@ export function createConfig({
     functionsOutputDir: path.join(merged.output, 'functions'),
     staticOutputDir: path.join(merged.output, 'static'),
     routesManifest: path.join(merged.output, 'routes.json'),
-    events: createEmitter(),
+    events: emitter,
+    hooks: {
+      postbuild: createHook('postbuild', emitter),
+    },
   })
 
   if (config.plugins) {
@@ -116,8 +126,8 @@ export function createConfig({
 
   logger.debug({
     label: 'debug',
-    message: `config created ${JSON.stringify(current)}`,
+    message: `config created ${JSON.stringify(next)}`,
   })
 
-  return current
+  return next
 }

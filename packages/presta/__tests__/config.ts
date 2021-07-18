@@ -1,7 +1,8 @@
 import tap from 'tap'
 import path from 'path'
 
-import { createConfig, removeConfigValues, getConfigFile, _clearCurrentConfig, Env } from '../lib/config'
+import { createConfig, removeConfigValues, getConfigFile, _clearCurrentConfig } from '../lib/config'
+import { Env } from '../lib/types'
 
 tap.test('config - defaults', async (t) => {
   _clearCurrentConfig()
@@ -165,4 +166,17 @@ tap.test('config - removeConfigValues', async (t) => {
   const unmerged = removeConfigValues()
 
   t.ok(unmerged.output.includes('build'))
+})
+
+tap.test('config - hooks', (t) => {
+  _clearCurrentConfig()
+
+  const config = createConfig({})
+
+  config.hooks.postbuild(() => {
+    t.pass()
+    t.end()
+  })
+
+  config.events.emit('postbuild')
 })

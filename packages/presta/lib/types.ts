@@ -35,6 +35,21 @@ export type CLI = {
   debug?: boolean
 } & Config
 
+export type FunctionsManifest = {
+  [route: string]: string
+}
+
+export type Hook<T> = (props: T) => void
+export type PostbuildHook = Hook<{
+  output: Presta['output']
+  staticOutput: Presta['staticOutputDir']
+  functionsOutput: Presta['functionsOutputDir']
+  functionsManifest: FunctionsManifest
+}>
+export type Hooks = {
+  postbuild(hook: PostbuildHook): () => void
+}
+
 export type Presta = {
   pid: number
   cwd: string
@@ -45,6 +60,7 @@ export type Presta = {
   staticOutputDir: string
   routesManifest: string
   events: ReturnType<typeof createEmitter>
+  hooks: Hooks
 } & Required<Config>
 
 export type RouteParams = { [param: string]: string }

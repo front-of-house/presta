@@ -5,15 +5,6 @@ import { parse as toml } from 'toml'
 // @ts-ignore
 import { parseFileRedirects } from 'netlify-redirect-parser'
 
-type PostbuildEvent = {
-  output: string
-  staticOutput: string
-  functionsOutput: string
-  functionsManifest: {
-    [route: string]: string
-  }
-}
-
 // TODO do I need more here?
 export type NetlifyConfig = {
   build?: {
@@ -89,9 +80,9 @@ export function createPlugin({ cwd = process.cwd() }: { cwd?: string } = {}): Pl
 
     let canRemoveStaticOutput = false
     let canRemoveFunctionsOutput = false
-    const { events } = getCurrentPrestaInstance()
+    const { hooks } = getCurrentPrestaInstance()
 
-    events.on('postbuild', (props: PostbuildEvent) => {
+    hooks.postbuild((props) => {
       const { output, staticOutput, functionsOutput, functionsManifest } = props
       const hasStaticFiles = fs.existsSync(staticOutput)
       const hasFunctions = fs.existsSync(functionsOutput)

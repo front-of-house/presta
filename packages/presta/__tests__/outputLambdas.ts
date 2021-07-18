@@ -2,8 +2,9 @@ import tap from 'tap'
 import fs from 'fs-extra'
 import path from 'path'
 
-import { createConfig, Env } from '../lib/config'
+import { createConfig } from '../lib/config'
 import { outputLambda, outputLambdas } from '../lib/outputLambdas'
+import { Env } from '../lib/types'
 
 tap.test('outputLambda', async (t) => {
   const content = `module.exports = { route: '*' }`

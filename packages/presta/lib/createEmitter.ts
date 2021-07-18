@@ -1,3 +1,5 @@
+import { Hook } from './types'
+
 type callable = (...args: any[]) => void
 
 export function createEmitter() {
@@ -25,5 +27,11 @@ export function createEmitter() {
     on,
     clear,
     listeners,
+  }
+}
+
+export function createHook(name: string, emitter: ReturnType<typeof createEmitter>) {
+  return function proxy<T>(hook: Hook<T>) {
+    return emitter.on(name, hook)
   }
 }
