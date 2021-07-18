@@ -13,7 +13,7 @@ import { createConfig, removeConfigValues, getConfigFile } from './config'
 import { builtStaticFiles } from './builtStaticFiles'
 import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 
-import type { Presta } from '..'
+import type { Presta } from './types'
 
 /*
  * Wraps outputLambdas for logging

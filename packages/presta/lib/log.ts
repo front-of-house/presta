@@ -1,7 +1,8 @@
 import c, { Kleur } from 'kleur'
 
-import { Env } from './config'
 import { getCurrentPrestaInstance } from './currentPrestaInstance'
+
+import { Env } from './types'
 
 export enum Levels {
   Debug = 'debug',

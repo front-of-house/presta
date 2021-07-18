@@ -1,6 +1,6 @@
 import toRegExp from 'regexparam'
 
-import { RouteParams } from '..'
+import { RouteParams } from './types'
 
 // @see https://github.com/lukeed/regexparam#usage
 export function getRouteParams(url: string, route: string): RouteParams {

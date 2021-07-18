@@ -2,11 +2,10 @@ import fs from 'fs-extra'
 import path from 'path'
 import rsort from 'route-sort'
 
-import { Env } from './config'
 import { hashContent } from './hashContent'
 import * as logger from './log'
 
-import type { Presta } from '..'
+import { Presta, Env } from './types'
 
 export function outputLambda(input: string, config: Presta): [string, string] {
   const { route } = require(input)

@@ -1,4 +1,4 @@
-import { AWS, Response } from '..'
+import { AWS, Response } from './types'
 
 function stringify(obj: object | string) {
   return typeof obj === 'object' ? JSON.stringify(obj) : obj

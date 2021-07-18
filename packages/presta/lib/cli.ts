@@ -6,10 +6,12 @@ import sade from 'sade'
 import pkg from '../package.json'
 
 import * as logger from './log'
-import { createConfig, getConfigFile, Env } from './config'
+import { createConfig, getConfigFile } from './config'
 import { watch } from './watch'
 import { build } from './build'
 import { serve } from './serve'
+
+import { Env } from './types'
 
 const prog = sade('presta')
 const CONFIG_DEFAULT = 'presta.config.js'

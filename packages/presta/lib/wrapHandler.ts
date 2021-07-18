@@ -5,7 +5,7 @@
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
 
-import type { AWS, Event, Context, Lambda } from '..'
+import type { AWS, Event, Context, Lambda } from './types'
 
 export function wrapHandler(
   file: Lambda

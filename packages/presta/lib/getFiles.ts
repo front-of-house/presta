@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import globSync from 'tiny-glob/sync'
 
-import { Presta } from '..'
+import type { Presta } from './types'
 
 export function isDynamic(file: string) {
   return /export\s.+\sroute\s+\=/.test(fs.readFileSync(file, 'utf-8'))

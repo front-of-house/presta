@@ -7,7 +7,7 @@ import { renderStaticEntries } from './renderStaticEntries'
 import { timer } from './timer'
 import * as logger from './log'
 
-import type { Presta } from '..'
+import type { Presta } from './types'
 
 function getRoutesManifestSafely(manifestFilepath: string) {
   try {

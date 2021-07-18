@@ -2,13 +2,11 @@ import path from 'path'
 
 import * as logger from './log'
 import { createEmitter } from './createEmitter'
-import { Env, setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
+import { setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
 
-import type { Config, CLI } from '..'
+import { Env, Config, CLI } from './types'
 
 const defaultConfigFilepath = 'presta.config.js'
-
-export { Env }
 
 function resolveAbsolutePaths(config: Config, { cwd }: { cwd: string }) {
   if (config.files) config.files = ([] as string[]).concat(config.files).map((p) => path.resolve(cwd, p))

@@ -9,7 +9,7 @@ import { normalizeResponse } from './normalizeResponse'
 import { builtStaticFiles } from './builtStaticFiles'
 import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 
-import type { Presta } from '..'
+import type { Presta } from './types'
 
 export function pathnameToFile(pathname: string, ext = 'html') {
   return !!path.extname(pathname)

@@ -8,7 +8,7 @@ import proxy from 'proxyquire'
 
 import { createConfig } from '../lib/config'
 import { createServerHandler as base } from '../lib/serve'
-import type { AWS } from '..'
+import type { AWS } from '../lib/types'
 
 type CreateServerHandler = {
   createServerHandler: typeof base

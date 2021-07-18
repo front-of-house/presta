@@ -2,7 +2,7 @@ import tap from 'tap'
 import path from 'path'
 
 import { isStatic, isDynamic, getFiles } from '../lib/getFiles'
-import type { Presta } from '..'
+import type { Presta } from '../lib/types'
 
 tap.test('getFiles - isStatic', async (t) => {
   const fixtures = {

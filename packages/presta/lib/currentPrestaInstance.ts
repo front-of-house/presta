@@ -1,9 +1,4 @@
-import type { Presta } from '..'
-
-export enum Env {
-  PRODUCTION = 'production',
-  DEVELOPMENT = 'development',
-}
+import { Presta, Env } from './types'
 
 const defaultConfig = {
   pid: process.pid,
