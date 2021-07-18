@@ -5,10 +5,10 @@
     "build": "presta build 'pages/*.tsx'"
   },
   "dependencies": {
-    "@presta/adapter-netlify": "^0.1.1",
+    "@presta/adapter-netlify": "^0.1.2",
     "@presta/html": "^0.1.4",
     "hyposcript": "^1.0.4",
     "nanoclass": "^0.0.2",
-    "presta": "^0.35.0"
+    "presta": "^0.35.1"
   }
 }
