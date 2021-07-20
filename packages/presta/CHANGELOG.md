@@ -1,5 +1,11 @@
 # presta
 
+## 0.35.4
+
+### Patch Changes
+
+- [`bdcbded`](https://github.com/sure-thing/presta/commit/bdcbded8c9a3fdadf0848eb15166ad14625d6bc9) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Further improve config try/catch handling
+
 ## 0.35.3
 
 ### Patch Changes
