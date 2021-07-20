@@ -27,6 +27,7 @@ function registerRuntime(options = {}) {
 
 prog
   .version(pkg.version)
+  // don't provide default config here
   .option('--config, -c', `Path to a config file — defaults to ${CONFIG_DEFAULT}`)
   .option('--output, -o', `Specify output directory for built files — defaults to ./build`)
   .option('--assets, -a', `Specify static asset directory — defaults to ./public`)

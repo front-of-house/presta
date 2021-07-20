@@ -36,13 +36,16 @@ export function getConfigFile(filepath?: string, shouldExit: boolean = false) {
   try {
     return require(path.resolve(filepath || defaultConfigFilepath))
   } catch (e) {
-    logger.error({
-      label: 'error',
-      error: e,
-    })
+    // filepath was provided, should log error, otherwise ignore
+    if (!!filepath) {
+      logger.error({
+        label: 'error',
+        error: e,
+      })
+    }
 
     // we're not in watch mode, exit
-    if (shouldExit && filepath) process.exit(1)
+    if (shouldExit && !!filepath) process.exit(1)
 
     return {}
   }

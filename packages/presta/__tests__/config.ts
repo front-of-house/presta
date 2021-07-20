@@ -77,6 +77,20 @@ tap.test('config - staticOutputDir', async (t) => {
   t.ok(path.isAbsolute(config.staticOutputDir))
 })
 
+tap.test('config - getConfigFile no config', async (t) => {
+  const { getConfigFile } = require('proxyquire')('../lib/config', {
+    './log': {
+      error() {
+        t.fail()
+      },
+    },
+  })
+
+  const configFile = getConfigFile()
+
+  t.same(configFile, {})
+})
+
 tap.test('config - getConfigFile', async (t) => {
   t.testdir({
     'presta.config.js': `export const files = 'path/to/*.js'`,
@@ -89,6 +103,16 @@ tap.test('config - getConfigFile', async (t) => {
 })
 
 tap.test('config - getConfigFile throws', async (t) => {
+  let called = false
+
+  const { getConfigFile } = require('proxyquire')('../lib/config', {
+    './log': {
+      error() {
+        called = true
+      },
+    },
+  })
+
   t.testdir({
     'presta.config.js': `export const files = 'path/to/*.js`, // syntax error
   })
@@ -97,6 +121,7 @@ tap.test('config - getConfigFile throws', async (t) => {
   const configFile = getConfigFile(configFilepath)
 
   t.same(configFile, {})
+  t.ok(called)
 })
 
 tap.test('config - getConfigFile throws and exits', (t) => {
