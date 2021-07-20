@@ -1,5 +1,13 @@
 # presta
 
+## 0.35.3
+
+### Patch Changes
+
+- [`100838b`](https://github.com/sure-thing/presta/commit/100838bac0ac260ba25dcc75a01061ee1765db3a) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Change task watch -> dev, add watch alias and description
+
+* [`c028e4a`](https://github.com/sure-thing/presta/commit/c028e4acf8f70d1aeef7fd24dc95bb19384234c5) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fix getConfigFile try/catch logic — only log and/or exit under certain circumstances
+
 ## 0.35.2
 
 ### Patch Changes
