@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 
 import * as logger from './log'
@@ -33,19 +34,23 @@ export function _clearCurrentConfig() {
  * provided a config and there was an error
  */
 export function getConfigFile(filepath?: string, shouldExit: boolean = false) {
+  const fp = path.resolve(filepath || defaultConfigFilepath)
+
   try {
-    return require(path.resolve(filepath || defaultConfigFilepath))
+    return require(fp)
   } catch (e) {
-    // filepath was provided, should log error, otherwise ignore
-    if (!!filepath) {
+    const exists = fs.existsSync(fp)
+
+    // config file exists, should log error, otherwise ignore missing file
+    if (exists) {
       logger.error({
         label: 'error',
         error: e,
       })
-    }
 
-    // we're not in watch mode, exit
-    if (shouldExit && !!filepath) process.exit(1)
+      // we're not in watch mode, exit build
+      if (shouldExit) process.exit(1)
+    }
 
     return {}
   }

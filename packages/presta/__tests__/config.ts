@@ -77,7 +77,7 @@ tap.test('config - staticOutputDir', async (t) => {
   t.ok(path.isAbsolute(config.staticOutputDir))
 })
 
-tap.test('config - getConfigFile no config', async (t) => {
+tap.test('config - getConfigFile no config, no log or exit', async (t) => {
   const { getConfigFile } = require('proxyquire')('../lib/config', {
     './log': {
       error() {
@@ -91,7 +91,7 @@ tap.test('config - getConfigFile no config', async (t) => {
   t.same(configFile, {})
 })
 
-tap.test('config - getConfigFile', async (t) => {
+tap.test('config - getConfigFile exists', async (t) => {
   t.testdir({
     'presta.config.js': `export const files = 'path/to/*.js'`,
   })
@@ -102,7 +102,7 @@ tap.test('config - getConfigFile', async (t) => {
   t.ok(configFile.files)
 })
 
-tap.test('config - getConfigFile throws', async (t) => {
+tap.test('config - getConfigFile throws, syntax error', async (t) => {
   let called = false
 
   const { getConfigFile } = require('proxyquire')('../lib/config', {
@@ -132,13 +132,14 @@ tap.test('config - getConfigFile throws and exits', (t) => {
   const exit = process.exit
 
   // @ts-ignore
-  process.exit = () => {
+  process.exit = (code: int) => {
+    t.equal(code, 1)
     t.pass()
     t.end()
   }
 
   const configFilepath = path.join(t.testdirName, './presta.config.js')
-  const configFile = getConfigFile(configFilepath, true)
+  getConfigFile(configFilepath, true)
 
   // @ts-ignore
   process.exit = exit
