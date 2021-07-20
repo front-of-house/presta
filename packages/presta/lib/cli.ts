@@ -34,7 +34,7 @@ prog
   .option('--debug, -d', `Enable debug mode (prints more logs)`)
 
 prog
-  .command('build', 'Render files(s) to output directory.', { default: true })
+  .command('build', 'Build project to output directory.', { default: true })
   .example(`build`)
   .example(`build files/**/*.js`)
   .example(`build -c ${CONFIG_DEFAULT}`)
@@ -61,7 +61,7 @@ prog
   })
 
 prog
-  .command('watch')
+  .command('dev', 'Start Presta dev server and watch files', { alias: 'watch' })
   .option('--no-serve, -n', `Do not run local dev server.`, false)
   .describe('Watch and build files(s) to output directory')
   .example(`watch`)
