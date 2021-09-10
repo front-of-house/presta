@@ -1,5 +1,11 @@
 # presta
 
+## 0.35.6
+
+### Patch Changes
+
+- [`f6c1b25`](https://github.com/sure-thing/presta/commit/f6c1b251fd217ee5c872ae1909b5dd428f9e5c42) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Noop bump for debug purposes
+
 ## 0.35.5
 
 ### Patch Changes
