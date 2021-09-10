@@ -45,7 +45,7 @@ export function getConfigFile(filepath?: string, shouldExit: boolean = false) {
     if (exists) {
       logger.error({
         label: 'error',
-        error: e,
+        error: e as Error,
       })
 
       // we're not in watch mode, exit build
@@ -126,7 +126,7 @@ export function createConfig({
       } catch (e) {
         logger.error({
           label: 'error',
-          error: e,
+          error: e as Error,
         })
       }
     })

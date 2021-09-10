@@ -86,5 +86,13 @@ export type Lambda = {
   handler: Handler
 }
 
+export type PrestaError = Error & {
+  status?: number
+  statusCode?: number
+  source?: string
+  title?: string
+  details?: string
+}
+
 export { getCurrentPrestaInstance }
 export { wrapHandler }

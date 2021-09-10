@@ -140,7 +140,7 @@ export async function watch(config: Presta) {
       } catch (e) {
         logger.error({
           label: 'error',
-          error: e,
+          error: e as Error,
         })
       }
     } else {
@@ -202,7 +202,7 @@ export async function watch(config: Presta) {
       } catch (e) {
         logger.error({
           label: 'error',
-          error: e,
+          error: e as Error,
         })
       }
     }
@@ -224,7 +224,7 @@ export async function watch(config: Presta) {
   } catch (e) {
     logger.error({
       label: 'error',
-      error: e,
+      error: e as Error,
     })
   }
 }

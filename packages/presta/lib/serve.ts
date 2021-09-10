@@ -140,11 +140,11 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
         logger.debug({
           label: 'debug',
           message: `serve error`,
-          error: e,
+          error: e as Error,
         })
 
         // expect ENOENT, log everything else
-        if (!/ENOENT|EISDIR/.test(e.message)) {
+        if (!/ENOENT|EISDIR/.test((e as Error).message)) {
           console.error(e)
         }
 
@@ -220,7 +220,7 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
                 body: file,
               })
             } catch (e) {
-              if (!e.message.includes('ENOENT')) {
+              if (!(e as Error).message.includes('ENOENT')) {
                 console.error(e)
               }
 
@@ -250,7 +250,7 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
           logger.error({
             label: 'serve',
             message: `500 ${url}`,
-            error: e,
+            error: e as Error,
             duration: time(),
           })
 

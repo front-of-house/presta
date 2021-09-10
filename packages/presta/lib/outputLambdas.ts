@@ -43,7 +43,7 @@ export function outputLambdas(inputs: string[], config: Presta) {
       } catch (e) {
         logger.error({
           label: 'error',
-          error: e,
+          error: e as Error,
         })
         return null
       }

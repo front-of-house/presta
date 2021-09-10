@@ -107,7 +107,7 @@ export function load(loader: Loader, { key, duration }: { key: string; duration?
         // catch async errors
         .catch((e: Error) => loadError(key, e))
     } catch (e) {
-      loadError(key, e)
+      loadError(key, e as Error)
     }
   }
 

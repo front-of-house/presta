@@ -6,7 +6,7 @@ import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
 import { pruneObject } from './pruneObject'
 
-import type { AWS, Event, Context, Lambda } from './types'
+import type { AWS, Event, Context, Lambda, PrestaError } from './types'
 
 function createHTMLErrorPage({ statusCode }: { statusCode: number }) {
   return `
@@ -32,9 +32,10 @@ export function wrapHandler(
     try {
       response = normalizeResponse(await file.handler(event as Event, context))
     } catch (e) {
+      const err = e as PrestaError
       const accept = event.headers['Accept']
       const acceptsJson = accept && accept.includes('json')
-      const statusCode = e.status || e.statusCode || 500
+      const statusCode = err.status || err.statusCode || 500
 
       response = normalizeResponse({
         statusCode,
@@ -44,9 +45,9 @@ export function wrapHandler(
               errors: [
                 pruneObject({
                   status: statusCode,
-                  source: e.source,
-                  title: e.title,
-                  details: e.details || e.message,
+                  source: err.source,
+                  title: err.title,
+                  details: err.details || err.message,
                 }),
               ],
             }

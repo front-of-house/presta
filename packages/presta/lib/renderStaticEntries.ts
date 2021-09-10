@@ -88,14 +88,14 @@ export function renderStaticEntries(entries: string[], config: Presta): Promise<
           logger.error({
             label: 'error',
             message: 'errors detected, pausing...',
-            error: e,
+            error: e as Error,
           })
 
           y({ allGeneratedFiles })
         } else {
           logger.error({
             label: 'error',
-            error: e,
+            error: e as Error,
           })
 
           n(e)
