@@ -60,7 +60,7 @@ function createDevClient({ port }: { port: number }) {
             var socket = io('http://localhost:${port}', {
               reconnectionAttempts: 3
             })
-            socket.on('connect', function() { console.log('presta connected') })
+            socket.on('connect', function() { console.log('presta connected on port ${port}') })
             socket.on('refresh', function() {
               global.location.reload()
             })
