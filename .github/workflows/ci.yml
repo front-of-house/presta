@@ -1,4 +1,4 @@
-name: Test
+name: CI
 
 on:
   pull_request:
@@ -7,14 +7,15 @@ on:
 
 env:
   PNPM_CACHE_FOLDER: .pnpm-store
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
-  release:
-    name: CI
+  build_and_test:
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
-        # env stuff
+      # env stuff
       - name: checkout
         uses: actions/checkout@v2
         with:
@@ -22,35 +23,23 @@ jobs:
       - name: node - setup
         uses: actions/setup-node@v2
         with:
-          node-version: 12.x
-          registry-url: https://registry.npmjs.org/
+          node-version: 14.x
 
-        # pnpm stuff
-      - name: pnpm - setup caching
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.PNPM_CACHE_FOLDER }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-      - name: pnpm - install
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6.x
+      # pnpm stuff
+      - name: pnpm — install
+        run: npm i pnpm@latest -g
       - name: pnpm - config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
-      - name: pnpm - output bin stubs
-        run: echo "#! /usr/bin/env node" > ./packages/presta/cli.js
       - name: pnpm - install
         run: pnpm install
 
-        # build
+      # build
       - name: lint
         run: pnpm lint
-      - name: typecheck
-        run: pnpm typecheck
       - name: build
         run: pnpm build
+      - name: typecheck
+        run: pnpm typecheck
       - name: test
         run: pnpm test
         env:

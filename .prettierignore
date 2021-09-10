@@ -4,3 +4,6 @@ fixtures
 test/fixtures
 dist
 build
+.nyc_output
+coverage
+pnpm-lock.yaml

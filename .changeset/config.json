@@ -1,9 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@1.6.0/schema.json",
-  "changelog": [
-    "@changesets/changelog-github",
-    { "repo": "sure-thing/presta" }
-  ],
+  "changelog": ["@changesets/changelog-github", { "repo": "sure-thing/presta" }],
   "commit": true,
   "linked": [],
   "access": "public",

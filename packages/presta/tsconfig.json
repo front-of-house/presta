@@ -1,9 +1,6 @@
 {
   "extends": "@tsconfig/node12/tsconfig.json",
-  "include": [
-    "lib/*.ts",
-    "index.d.ts"
-  ],
+  "include": ["lib/*.ts", "index.d.ts"],
   "compilerOptions": {
     "declaration": true,
     "declarationDir": "dist",

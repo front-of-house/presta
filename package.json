@@ -29,11 +29,11 @@
     "test": "TESTING=true tap --ts --node-arg=--require=esbuild-register --no-check-coverage",
     "typecheck": "pnpm -r typecheck",
     "build": "pnpm -r build",
-    "lint": "prettier --check \"./**/*.{ts,tsx,js,md}\"",
-    "format": "prettier --write \"./**/*.{ts,tsx,js,md}\"",
+    "lint": "prettier --check .",
+    "format": "prettier --write .",
     "changeset": "changeset",
     "release": "pnpm build && changeset publish",
-    "version-packages": "changeset version && pnpm format",
+    "version-packages": "changeset version && pnpm format && pnpm install --no-frozen-lockfile && git add .",
     "gutcheck": "pnpm build && pnpm typecheck && pnpm test && pnpm format"
   }
 }

@@ -1,9 +1,10 @@
 :root {
   --dark: #223355;
-  --blue: #4488FF;
-  --light: #D2D5DC;
+  --blue: #4488ff;
+  --light: #d2d5dc;
 }
-html, body {
+html,
+body {
   font-family: 'Inter', Helvetica, sans-serif;
   color: var(--dark);
 }
