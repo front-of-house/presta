@@ -7,3 +7,4 @@ build
 .nyc_output
 coverage
 pnpm-lock.yaml
+.pnpm*
