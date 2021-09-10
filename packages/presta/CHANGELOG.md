@@ -1,5 +1,11 @@
 # presta
 
+## 0.35.5
+
+### Patch Changes
+
+- [`4b9da8c`](https://github.com/sure-thing/presta/commit/4b9da8c115ee9ebd74f41d1c595b60cda7364154) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Add port to console log
+
 ## 0.35.4
 
 ### Patch Changes
