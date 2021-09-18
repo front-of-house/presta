@@ -1,5 +1,11 @@
 # @presta/html
 
+## 0.1.5
+
+### Patch Changes
+
+- [`b5c8927`](https://github.com/sure-thing/presta/commit/b5c89274a09b59eb91164efd875f136632716f40) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Adds some light docs
+
 ## 0.1.4
 
 ### Patch Changes
