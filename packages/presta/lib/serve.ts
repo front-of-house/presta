@@ -139,7 +139,7 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
       } catch (e) {
         logger.debug({
           label: 'debug',
-          message: `serve error`,
+          message: `static route failed`,
           error: e as Error,
         })
 

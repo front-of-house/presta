@@ -5,6 +5,7 @@
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
 import { pruneObject } from './pruneObject'
+import * as logger from './log'
 
 import type { AWS, Event, Context, Lambda, PrestaError } from './types'
 
@@ -32,6 +33,12 @@ export function wrapHandler(
     try {
       response = normalizeResponse(await file.handler(event as Event, context))
     } catch (e) {
+      logger.error({
+        label: 'serve',
+        message: `lambda`,
+        error: e as Error,
+      })
+
       const err = e as PrestaError
       const accept = event.headers['Accept']
       const acceptsJson = accept && accept.includes('json')
