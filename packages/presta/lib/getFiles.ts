@@ -2,6 +2,8 @@ import fs from 'fs-extra'
 import path from 'path'
 import globSync from 'tiny-glob/sync'
 
+import * as logger from './log'
+
 import type { Presta } from './types'
 
 export function isDynamic(file: string) {
@@ -17,9 +19,19 @@ export function isPrestaFile(file: string) {
 }
 
 export function getFiles(config: Presta): string[] {
-  return ([] as string[])
-    .concat(config.files)
-    .map((file) => globSync(file, { cwd: config.cwd }))
-    .flat()
-    .map((file) => path.resolve(config.cwd, file)) // make absolute
+  try {
+    return ([] as string[])
+      .concat(config.files)
+      .map((file) => globSync(file, { cwd: config.cwd }))
+      .flat()
+      .map((file) => path.resolve(config.cwd, file)) // make absolute
+  } catch (e) {
+    logger.error({
+      label: 'paths',
+      message: `no files found`,
+      error: e as Error,
+    })
+
+    return []
+  }
 }
