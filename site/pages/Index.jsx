@@ -10,7 +10,7 @@ export function handler(event) {
     head: {
       title: 'Presta | Minimalist Web Framework',
       description: `Minimalist web framework for SSG, SSR, API functions and more.`,
-      image: '/og.png',
+      image: 'https://presta.run/og.png',
       twitter: {
         card: 'summary_large_image',
         site: 'presta_run',
