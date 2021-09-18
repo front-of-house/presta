@@ -1,5 +1,21 @@
 # presta
 
+## 0.36.0
+
+### Minor Changes
+
+- [`cd0a41f`](https://github.com/sure-thing/presta/commit/cd0a41ff0362fcca938d8b4c4442933f536ca1ba) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Update esbuild dependencies
+
+* [`50050de`](https://github.com/sure-thing/presta/commit/50050de22a8edf52c7fdb156d18b747e96a37847) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Adds port option to CLI and config file
+
+### Patch Changes
+
+- [`933f060`](https://github.com/sure-thing/presta/commit/933f060f5c511a58a733387bdd810d7b2b1590a4) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Handle getFiles exception
+
+* [`1649697`](https://github.com/sure-thing/presta/commit/1649697bc888f6e02418b886296f5ced45e9f0c8) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Add more CLI help docs
+
+- [`f6dd990`](https://github.com/sure-thing/presta/commit/f6dd99040395e735514ca515b8e436ac4a0437f1) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Log swallowed handler error
+
 ## 0.35.6
 
 ### Patch Changes
