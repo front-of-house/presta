@@ -1,0 +1,5 @@
+---
+'presta': patch
+---
+
+Fix typo

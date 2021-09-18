@@ -29,8 +29,8 @@ prog
   .version(pkg.version)
   // do not provide default config here
   .option('--config, -c', `Path to a config file.  (default ${CONFIG_DEFAULT})`)
-  .option('--output, -o', `Specify output directory for built files.  (defaults ./build)`)
-  .option('--assets, -a', `Specify static asset directory.  (defaults ./public)`)
+  .option('--output, -o', `Specify output directory for built files.  (default ./build)`)
+  .option('--assets, -a', `Specify static asset directory.  (default ./public)`)
   .option('--debug, -d', `Enable debug mode (prints more logs)`)
   .example(`dev index.jsx -o dist`)
   .example(`dev 'pages/*.tsx' -o static`)
