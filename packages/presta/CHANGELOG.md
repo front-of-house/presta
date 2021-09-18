@@ -1,5 +1,11 @@
 # presta
 
+## 0.36.2
+
+### Patch Changes
+
+- [`898f5b2`](https://github.com/sure-thing/presta/commit/898f5b2e0ec9be7cc7a997a9164593aa6b75c3bb) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fix typo
+
 ## 0.36.1
 
 ### Patch Changes
