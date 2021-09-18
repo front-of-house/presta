@@ -1,14 +1,15 @@
 {
   "private": true,
+  "name": "@presta/site",
   "scripts": {
-    "start": "presta watch 'pages/*.tsx'",
-    "build": "presta build 'pages/*.tsx'"
+    "start": "presta dev",
+    "build": "presta"
   },
   "dependencies": {
     "@presta/adapter-netlify": "^0.1.2",
     "@presta/html": "^0.1.4",
     "hyposcript": "^1.0.4",
     "nanoclass": "^0.0.2",
-    "presta": "^0.35.1"
+    "presta": "^0.36.1"
   }
 }

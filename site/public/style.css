@@ -1,0 +1,20 @@
+:root {
+  --dark: #23283d;
+  --light: #a8b0d3;
+  --neon: #a7f467;
+}
+
+::selection {
+  color: var(--dark);
+  background: var(--light);
+}
+
+.dark {
+  color: var(--dark);
+}
+.light {
+  color: var(--light);
+}
+.neon {
+  color: var(--neon);
+}
