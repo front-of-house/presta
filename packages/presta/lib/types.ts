@@ -28,11 +28,13 @@ export type Config = {
   output?: string
   assets?: string
   plugins?: Plugin[]
+  port?: number
 }
 
 export type CLI = {
   config?: string
   debug?: boolean
+  port?: string
 } & Config
 
 export type FunctionsManifest = {
@@ -54,6 +56,7 @@ export type Presta = {
   pid: number
   cwd: string
   env: Env
+  port: number
   debug: boolean
   configFilepath: string
   staticOutputDir: string

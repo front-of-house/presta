@@ -27,10 +27,10 @@ function registerRuntime(options = {}) {
 
 prog
   .version(pkg.version)
-  // don't provide default config here
-  .option('--config, -c', `Path to a config file — defaults to ${CONFIG_DEFAULT}`)
-  .option('--output, -o', `Specify output directory for built files — defaults to ./build`)
-  .option('--assets, -a', `Specify static asset directory — defaults to ./public`)
+  // do not provide default config here
+  .option('--config, -c', `Path to a config file.  (default ${CONFIG_DEFAULT})`)
+  .option('--output, -o', `Specify output directory for built files.  (defaults ./build)`)
+  .option('--assets, -a', `Specify static asset directory.  (defaults ./public)`)
   .option('--debug, -d', `Enable debug mode (prints more logs)`)
 
 prog
@@ -62,8 +62,9 @@ prog
 
 prog
   .command('dev', 'Start Presta dev server and watch files', { alias: 'watch' })
-  .option('--no-serve, -n', `Do not run local dev server.`, false)
-  .describe('Watch and build files(s) to output directory')
+  .option('--port, -p', `Port to run the local server.  (default 4000)`)
+  .option('--no-serve, -n', `Do not run local dev server.  (default false)`)
+  .describe('Watch project and build to output directory.')
   .example(`watch`)
   .example(`watch ./files/**/*.js`)
   .example(`watch ./files/**/*.js -o ./out`)
@@ -101,9 +102,10 @@ prog
 
 prog
   .command('serve')
-  .describe('Serve built files.')
+  .option('--port, -p', `Port to run the local server.  (default 4000)`)
+  .describe('Serve built files, lambdas, and static assets.')
   .example(`serve`)
-  .example(`serve -o ./out`)
+  .example(`serve -o ./out -p 8080`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
   .action(async (opts) => {
     console.clear()

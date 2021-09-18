@@ -5,11 +5,18 @@ import * as logger from './log'
 import { createEmitter, createHook } from './createEmitter'
 import { setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
 
-import { Env, Config, CLI } from './types'
+import { Presta, Env, Config, CLI } from './types'
 
 const defaultConfigFilepath = 'presta.config.js'
 
-function resolveAbsolutePaths(config: Config, { cwd }: { cwd: string }) {
+function resolveAbsolutePaths(
+  config: {
+    files?: string | string[]
+    output?: string
+    assets?: string
+  },
+  { cwd }: { cwd: string }
+) {
   if (config.files) config.files = ([] as string[]).concat(config.files).map((p) => path.resolve(cwd, p))
   if (config.output) config.output = path.resolve(cwd, config.output)
   if (config.assets) config.assets = path.resolve(cwd, config.assets)
@@ -94,6 +101,7 @@ export function createConfig({
     assets: path.resolve(cli.assets || config.assets || 'public'),
     files: cli.files && cli.files.length ? cli.files : config.files ? ([] as string[]).concat(config.files) : [],
   }
+  const port = cli.port ? parseInt(cli.port) : config.port || 4000
 
   const previous = getCurrentPrestaInstance()
   // only create once
@@ -103,11 +111,12 @@ export function createConfig({
   emitter.clear()
 
   // set instance
-  const next = setCurrentPrestaInstance({
+  const next: Presta = setCurrentPrestaInstance({
     ...previous,
     ...merged, // overwrites every time
     env,
     cwd,
+    port,
     debug: cli.debug || getCurrentPrestaInstance().debug,
     configFilepath: path.resolve(cli.config || defaultConfigFilepath),
     staticOutputDir: path.join(merged.output, 'static'),
