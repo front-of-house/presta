@@ -1,5 +1,11 @@
 # presta
 
+## 0.36.1
+
+### Patch Changes
+
+- [`32e3bc5`](https://github.com/sure-thing/presta/commit/32e3bc557f6f9124e60ca6edb7e413c17e6008f7) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Register runtime for serve command
+
 ## 0.36.0
 
 ### Minor Changes
