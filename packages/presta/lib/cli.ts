@@ -32,6 +32,11 @@ prog
   .option('--output, -o', `Specify output directory for built files.  (defaults ./build)`)
   .option('--assets, -a', `Specify static asset directory.  (defaults ./public)`)
   .option('--debug, -d', `Enable debug mode (prints more logs)`)
+  .example(`dev index.jsx -o dist`)
+  .example(`dev 'pages/*.tsx' -o static`)
+  .example(`'pages/*.tsx'`)
+  .example(`-c site.json`)
+  .example(`serve -p 8080`)
 
 prog
   .command('build', 'Build project to output directory.', { default: true })
