@@ -39,8 +39,8 @@ export function handler(event) {
 
   Options
     -c, --config     Path to a config file.  (default presta.config.js)
-    -o, --output     Specify output directory for built files.  (defaults ./build)
-    -a, --assets     Specify static asset directory.  (defaults ./public)
+    -o, --output     Specify output directory for built files.  (default ./build)
+    -a, --assets     Specify static asset directory.  (default ./public)
     -d, --debug      Enable debug mode (prints more logs)
     -v, --version    Displays current version
     -h, --help       Displays this message
