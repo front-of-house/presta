@@ -1,5 +1,11 @@
 # presta
 
+## 0.36.3
+
+### Patch Changes
+
+- [`b867a13`](https://github.com/sure-thing/presta/commit/b867a13a7932d91b7be5086f68ab68333d198cc3) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fix CLI help inconsistencies
+
 ## 0.36.2
 
 ### Patch Changes
