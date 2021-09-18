@@ -113,6 +113,8 @@ prog
   .example(`serve -o ./out -p 8080`)
   .example(`watch -c ${CONFIG_DEFAULT}`)
   .action(async (opts) => {
+    registerRuntime()
+
     console.clear()
 
     const config = createConfig({
