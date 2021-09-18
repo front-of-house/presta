@@ -11,7 +11,10 @@ export function handler(event) {
       title: 'Presta | Minimalist Web Framework',
       description: `Minimalist web framework for SSG, SSR, API functions and more.`,
       image: '/og.png',
-      meta: [{ name: 'twitter:card', content: 'summary_large_image' }],
+      twitter: {
+        card: 'summary_large_image',
+        site: 'presta_run',
+      },
       link: [
         { rel: 'icon', type: 'image/png', href: '/favicon.png' },
         { rel: 'icon', type: 'image/svg', href: '/favicon.svg' },
