@@ -40,9 +40,9 @@ prog
 
 prog
   .command('build', 'Build project to output directory.', { default: true })
-  .example(`build`)
-  .example(`build files/**/*.js`)
-  .example(`build -c ${CONFIG_DEFAULT}`)
+  .example(``)
+  .example(`files/**/*.js`)
+  .example(`-c ${CONFIG_DEFAULT}`)
   .action(async (opts) => {
     registerRuntime()
 
@@ -70,10 +70,10 @@ prog
   .option('--port, -p', `Port to run the local server.  (default 4000)`)
   .option('--no-serve, -n', `Do not run local dev server.  (default false)`)
   .describe('Watch project and build to output directory.')
-  .example(`watch`)
-  .example(`watch ./files/**/*.js`)
-  .example(`watch ./files/**/*.js -o ./out`)
-  .example(`watch -c ${CONFIG_DEFAULT}`)
+  .example(`dev`)
+  .example(`dev ./files/**/*.js`)
+  .example(`dev ./files/**/*.js -o ./out`)
+  .example(`dev -c ${CONFIG_DEFAULT}`)
   .action(async (opts) => {
     registerRuntime()
 
@@ -111,7 +111,7 @@ prog
   .describe('Serve built files, lambdas, and static assets.')
   .example(`serve`)
   .example(`serve -o ./out -p 8080`)
-  .example(`watch -c ${CONFIG_DEFAULT}`)
+  .example(`serve -c ${CONFIG_DEFAULT}`)
   .action(async (opts) => {
     registerRuntime()
 
