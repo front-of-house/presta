@@ -1,20 +1,87 @@
 :root {
   --dark: #23283d;
+  --gray: #4e546b;
   --light: #a8b0d3;
+  --lightest: #e9ecf8;
   --neon: #a7f467;
 }
 
-::selection {
+html,
+body {
   color: var(--dark);
-  background: var(--light);
+  font-family: Inter, sans-serif;
+  font-weight: 400;
+}
+
+::selection {
+  color: var(--light);
+  background: var(--dark);
+}
+
+code {
+  font-size: 0.95em;
+  background: var(--lightest);
+  padding: 0 4px;
+}
+pre {
+  font-size: 0.9rem;
+  margin: 0;
 }
 
 .dark {
   color: var(--dark);
 }
+.gray {
+  color: var(--gray);
+}
 .light {
   color: var(--light);
 }
+.lightest {
+  color: var(--lightest);
+}
 .neon {
   color: var(--neon);
+}
+
+.text-width {
+  max-width: 500px;
+}
+
+.w12 {
+  width: 100%;
+}
+
+.outer {
+  padding: 48px 24px;
+}
+
+.section {
+  max-width: 1200px;
+}
+.section .__left {
+  padding-right: 48px;
+}
+
+@media (min-width: 900px) {
+  .w12 {
+    width: 50%;
+  }
+
+  .outer {
+    padding: 64px 48px;
+  }
+}
+
+.hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  white-space: nowrap;
+  word-wrap: normal;
 }
