@@ -1,6 +1,6 @@
 {
   "name": "@presta/source-filesystem",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Source and watch local files, rebuilding pages on change.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
   "dependencies": {
     "filewatcher": "^3.0.1",
     "pirates": "^4.0.1",
-    "presta": "workspace:^0.38.0",
+    "presta": "workspace:^0.39.0",
     "tiny-glob": "^0.2.9"
   }
 }

@@ -7,9 +7,9 @@
   },
   "dependencies": {
     "@presta/html": "workspace:^0.1.5",
-    "@presta/source-filesystem": "workspace:^0.1.2",
+    "@presta/source-filesystem": "workspace:^0.2.0",
     "micromark": "^3.0.5",
-    "presta": "workspace:^0.38.0"
+    "presta": "workspace:^0.39.0"
   },
   "version": null
 }

@@ -1,5 +1,11 @@
 # presta
 
+## 0.39.0
+
+### Minor Changes
+
+- [`c53c96c`](https://github.com/sure-thing/presta/commit/c53c96c5ea5ab9698ca4776beeacc7ad3ff52ae1) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Standardize hooks interfaces — everything is now on `context.hooks` and follows `emitX` and `onX` pattern
+
 ## 0.38.0
 
 ### Minor Changes
