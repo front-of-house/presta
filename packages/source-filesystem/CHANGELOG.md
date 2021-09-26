@@ -1,5 +1,14 @@
 # @presta/source-filesystem
 
+## 0.1.1
+
+### Patch Changes
+
+- [`c286805`](https://github.com/sure-thing/presta/commit/c286805d6d39a3b05be9cd75f28247253f2d2a40) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Remove log
+
+- Updated dependencies [[`747bc24`](https://github.com/sure-thing/presta/commit/747bc24d6c751cd9348477bb8a304b411f47fecb)]:
+  - presta@0.37.1
+
 ## 0.1.0
 
 ### Minor Changes
