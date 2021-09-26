@@ -152,6 +152,7 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
           /*
            * No asset file, no static file, try dynamic
            */
+          delete require.cache[config.functionsManifest]
           const manifest = require(config.functionsManifest)
           const routes = Object.keys(manifest)
           const lambdaFilepath = routes
