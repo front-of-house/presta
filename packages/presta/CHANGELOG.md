@@ -1,5 +1,11 @@
 # presta
 
+## 0.37.0
+
+### Minor Changes
+
+- [`6010c96`](https://github.com/sure-thing/presta/commit/6010c968b3dfe2e04638233be1e3f20839bdfab8) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Introduce an actions API — subject to change
+
 ## 0.36.3
 
 ### Patch Changes
