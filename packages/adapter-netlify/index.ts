@@ -53,7 +53,7 @@ export function generateRedirectsString(redirects: NetlifyRedirect[]) {
   return redirects.map((r) => [r.from, r.to, `${r.status}${r.force ? '!' : ''}`].join(' ')).join('\n')
 }
 
-export function createPlugin({ cwd = process.cwd() }: { cwd?: string } = {}): Plugin {
+export const createPlugin: Plugin = ({ cwd = process.cwd() }: { cwd?: string } = {}) => {
   return async function plugin() {
     const netlifyConfig = getNetlifyConfig({ cwd })
 
