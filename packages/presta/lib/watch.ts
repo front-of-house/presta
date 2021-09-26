@@ -87,9 +87,12 @@ export async function watch(config: Presta) {
       updateLambdas(files.filter(isDynamic), config)
     }
 
-    config.events.emit('refresh')
-    config.events.emit('done', [file])
+    config.hooks.emitBrowserRefresh()
   }
+
+  config.hooks.onBuildFile(({ file }) => {
+    handleFileChange(file)
+  })
 
   fileWatcher.on('remove', ([id]: string[]) => {
     logger.debug({
@@ -115,8 +118,6 @@ export async function watch(config: Presta) {
     }
 
     ;(builtStaticFiles[id] || []).forEach((file) => removeBuiltStaticFile(file, config))
-
-    config.events.emit('remove', id)
   })
 
   fileWatcher.on('change', ([id]: string[]) => {
@@ -145,8 +146,6 @@ export async function watch(config: Presta) {
     } else {
       handleFileChange(id)
     }
-
-    config.events.emit('change', id)
   })
 
   fileWatcher.on('error', (e: Error) => {
@@ -205,8 +204,6 @@ export async function watch(config: Presta) {
         })
       }
     }
-
-    config.events.emit('add', file)
   })
 
   /**

@@ -2,9 +2,9 @@ import fs from 'fs'
 import path from 'path'
 
 import * as logger from './log'
-import { createEmitter, createHook, createAction } from './createEmitter'
+import { createEmitter, createEmitHook, createOnHook } from './createEmitter'
 import { setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
-import { Presta, Config, CLI } from './types'
+import { Presta, Config, CLI, Callable } from './types'
 import { Env } from './constants'
 
 const defaultConfigFilepath = 'presta.config.js'
@@ -124,10 +124,24 @@ export function createConfig({
     functionsManifest: path.join(merged.output, 'routes.json'),
     events: emitter,
     hooks: {
-      postbuild: createHook('postbuild', emitter),
-    },
-    actions: {
-      build: createAction('build', emitter),
+      emitPostBuild(props) {
+        emitter.emit('postBuild', props)
+      },
+      onPostBuild(cb) {
+        return emitter.on('postBuild', cb)
+      },
+      emitBuildFile(props) {
+        emitter.emit('buildFile', props)
+      },
+      onBuildFile(cb) {
+        return emitter.on('buildFile', cb)
+      },
+      emitBrowserRefresh() {
+        emitter.emit('browserRefresh')
+      },
+      onBrowserRefresh(cb) {
+        return emitter.on('browserRefresh', cb)
+      },
     },
   })
 

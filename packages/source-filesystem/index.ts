@@ -22,8 +22,14 @@ export const createPlugin: Plugin = () => {
           watcher.remove(hash[file])
           hash[file].map((file) => watcher.remove(file))
         } else {
-          // watched file
-          getCurrentPrestaInstance().actions.build(file)
+          outer: for (const parent of Object.keys(hash)) {
+            for (const child of hash[parent]) {
+              if (child === file) {
+                getCurrentPrestaInstance().hooks.emitBuildFile({ file: parent })
+                continue outer
+              }
+            }
+          }
         }
       })
     }

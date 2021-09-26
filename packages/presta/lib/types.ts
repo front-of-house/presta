@@ -15,8 +15,12 @@ export type AWS = {
   Handler: (event: LambdaHandlerEvent, context: Partial<LambdaHandlerContext>) => Promise<LambdaHandlerResponse>
 }
 
+export type Callable = (...args: any[]) => void
+
+export type ContextGetter = typeof getCurrentPrestaInstance
+
 export type PluginInterface = any
-export type PluginInit = (context: typeof getCurrentPrestaInstance) => PluginInterface
+export type PluginInit = (context: ContextGetter) => PluginInterface
 export type Plugin = (props: Record<string, unknown>) => PluginInit
 
 export type Config = {
@@ -37,19 +41,24 @@ export type FunctionsManifest = {
   [route: string]: string
 }
 
-export type Hook<T> = (props: T) => void
-export type PostbuildHook = Hook<{
+export type HookPostBuild = {
   output: Presta['output']
   staticOutput: Presta['staticOutputDir']
   functionsOutput: Presta['functionsOutputDir']
   functionsManifest: FunctionsManifest
-}>
-export type Hooks = {
-  postbuild(hook: PostbuildHook): () => void
+}
+export type HookBuildFile = {
+  file: string
 }
 
-export type Actions = {
-  build(file: string): void
+export type DestroyHookCallback = () => void
+export type Hooks = {
+  emitPostBuild(props: HookPostBuild): void
+  onPostBuild(cb: (props: HookPostBuild) => void): DestroyHookCallback
+  emitBuildFile(props: HookBuildFile): void
+  onBuildFile(cb: (props: HookBuildFile) => void): DestroyHookCallback
+  emitBrowserRefresh(): void
+  onBrowserRefresh(cb: () => void): DestroyHookCallback
 }
 
 export type Presta = {
@@ -64,7 +73,6 @@ export type Presta = {
   functionsManifest: string
   events: ReturnType<typeof createEmitter>
   hooks: Hooks
-  actions: Actions
 } & Required<Config>
 
 export type RouteParams = { [param: string]: string }

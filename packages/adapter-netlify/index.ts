@@ -82,7 +82,7 @@ export const createPlugin: Plugin = ({ cwd = process.cwd() }: { cwd?: string } =
     let canRemoveFunctionsOutput = false
     const { hooks } = getCurrentPrestaInstance()
 
-    hooks.postbuild((props) => {
+    hooks.onPostBuild((props) => {
       const { output, staticOutput, functionsOutput, functionsManifest } = props
       const hasStaticFiles = fs.existsSync(staticOutput)
       const hasFunctions = fs.existsSync(functionsOutput)

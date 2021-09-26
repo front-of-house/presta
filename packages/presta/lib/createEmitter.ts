@@ -1,12 +1,10 @@
-import { Hook } from './types'
-
-type callable = (...args: any[]) => void
+import { Callable } from './types'
 
 export function createEmitter() {
-  let events: { [event: string]: callable[] } = {}
+  let events: { [event: string]: Callable[] } = {}
 
   function emit(ev: string, ...args: any[]): void {
-    events[ev] ? events[ev].map((fn: callable) => fn(...args)) : []
+    events[ev] ? events[ev].map((fn: Callable) => fn(...args)) : []
   }
 
   function on(ev: string, fn: (...args: any[]) => void) {
@@ -30,14 +28,14 @@ export function createEmitter() {
   }
 }
 
-export function createHook(name: string, emitter: ReturnType<typeof createEmitter>) {
-  return function proxy<T>(hook: Hook<T>) {
-    return emitter.on(name, hook)
+export function createEmitHook(name: string, emitter: ReturnType<typeof createEmitter>) {
+  return function hook<T>(props: T) {
+    emitter.emit(name, props)
   }
 }
 
-export function createAction(name: string, emitter: ReturnType<typeof createEmitter>) {
-  return function proxy<T extends unknown[]>(...props: T) {
-    emitter.emit(name, props)
+export function createOnHook(name: string, emitter: ReturnType<typeof createEmitter>) {
+  return function hook(callback: Callable) {
+    return emitter.on(name, callback)
   }
 }

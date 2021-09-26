@@ -136,7 +136,7 @@ export async function build(config: Presta) {
       logger.newline()
     }
 
-    config.events.emit('postbuild', {
+    config.hooks.emitPostBuild({
       output: config.output,
       staticOutput: config.staticOutputDir,
       functionsOutput: config.functionsOutputDir,

@@ -269,7 +269,7 @@ export async function serve(config: Presta) {
   const server = http.createServer(createServerHandler({ port, config })).listen(port)
   const socket = require('pocket.io')(server, { serveClient: false })
 
-  config.events.on('refresh', () => {
+  config.hooks.onBrowserRefresh(() => {
     logger.debug({
       label: 'debug',
       message: `refresh event received`,
@@ -279,7 +279,7 @@ export async function serve(config: Presta) {
   })
 
   chokidar.watch(config.assets, { ignoreInitial: true }).on('all', () => {
-    config.events.emit('refresh')
+    config.hooks.emitBrowserRefresh()
   })
 
   return { port }

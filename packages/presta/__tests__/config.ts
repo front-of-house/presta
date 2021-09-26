@@ -246,12 +246,13 @@ tap.test('config - hooks', (t) => {
 
   const config = createConfig({})
 
-  config.hooks.postbuild(() => {
+  config.hooks.onPostBuild(() => {
     t.pass()
     t.end()
   })
 
-  config.events.emit('postbuild')
+  // @ts-expect-error
+  config.hooks.emitPostBuild()
 })
 
 tap.test('config - plugins', (t) => {
