@@ -53,6 +53,7 @@ tap.test('generateRedirectsString', async (t) => {
 
 tap.test('createPlugin', async (t) => {
   try {
+    // @ts-ignore
     await createPlugin()()
     throw 'err'
   } catch (e) {

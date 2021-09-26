@@ -4,7 +4,7 @@ import path from 'path'
 
 import { createConfig } from '../lib/config'
 import { outputLambda, outputLambdas } from '../lib/outputLambdas'
-import { Env } from '../lib/types'
+import { Env } from '../lib/constants'
 
 tap.test('outputLambda', async (t) => {
   const content = `module.exports = { route: '*' }`

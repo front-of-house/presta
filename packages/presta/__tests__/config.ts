@@ -2,7 +2,7 @@ import tap from 'tap'
 import path from 'path'
 
 import { createConfig, removeConfigValues, getConfigFile, _clearCurrentConfig } from '../lib/config'
-import { Env } from '../lib/types'
+import { Env } from '../lib/constants'
 
 tap.test('config - defaults', async (t) => {
   _clearCurrentConfig()

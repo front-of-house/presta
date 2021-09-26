@@ -4,7 +4,7 @@ import path from 'path'
 
 import { createConfig } from '../lib/config'
 import { build } from '../lib/build'
-import { Env } from '../lib/types'
+import { Env } from '../lib/constants'
 
 tap.test('build - static files', async (t) => {
   t.testdir({
