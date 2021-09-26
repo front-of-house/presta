@@ -35,3 +35,9 @@ export function createHook(name: string, emitter: ReturnType<typeof createEmitte
     return emitter.on(name, hook)
   }
 }
+
+export function createAction(name: string, emitter: ReturnType<typeof createEmitter>) {
+  return function proxy<T extends unknown[]>(...props: T) {
+    emitter.emit(name, props)
+  }
+}

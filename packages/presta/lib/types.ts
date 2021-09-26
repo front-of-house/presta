@@ -52,6 +52,10 @@ export type Hooks = {
   postbuild(hook: PostbuildHook): () => void
 }
 
+export type Actions = {
+  build(file: string): void
+}
+
 export type Presta = {
   pid: number
   cwd: string
@@ -64,6 +68,7 @@ export type Presta = {
   functionsManifest: string
   events: ReturnType<typeof createEmitter>
   hooks: Hooks
+  actions: Actions
 } & Required<Config>
 
 export type RouteParams = { [param: string]: string }

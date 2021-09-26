@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 import * as logger from './log'
-import { createEmitter, createHook } from './createEmitter'
+import { createEmitter, createHook, createAction } from './createEmitter'
 import { setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
 
 import { Presta, Env, Config, CLI } from './types'
@@ -125,6 +125,9 @@ export function createConfig({
     events: emitter,
     hooks: {
       postbuild: createHook('postbuild', emitter),
+    },
+    actions: {
+      build: createAction('build', emitter),
     },
   })
 
