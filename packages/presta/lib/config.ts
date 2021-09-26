@@ -4,7 +4,8 @@ import path from 'path'
 import * as logger from './log'
 import { createEmitter, createHook, createAction } from './createEmitter'
 import { setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
-import { Presta, Env, Config, CLI } from './types'
+import { Presta, Config, CLI } from './types'
+import { Env } from './constants'
 
 const defaultConfigFilepath = 'presta.config.js'
 
@@ -87,7 +88,7 @@ export function createConfig({
   cli = {},
 }: {
   cwd?: string
-  env?: Env
+  env?: string
   config?: Partial<Config>
   cli?: Partial<CLI>
 }) {

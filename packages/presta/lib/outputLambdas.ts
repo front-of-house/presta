@@ -4,7 +4,8 @@ import rsort from 'route-sort'
 
 import { hashContent } from './hashContent'
 import * as logger from './log'
-import { Presta, Env } from './types'
+import { Presta } from './types'
+import { Env } from './constants'
 
 export function outputLambda(input: string, config: Presta): [string, string] {
   const { route } = require(input)

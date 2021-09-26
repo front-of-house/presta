@@ -10,7 +10,7 @@ import { createConfig, getConfigFile } from './config'
 import { watch } from './watch'
 import { build } from './build'
 import { serve } from './serve'
-import { Env } from './types'
+import { Env } from './constants'
 
 const prog = sade('presta')
 const CONFIG_DEFAULT = 'presta.config.js'

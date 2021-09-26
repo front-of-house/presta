@@ -1,4 +1,5 @@
-import { Presta, Env } from './types'
+import { Presta } from './types'
+import { Env } from './constants'
 
 const defaultConfig = {
   pid: process.pid,

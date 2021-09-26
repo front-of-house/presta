@@ -8,11 +8,6 @@ import { createEmitter } from './createEmitter'
 import { wrapHandler } from './wrapHandler'
 import { getCurrentPrestaInstance } from './currentPrestaInstance'
 
-export enum Env {
-  PRODUCTION = 'production',
-  DEVELOPMENT = 'development',
-}
-
 export type AWS = {
   HandlerEvent: LambdaHandlerEvent
   HandlerContext: LambdaHandlerContext
@@ -60,7 +55,7 @@ export type Actions = {
 export type Presta = {
   pid: number
   cwd: string
-  env: Env
+  env: string
   port: number
   debug: boolean
   configFilepath: string
