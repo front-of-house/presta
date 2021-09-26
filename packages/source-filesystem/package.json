@@ -1,0 +1,30 @@
+{
+  "name": "@presta/source-filesystem",
+  "version": "0.0.0",
+  "description": "Source and watch local files, rebuilding pages on change.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node scripts/build && pnpx tsc --emitDeclarationOnly",
+    "typecheck": "pnpx tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sure-thing/presta.git"
+  },
+  "author": "estrattonbailey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sure-thing/presta/issues"
+  },
+  "homepage": "https://github.com/sure-thing/presta#readme",
+  "dependencies": {
+    "filewatcher": "^3.0.1",
+    "pirates": "^4.0.1",
+    "presta": "workspace:^0.36.3",
+    "tiny-glob": "^0.2.9"
+  }
+}
