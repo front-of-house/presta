@@ -4,7 +4,6 @@ import path from 'path'
 import * as logger from './log'
 import { createEmitter, createHook, createAction } from './createEmitter'
 import { setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
-
 import { Presta, Env, Config, CLI } from './types'
 
 const defaultConfigFilepath = 'presta.config.js'
@@ -134,7 +133,7 @@ export function createConfig({
   if (config.plugins) {
     config.plugins.map((p) => {
       try {
-        p()
+        p(getCurrentPrestaInstance)
       } catch (e) {
         logger.error({
           label: 'error',

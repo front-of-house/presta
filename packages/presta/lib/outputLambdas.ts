@@ -4,7 +4,6 @@ import rsort from 'route-sort'
 
 import { hashContent } from './hashContent'
 import * as logger from './log'
-
 import { Presta, Env } from './types'
 
 export function outputLambda(input: string, config: Presta): [string, string] {

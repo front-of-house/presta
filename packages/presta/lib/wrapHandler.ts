@@ -6,8 +6,7 @@ import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
 import { pruneObject } from './pruneObject'
 import * as logger from './log'
-
-import type { AWS, Event, Context, Lambda, PrestaError } from './types'
+import { AWS, Event, Context, Lambda, PrestaError } from './types'
 
 function createHTMLErrorPage({ statusCode }: { statusCode: number }) {
   return `

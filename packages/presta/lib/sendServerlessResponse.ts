@@ -1,8 +1,7 @@
 import http from 'http'
 
 import { normalizeResponse } from './normalizeResponse'
-
-import type { AWS } from './types'
+import { AWS } from './types'
 
 export function sendServerlessResponse(res: http.ServerResponse, r: Partial<AWS['HandlerResponse']>) {
   const response = normalizeResponse(r)

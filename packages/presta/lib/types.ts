@@ -21,13 +21,14 @@ export type AWS = {
 }
 
 export type PluginInterface = any
-export type Plugin = () => PluginInterface
+export type PluginInit = (context: typeof getCurrentPrestaInstance) => PluginInterface
+export type Plugin = (props: Record<string, unknown>) => PluginInit
 
 export type Config = {
   files?: string | string[]
   output?: string
   assets?: string
-  plugins?: Plugin[]
+  plugins?: PluginInit[]
   port?: number
 }
 

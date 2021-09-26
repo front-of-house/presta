@@ -3,8 +3,7 @@ import path from 'path'
 import globSync from 'tiny-glob/sync'
 
 import * as logger from './log'
-
-import type { Presta } from './types'
+import { Presta } from './types'
 
 export function isDynamic(file: string) {
   return /export\s.+\sroute\s+\=/.test(fs.readFileSync(file, 'utf-8'))

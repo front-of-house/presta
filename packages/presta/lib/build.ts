@@ -6,8 +6,7 @@ import { getFiles, isStatic, isDynamic } from './getFiles'
 import { renderStaticEntries } from './renderStaticEntries'
 import { timer } from './timer'
 import * as logger from './log'
-
-import type { Presta } from './types'
+import { Presta } from './types'
 
 function getRoutesManifestSafely(manifestFilepath: string) {
   try {

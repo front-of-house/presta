@@ -10,7 +10,6 @@ import { createConfig, getConfigFile } from './config'
 import { watch } from './watch'
 import { build } from './build'
 import { serve } from './serve'
-
 import { Env } from './types'
 
 const prog = sade('presta')

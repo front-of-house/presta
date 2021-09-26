@@ -12,8 +12,7 @@ import * as logger from './log'
 import { default404 } from './default404'
 import { requestToEvent } from './requestToEvent'
 import { sendServerlessResponse } from './sendServerlessResponse'
-
-import type { AWS, Presta } from './types'
+import { AWS, Presta } from './types'
 
 const style = [
   'position: fixed',

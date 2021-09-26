@@ -2,8 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 
 import * as logger from './log'
-
-import type { Presta } from './types'
+import { Presta } from './types'
 
 export function removeBuiltStaticFile(file: string, config: Presta) {
   logger.debug({
