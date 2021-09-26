@@ -1,5 +1,11 @@
 # presta
 
+## 0.37.1
+
+### Patch Changes
+
+- [`747bc24`](https://github.com/sure-thing/presta/commit/747bc24d6c751cd9348477bb8a304b411f47fecb) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Clear manifest from require cache before routing
+
 ## 0.37.0
 
 ### Minor Changes
