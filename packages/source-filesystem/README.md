@@ -33,19 +33,18 @@ import { source } from '@presta/source-filesystem'
 
 const posts = source('blog/*.md', __filename)
 
-const routes = posts
-  .map(post => {
-    const filename = path.basename(post[0], '.md')
-    return {
-      `/blog/${filename}`: post[1]
-    }
-  })
+const routes = posts.map((post) => {
+  const filename = path.basename(post[0], '.md')
+  return {
+    [`/blog/${filename}`]: post[1],
+  }
+})
 
 export function getStaticPaths() {
   return Object.keys(routes)
 }
 
-export function handler ({ path }) {
+export function handler({ path }) {
   const post = routes[path]
   return markdown(post) // render markdown as needed
 }
