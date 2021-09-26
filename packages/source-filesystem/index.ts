@@ -39,8 +39,6 @@ export function source(globs: string, parent: string) {
     .map((glob) => sync(glob, { absolute: true }))
     .flat()
 
-  console.log(filepaths)
-
   setTimeout(() => {
     hash[parent] = hash[parent] || []
     hash[parent].push(...filepaths)
