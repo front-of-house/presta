@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "@presta-example/netlify",
+  "scripts": {
+    "start": "presta dev",
+    "build": "presta"
+  },
+  "dependencies": {
+    "@presta/html": "workspace:^0.1.5"
+  },
+  "devDependencies": {
+    "@presta/adapter-netlify": "workspace:^0.2.0",
+    "presta": "workspace:^0.39.0"
+  }
+}
