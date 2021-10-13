@@ -4,6 +4,7 @@ import {
   HandlerResponse as LambdaHandlerResponse,
 } from '@netlify/functions'
 
+import * as log from './log'
 import { createEmitter } from './createEmitter'
 import { wrapHandler } from './wrapHandler'
 import { getCurrentPrestaInstance } from './currentPrestaInstance'
@@ -108,3 +109,4 @@ export type PrestaError = Error & {
 
 export { getCurrentPrestaInstance }
 export { wrapHandler }
+export const logger = log

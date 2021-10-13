@@ -127,6 +127,13 @@ export async function build(config: Presta) {
       })
     }
 
+    config.hooks.emitPostBuild({
+      output: config.output,
+      staticOutput: config.staticOutputDir,
+      functionsOutput: config.functionsOutputDir,
+      functionsManifest: getRoutesManifestSafely(config.functionsManifest),
+    })
+
     if (staticTime || dynamicTime) {
       logger.newline()
       logger.info({
@@ -135,12 +142,5 @@ export async function build(config: Presta) {
       })
       logger.newline()
     }
-
-    config.hooks.emitPostBuild({
-      output: config.output,
-      staticOutput: config.staticOutputDir,
-      functionsOutput: config.functionsOutputDir,
-      functionsManifest: getRoutesManifestSafely(config.functionsManifest),
-    })
   }
 }
