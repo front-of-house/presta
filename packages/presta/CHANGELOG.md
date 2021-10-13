@@ -1,5 +1,11 @@
 # presta
 
+## 0.39.1
+
+### Patch Changes
+
+- [`e6131bd`](https://github.com/sure-thing/presta/commit/e6131bd9effdefd421b39d80d109e02c27a0e07b) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Export logger, emit build before final core library logs 'complete' message
+
 ## 0.39.0
 
 ### Minor Changes
