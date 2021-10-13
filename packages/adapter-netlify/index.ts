@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { Plugin, getCurrentPrestaInstance } from 'presta'
+import { Plugin, getCurrentPrestaInstance, logger } from 'presta'
 import { parse as toml } from 'toml'
 // @ts-ignore
 import { parseFileRedirects } from 'netlify-redirect-parser'
@@ -116,6 +116,11 @@ export const createPlugin: Plugin = ({ cwd = process.cwd() }: { cwd?: string } =
       if (canRemoveStaticOutput && canRemoveFunctionsOutput) {
         fs.removeSync(output)
       }
+
+      logger.info({
+        label: '@presta/adapter-netlify',
+        message: `complete`,
+      })
     })
   }
 }
