@@ -3,6 +3,7 @@ import {
   HandlerContext as LambdaHandlerContext,
   HandlerResponse as LambdaHandlerResponse,
 } from '@netlify/functions'
+import { ParsedQuery } from 'query-string'
 
 import * as log from './log'
 import { createEmitter } from './createEmitter'
@@ -76,7 +77,7 @@ export type Presta = {
   hooks: Hooks
 } & Required<Config>
 
-export type RouteParams = { [param: string]: string }
+export type RouteParams = ParsedQuery<string | boolean | number>
 export type Event = LambdaHandlerEvent & { params: RouteParams }
 export type Context = LambdaHandlerContext
 export type Response = Partial<LambdaHandlerResponse> & {
