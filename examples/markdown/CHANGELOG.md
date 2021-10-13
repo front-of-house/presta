@@ -4,6 +4,14 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`f640eac`](https://github.com/sure-thing/presta/commit/f640eacefefc34b039eed317589cd292a5af5f1e)]:
+  - presta@0.40.0
+  - @presta/source-filesystem@0.2.1
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [[`c53c96c`](https://github.com/sure-thing/presta/commit/c53c96c5ea5ab9698ca4776beeacc7ad3ff52ae1)]:
   - presta@0.39.0
   - @presta/source-filesystem@0.2.0
