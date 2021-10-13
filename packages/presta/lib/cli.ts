@@ -87,8 +87,6 @@ prog
       },
     })
 
-    fs.emptyDirSync(config.output)
-
     if (!opts.n) {
       const server = await serve(config)
 
