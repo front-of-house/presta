@@ -77,8 +77,8 @@ export type Presta = {
   hooks: Hooks
 } & Required<Config>
 
-export type RouteParams = ParsedQuery<string | boolean | number>
-export type Event = LambdaHandlerEvent & { params: RouteParams }
+export type RouteParameters = ParsedQuery<string | boolean | number>
+export type Event = LambdaHandlerEvent & { routeParameters: RouteParameters }
 export type Context = LambdaHandlerContext
 export type Response = Partial<LambdaHandlerResponse> & {
   html?: string

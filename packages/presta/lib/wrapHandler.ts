@@ -24,7 +24,7 @@ export function wrapHandler(
   return async (event: AWS['HandlerEvent'], context: Context) => {
     event = {
       ...event,
-      params: getRouteParams(event.path, file.route),
+      routeParameters: getRouteParams(event.path, file.route),
     } as Event
 
     let response

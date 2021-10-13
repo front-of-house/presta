@@ -54,7 +54,7 @@ export function renderStaticEntries(entries: string[], config: Presta): Promise<
           const time = timer()
           const event = {
             path: url,
-            params: file.route ? getRouteParams(url, file.route) : {},
+            routeParameters: file.route ? getRouteParams(url, file.route) : {},
           }
 
           const response = normalizeResponse(await file.handler(event, {}))

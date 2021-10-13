@@ -27,7 +27,7 @@ tap.test('wrapHandler', async (t) => {
   const handler = wrapHandler({
     route: '/:slug',
     async handler(event, context) {
-      t.equal(event.params.slug, 'foo')
+      t.equal(event.routeParameters.slug, 'foo')
       return {
         body: 'foo',
       }
