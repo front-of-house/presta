@@ -1,5 +1,11 @@
 # presta
 
+## 0.39.2
+
+### Patch Changes
+
+- [`4bdb013`](https://github.com/sure-thing/presta/commit/4bdb013f6424d00561274c2c79b17753b2ef2224) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Do not clear output directory on dev/watch startup
+
 ## 0.39.1
 
 ### Patch Changes
