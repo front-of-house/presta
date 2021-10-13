@@ -1,5 +1,11 @@
 # presta
 
+## 0.40.1
+
+### Patch Changes
+
+- [`ac87bc2`](https://github.com/sure-thing/presta/commit/ac87bc26a6c98e535d210ea442deed56d30bd76c) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Ensure query params are parsed and merged with route params
+
 ## 0.40.0
 
 ### Minor Changes
