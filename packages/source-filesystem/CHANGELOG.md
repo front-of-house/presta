@@ -1,5 +1,12 @@
 # @presta/source-filesystem
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`f640eac`](https://github.com/sure-thing/presta/commit/f640eacefefc34b039eed317589cd292a5af5f1e)]:
+  - presta@0.40.0
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # presta
 
+## 0.40.0
+
+### Minor Changes
+
+- [`f640eac`](https://github.com/sure-thing/presta/commit/f640eacefefc34b039eed317589cd292a5af5f1e) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Make config creation async to allow plugins to bootstrap themselves if need be
+
 ## 0.39.2
 
 ### Patch Changes
