@@ -55,6 +55,11 @@ export function generateRedirectsString(redirects: NetlifyRedirect[]) {
 
 export const createPlugin: Plugin = ({ cwd = process.cwd() }: { cwd?: string } = {}) => {
   return async function plugin() {
+    logger.debug({
+      label: '@presta/adapter-netlify',
+      message: `init`,
+    })
+
     const netlifyConfig = getNetlifyConfig({ cwd })
 
     if (!netlifyConfig) {
@@ -82,7 +87,17 @@ export const createPlugin: Plugin = ({ cwd = process.cwd() }: { cwd?: string } =
     let canRemoveFunctionsOutput = false
     const { hooks } = getCurrentPrestaInstance()
 
+    logger.debug({
+      label: '@presta/adapter-netlify',
+      message: `configured`,
+    })
+
     hooks.onPostBuild((props) => {
+      logger.debug({
+        label: '@presta/adapter-netlify',
+        message: `handling onPostBuild hook`,
+      })
+
       const { output, staticOutput, functionsOutput, functionsManifest } = props
       const hasStaticFiles = fs.existsSync(staticOutput)
       const hasFunctions = fs.existsSync(functionsOutput)
