@@ -7,7 +7,7 @@ import { Env } from '../lib/constants'
 tap.test('config - defaults', async (t) => {
   _clearCurrentConfig()
 
-  const config = createConfig({
+  const config = await createConfig({
     cli: {
       files: 'app/*.js',
       output: 'dist',
@@ -29,7 +29,7 @@ tap.test('config - defaults', async (t) => {
 tap.test('config - no files', async (t) => {
   _clearCurrentConfig()
 
-  const config = createConfig({
+  const config = await createConfig({
     cli: {},
   })
 
@@ -39,7 +39,7 @@ tap.test('config - no files', async (t) => {
 tap.test('config - output', async (t) => {
   _clearCurrentConfig()
 
-  const config = createConfig({
+  const config = await createConfig({
     cli: {
       files: 'app/*.js',
       output: 'dist',
@@ -53,7 +53,7 @@ tap.test('config - output', async (t) => {
 tap.test('config - assets', async (t) => {
   _clearCurrentConfig()
 
-  const config = createConfig({
+  const config = await createConfig({
     cli: {
       files: 'app/*.js',
       assets: 'assets',
@@ -67,7 +67,7 @@ tap.test('config - assets', async (t) => {
 tap.test('config - staticOutputDir', async (t) => {
   _clearCurrentConfig()
 
-  const config = createConfig({
+  const config = await createConfig({
     cli: {
       files: 'app/*.js',
       assets: 'assets',
@@ -162,7 +162,7 @@ tap.test('config - picks up default file if present', async (t) => {
 
   const configFilepath = path.join(t.testdirName, './presta.config.js')
   const configFile = getConfigFile(configFilepath)
-  const config = createConfig({
+  const config = await createConfig({
     config: configFile,
     cli: {},
   })
@@ -180,7 +180,7 @@ tap.test('config - overriden by CLI args', async (t) => {
 
   const configFilepath = path.join(t.testdirName, './presta.config.js')
   const configFile = getConfigFile(configFilepath)
-  const config = createConfig({
+  const config = await createConfig({
     config: configFile,
     cli: {
       files: 'foo.js',
@@ -195,7 +195,7 @@ tap.test('config - overriden by CLI args', async (t) => {
 tap.test('config - file is merged with internal config', async (t) => {
   _clearCurrentConfig()
 
-  const config = createConfig({
+  const config = await createConfig({
     config: {
       output: 'out',
     },
@@ -207,7 +207,7 @@ tap.test('config - file is merged with internal config', async (t) => {
 tap.test('config - merging updates', async (t) => {
   _clearCurrentConfig()
 
-  const config = createConfig({
+  const config = await createConfig({
     config: {
       output: 'output',
     },
@@ -215,7 +215,7 @@ tap.test('config - merging updates', async (t) => {
 
   t.ok(config.output.includes('output'))
 
-  const merged = createConfig({
+  const merged = await createConfig({
     config: {
       output: 'output',
       assets: 'assets',
@@ -228,7 +228,7 @@ tap.test('config - merging updates', async (t) => {
 tap.test('config - removeConfigValues', async (t) => {
   _clearCurrentConfig()
 
-  const config = createConfig({
+  const config = await createConfig({
     config: {
       output: 'output',
     },
@@ -236,15 +236,15 @@ tap.test('config - removeConfigValues', async (t) => {
 
   t.ok(config.output.includes('output'))
 
-  const unmerged = removeConfigValues()
+  const unmerged = await removeConfigValues()
 
   t.ok(unmerged.output.includes('build'))
 })
 
-tap.test('config - hooks', (t) => {
+tap.test('config - hooks', async (t) => {
   _clearCurrentConfig()
 
-  const config = createConfig({})
+  const config = await createConfig({})
 
   config.hooks.onPostBuild(() => {
     t.pass()
@@ -255,10 +255,10 @@ tap.test('config - hooks', (t) => {
   config.hooks.emitPostBuild()
 })
 
-tap.test('config - plugins', (t) => {
+tap.test('config - plugins', async (t) => {
   _clearCurrentConfig()
 
-  createConfig({
+  await createConfig({
     config: {
       plugins: [
         () => {
@@ -283,7 +283,7 @@ tap.test('config - plugin error', async (t) => {
     },
   })
 
-  createConfig({
+  await createConfig({
     config: {
       plugins: [
         () => {

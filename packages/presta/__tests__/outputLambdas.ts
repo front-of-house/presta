@@ -14,7 +14,7 @@ tap.test('outputLambda', async (t) => {
   })
   const fixture = path.join(t.testdirName, 'lambda.min.js')
 
-  const config = createConfig({
+  const config = await createConfig({
     env: Env.DEVELOPMENT,
     cli: {
       files: path.join(t.testdirName, '*.js'),
@@ -36,7 +36,7 @@ tap.test('outputLambdas', async (t) => {
     'fallback.js': `module.exports = { route: '/:slug?' }`,
   })
 
-  const config = createConfig({
+  const config = await createConfig({
     env: Env.DEVELOPMENT,
     cli: {
       files: path.join(t.testdirName, '*.js'),

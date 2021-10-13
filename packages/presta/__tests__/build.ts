@@ -15,7 +15,7 @@ tap.test('build - static files', async (t) => {
   })
 
   const filepath = path.join(t.testdirName, 'static.js')
-  const config = createConfig({
+  const config = await createConfig({
     cli: { files: filepath, output: t.testdirName },
   })
 
@@ -34,7 +34,7 @@ tap.test('build - dynamic files', async (t) => {
     `,
   })
 
-  const config = createConfig({
+  const config = await createConfig({
     cli: {
       files: path.join(t.testdirName, 'dynamic.js'),
       output: t.testdirName,

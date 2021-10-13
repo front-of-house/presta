@@ -47,7 +47,7 @@ prog
 
     console.clear()
 
-    const config = createConfig({
+    const config = await createConfig({
       env: Env.PRODUCTION,
       config: getConfigFile(opts.config, true),
       cli: {
@@ -78,7 +78,7 @@ prog
 
     console.clear()
 
-    const config = createConfig({
+    const config = await createConfig({
       env: Env.DEVELOPMENT,
       config: getConfigFile(opts.config),
       cli: {
@@ -114,7 +114,7 @@ prog
 
     console.clear()
 
-    const config = createConfig({
+    const config = await createConfig({
       env: Env.PRODUCTION,
       config: getConfigFile(opts.config),
       cli: opts,

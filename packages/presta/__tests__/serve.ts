@@ -20,7 +20,7 @@ tap.test('createServerHandler - searches for static assets', async (t) => {
   const dirs: string[] = []
   let called = false
 
-  const config = createConfig({
+  const config = await createConfig({
     cli: { assets, output: t.testdirName },
   })
   const expectedDirs = [path.join(process.cwd(), assets), config.staticOutputDir]
@@ -58,7 +58,7 @@ tap.test('createServerHandler - searches for static assets', async (t) => {
 tap.test('createServerHandler - resolves a static route', async (t) => {
   let found = false
 
-  const config = createConfig({ cli: { output: t.testdirName } })
+  const config = await createConfig({ cli: { output: t.testdirName } })
   const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
     './sendServerlessResponse': {
       sendServerlessResponse() {
@@ -88,7 +88,7 @@ tap.test('createServerHandler - resolves a static route', async (t) => {
 tap.test('createServerHandler - resolves a lambda', async (t) => {
   let responses: boolean[] = []
 
-  const config = createConfig({ cli: { output: t.testdirName } })
+  const config = await createConfig({ cli: { output: t.testdirName } })
   const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
     './sendServerlessResponse': {
       sendServerlessResponse(_: http.ServerResponse, response: Partial<AWS['HandlerResponse']>) {
@@ -131,7 +131,7 @@ tap.test('createServerHandler - resolves a lambda', async (t) => {
 tap.test('createServerHandler - throws 500', async (t) => {
   let did500 = false
 
-  const config = createConfig({ cli: { output: t.testdirName } })
+  const config = await createConfig({ cli: { output: t.testdirName } })
   const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
     './sendServerlessResponse': {
       sendServerlessResponse(_: http.ServerResponse, response: Partial<AWS['HandlerResponse']>) {

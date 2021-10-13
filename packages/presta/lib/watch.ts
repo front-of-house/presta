@@ -94,7 +94,7 @@ export async function watch(config: Presta) {
     handleFileChange(file)
   })
 
-  fileWatcher.on('remove', ([id]: string[]) => {
+  fileWatcher.on('remove', async ([id]: string[]) => {
     logger.debug({
       label: 'watch',
       message: `fileWatcher - removed ${id}`,
@@ -109,7 +109,7 @@ export async function watch(config: Presta) {
     // if it was config, we gotta do a restart
     if (id === config.configFilepath) {
       // filter out values from the config file
-      config = removeConfigValues()
+      config = await removeConfigValues()
 
       // reset this!
       hasConfigFile = false
@@ -120,7 +120,7 @@ export async function watch(config: Presta) {
     ;(builtStaticFiles[id] || []).forEach((file) => removeBuiltStaticFile(file, config))
   })
 
-  fileWatcher.on('change', ([id]: string[]) => {
+  fileWatcher.on('change', async ([id]: string[]) => {
     logger.debug({
       label: 'watch',
       message: `fileWatcher - changed ${id}`,
@@ -132,7 +132,7 @@ export async function watch(config: Presta) {
 
       try {
         // merge in new values from config file
-        config = createConfig({
+        config = await createConfig({
           config: getConfigFile(config.configFilepath),
         })
 
@@ -190,7 +190,7 @@ export async function watch(config: Presta) {
 
       try {
         // merge in new values from config file
-        config = createConfig({
+        config = await createConfig({
           config: getConfigFile(config.configFilepath),
         })
 

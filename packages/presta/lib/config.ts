@@ -67,21 +67,21 @@ export function getConfigFile(filepath?: string, shouldExit: boolean = false) {
  * Creates a new instance _without_ any values provided by the config file.
  * This is used when the user deletes their config file.
  */
-export function removeConfigValues() {
+export async function removeConfigValues() {
   logger.debug({
     label: 'debug',
     message: `config file values cleared`,
   })
 
   return setCurrentPrestaInstance(
-    createConfig({
+    await createConfig({
       ...getCurrentPrestaInstance(),
       config: {},
     })
   )
 }
 
-export function createConfig({
+export async function createConfig({
   cwd = process.cwd(),
   env = getCurrentPrestaInstance().env,
   config = {},
@@ -146,16 +146,18 @@ export function createConfig({
   })
 
   if (config.plugins) {
-    config.plugins.map((p) => {
-      try {
-        p(getCurrentPrestaInstance)
-      } catch (e) {
-        logger.error({
-          label: 'error',
-          error: e as Error,
-        })
-      }
-    })
+    await Promise.all(
+      config.plugins.map((p) => {
+        try {
+          return p(getCurrentPrestaInstance)
+        } catch (e) {
+          logger.error({
+            label: 'error',
+            error: e as Error,
+          })
+        }
+      })
+    )
   }
 
   logger.debug({
