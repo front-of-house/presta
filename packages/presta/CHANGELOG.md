@@ -1,5 +1,11 @@
 # presta
 
+## 0.40.2
+
+### Patch Changes
+
+- [`e5129dc`](https://github.com/sure-thing/presta/commit/e5129dceea0ec0ab96e67b6ba997380f8e14a51b) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Handle route params separately from query params, now available as `routeParameters` and `queryStringParameters` instead of merged in `params`.
+
 ## 0.40.1
 
 ### Patch Changes
