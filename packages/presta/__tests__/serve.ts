@@ -55,13 +55,17 @@ tap.test('createServerHandler - searches for static assets', async (t) => {
   fs.removeSync(imageFilepath)
 })
 
-tap.test('createServerHandler - resolves a static route', async (t) => {
+/**
+ * Sirv handles these now https://github.com/lukeed/sirv/tree/master/packages/sirv#optsextensions
+ */
+tap.test('createServerHandler - resolves a static index route', async (t) => {
   let found = false
 
   const config = await createConfig({ cli: { output: t.testdirName } })
   const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
     './sendServerlessResponse': {
       sendServerlessResponse() {
+        // should never hit this, picked up by sirv
         found = true
       },
     },
@@ -73,14 +77,13 @@ tap.test('createServerHandler - resolves a static route', async (t) => {
 
   const server = http.createServer(async (req, res) => {
     await serverHandler(req, res)
-    res.end()
   })
 
   const fetch = makeFetch(server)
 
   await fetch('/')
 
-  t.ok(found)
+  t.notOk(found)
 
   fs.removeSync(indexRouteFilepath)
 })
@@ -123,6 +126,49 @@ tap.test('createServerHandler - resolves a lambda', async (t) => {
   await fetch('/foo/bar/baz') // not found
 
   t.same(responses, [true, false])
+
+  fs.removeSync(functionFilepath)
+  fs.removeSync(functionsManifestFilepath)
+})
+
+tap.test('createServerHandler - wildcards can pick up extensions too', async (t) => {
+  let responses: boolean[] = []
+
+  const config = await createConfig({ cli: { output: t.testdirName } })
+  const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
+    './sendServerlessResponse': {
+      sendServerlessResponse(_: http.ServerResponse, response: Partial<AWS['HandlerResponse']>) {
+        if (response.statusCode !== 404) {
+          responses.push(true)
+        } else {
+          responses.push(false)
+        }
+      },
+    },
+  })
+  const serverHandler = createServerHandler({ port: 4000, config })
+
+  const functionFilepath = path.join(config.functionsOutputDir, 'Wild.js')
+  const functionsManifestFilepath = path.join(config.output, 'routes.json')
+  fs.outputFileSync(
+    functionsManifestFilepath,
+    JSON.stringify({
+      '*': functionFilepath,
+    })
+  )
+  fs.outputFileSync(functionFilepath, `module.exports = { handler () {} }`)
+
+  const server = http.createServer(async (req, res) => {
+    await serverHandler(req, res)
+    res.end()
+  })
+
+  const fetch = makeFetch(server)
+
+  await fetch('/example.png')
+  await fetch('/example.json')
+
+  t.same(responses, [true, true])
 
   fs.removeSync(functionFilepath)
   fs.removeSync(functionsManifestFilepath)

@@ -108,144 +108,117 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
       })
 
       sirv(staticDir, { dev: true })(req, res, async () => {
-        /*
-         * Try to resolve a static route normally
-         */
         try {
-          logger.debug({
-            label: 'debug',
-            message: `attempting to serve generated HTML for ${url}`,
-          })
+          /*
+           * No asset file, no static file, try dynamic
+           */
+          delete require.cache[config.functionsManifest]
+          const manifest = require(config.functionsManifest)
+          const routes = Object.keys(manifest)
+          const lambdaFilepath = routes
+            .map((route) => ({
+              matcher: toRegExp(route),
+              route,
+            }))
+            .filter(({ matcher }) => {
+              return matcher.pattern.test(url.split('?')[0])
+            })
+            .map(({ route }) => manifest[route])[0]
 
-          const file = resolveHTML(staticDir, url) + devClient + devServerIcon
-
-          logger.info({
-            label: 'serve',
-            message: `200 ${url}`,
-            duration: time(),
-          })
-
-          sendServerlessResponse(res, { body: file })
-        } catch (e) {
-          // expect ENOENT, log everything else
-          if (!/ENOENT|EISDIR/.test((e as Error).message)) {
-            console.error(e)
-          }
-
-          try {
-            /*
-             * No asset file, no static file, try dynamic
-             */
-            delete require.cache[config.functionsManifest]
-            const manifest = require(config.functionsManifest)
-            const routes = Object.keys(manifest)
-            const lambdaFilepath = routes
-              .map((route) => ({
-                matcher: toRegExp(route),
-                route,
-              }))
-              .filter(({ matcher }) => {
-                return matcher.pattern.test(url.split('?')[0])
-              })
-              .map(({ route }) => manifest[route])[0]
-
-            /**
-             * If we have a serverless function, delegate to it, otherwise 404
-             */
-            if (lambdaFilepath) {
-              logger.debug({
-                label: 'debug',
-                message: `attempting to render lambda for ${url}`,
-              })
-
-              const { handler }: { handler: AWS['Handler'] } = require(lambdaFilepath)
-              const event = await requestToEvent(req)
-              const response = await handler(event, {})
-              const headers = response.headers || {}
-              const redir = response.statusCode > 299 && response.statusCode < 399
-
-              // get mime type
-              const type = headers['Content-Type'] as string
-              const ext = type ? mime.extension(type) : 'html'
-
-              logger.info({
-                label: 'serve',
-                message: `${response.statusCode} ${redir ? headers.Location : url}`,
-                duration: time(),
-              })
-
-              sendServerlessResponse(res, {
-                statusCode: response.statusCode,
-                headers: response.headers,
-                multiValueHeaders: response.multiValueHeaders,
-                // only html can be live-reloaded, duh
-                body:
-                  ext === 'html'
-                    ? (response.body || '').split('</body>')[0] + devClient + devServerIcon
-                    : response.body,
-              })
-            } else {
-              logger.debug({
-                label: 'debug',
-                message: `attempting to render static 404.html page for ${url}`,
-              })
-
-              /*
-               * Try to fall back to a static 404 page
-               */
-              try {
-                const file = resolveHTML(staticDir, '404') + devClient + devServerIcon
-
-                logger.warn({
-                  label: 'serve',
-                  message: `404 ${url}`,
-                  duration: time(),
-                })
-
-                sendServerlessResponse(res, {
-                  statusCode: 404,
-                  body: file,
-                })
-              } catch (e) {
-                if (!(e as Error).message.includes('ENOENT')) {
-                  console.error(e)
-                }
-
-                logger.debug({
-                  label: 'debug',
-                  message: `rendering default 404 HTML page for ${url}`,
-                })
-
-                logger.warn({
-                  label: 'serve',
-                  message: `404 ${url}`,
-                  duration: time(),
-                })
-
-                sendServerlessResponse(res, {
-                  statusCode: 404,
-                  body: default404 + devClient + devServerIcon,
-                })
-              }
-            }
-          } catch (e) {
+          /**
+           * If we have a serverless function, delegate to it, otherwise 404
+           */
+          if (lambdaFilepath) {
             logger.debug({
               label: 'debug',
-              message: `rendering default 500 HTML page for ${url}`,
+              message: `attempting to render lambda for ${url}`,
             })
 
-            logger.error({
+            const { handler }: { handler: AWS['Handler'] } = require(lambdaFilepath)
+            const event = await requestToEvent(req)
+            const response = await handler(event, {})
+            const headers = response.headers || {}
+            const redir = response.statusCode > 299 && response.statusCode < 399
+
+            // get mime type
+            const type = headers['Content-Type'] as string
+            const ext = type ? mime.extension(type) : 'html'
+
+            logger.info({
               label: 'serve',
-              message: `500 ${url}`,
-              error: e as Error,
+              message: `${response.statusCode} ${redir ? headers.Location : url}`,
               duration: time(),
             })
 
             sendServerlessResponse(res, {
-              statusCode: 500,
-              body: '' + devClient + devServerIcon, // TODO default 500 screen
+              statusCode: response.statusCode,
+              headers: response.headers,
+              multiValueHeaders: response.multiValueHeaders,
+              // only html can be live-reloaded, duh
+              body:
+                ext === 'html' ? (response.body || '').split('</body>')[0] + devClient + devServerIcon : response.body,
             })
+          } else {
+            logger.debug({
+              label: 'debug',
+              message: `attempting to render static 404.html page for ${url}`,
+            })
+
+            /*
+             * Try to fall back to a static 404 page
+             */
+            try {
+              const file = resolveHTML(staticDir, '404') + devClient + devServerIcon
+
+              logger.warn({
+                label: 'serve',
+                message: `404 ${url}`,
+                duration: time(),
+              })
+
+              sendServerlessResponse(res, {
+                statusCode: 404,
+                body: file,
+              })
+            } catch (e) {
+              if (!(e as Error).message.includes('ENOENT')) {
+                console.error(e)
+              }
+
+              logger.debug({
+                label: 'debug',
+                message: `rendering default 404 HTML page for ${url}`,
+              })
+
+              logger.warn({
+                label: 'serve',
+                message: `404 ${url}`,
+                duration: time(),
+              })
+
+              sendServerlessResponse(res, {
+                statusCode: 404,
+                body: default404 + devClient + devServerIcon,
+              })
+            }
           }
+        } catch (e) {
+          logger.debug({
+            label: 'debug',
+            message: `rendering default 500 HTML page for ${url}`,
+          })
+
+          logger.error({
+            label: 'serve',
+            message: `500 ${url}`,
+            error: e as Error,
+            duration: time(),
+          })
+
+          sendServerlessResponse(res, {
+            statusCode: 500,
+            body: '' + devClient + devServerIcon, // TODO default 500 screen
+          })
         }
       })
     })
