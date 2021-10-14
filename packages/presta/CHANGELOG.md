@@ -1,5 +1,13 @@
 # presta
 
+## 0.40.3
+
+### Patch Changes
+
+- [`26dc21d`](https://github.com/sure-thing/presta/commit/26dc21d2e6fe7a1103739286508589361aa58d3c) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Allow sirv to pick up generated static files if they exist
+
+* [`50d5f21`](https://github.com/sure-thing/presta/commit/50d5f21ef2faffb3b93c1dd65bc47d0c4fc83415) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Delegate local server handling all the way down the chain of handlers
+
 ## 0.40.2
 
 ### Patch Changes
