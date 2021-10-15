@@ -1,5 +1,11 @@
 # presta
 
+## 0.40.6
+
+### Patch Changes
+
+- [`6e85ff9`](https://github.com/sure-thing/presta/commit/6e85ff9fef00c06e394d71372171d3bf2ef67415) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Ok now we got it I think, fixes #128
+
 ## 0.40.5
 
 ### Patch Changes
