@@ -1,5 +1,11 @@
 # presta
 
+## 0.40.5
+
+### Patch Changes
+
+- [`7329b16`](https://github.com/sure-thing/presta/commit/7329b16f39e37d1d10276d84288f3ddc34ad221f) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Pass PRESTA_SERVERLESS_RUNTIME at build time, fixes #128
+
 ## 0.40.4
 
 ### Patch Changes
