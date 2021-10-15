@@ -22,6 +22,8 @@ export function wrapHandler(
   file: Lambda
 ): (event: AWS['HandlerEvent'], context: Context) => Promise<AWS['HandlerResponse']> {
   return async (event: AWS['HandlerEvent'], context: Context) => {
+    process.env.PRESTA_SERVERLESS_RUNTIME = 'true'
+
     event = {
       ...event,
       routeParameters: getRouteParams(event.path, file.route),
@@ -60,6 +62,8 @@ export function wrapHandler(
           : undefined,
       })
     }
+
+    delete process.env.PRESTA_SERVERLESS_RUNTIME
 
     return response
   }
