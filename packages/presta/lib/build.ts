@@ -63,6 +63,7 @@ export async function build(config: Presta) {
             target: ['node12'],
             minify: true,
             allowOverwrite: true,
+            define: { PRESTA_SERVERLESS_RUNTIME: 'true' },
           })
 
           dynamicTime = time()
