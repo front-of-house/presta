@@ -1,5 +1,13 @@
 # presta
 
+## 0.40.4
+
+### Patch Changes
+
+- [`61a3341`](https://github.com/sure-thing/presta/commit/61a3341036badd8d87eba4345cc520ba58289f54) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fix routeParameters types
+
+* [`bb5a090`](https://github.com/sure-thing/presta/commit/bb5a090871ce11ee183ce4f4d9cf8cf735e0e203) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Adds PRESTA_SERVERLESS_RUNTIME, fixes #128
+
 ## 0.40.3
 
 ### Patch Changes
