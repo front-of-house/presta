@@ -8,6 +8,8 @@ import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
 import { builtStaticFiles } from './builtStaticFiles'
 import { removeBuiltStaticFile } from './removeBuiltStaticFile'
+import { createLiveReloadScript } from './liveReloadScript'
+import { Env } from './constants'
 import { Presta } from './types'
 
 export function pathnameToFile(pathname: string, ext = 'html') {
@@ -26,6 +28,7 @@ export function renderStaticEntries(entries: string[], config: Presta): Promise<
     })
 
     const allGeneratedFiles: string[] = []
+    const devClient = createLiveReloadScript({ port: config.port })
 
     for (const entry of entries) {
       const location = entry.replace(config.cwd, '')
@@ -61,11 +64,12 @@ export function renderStaticEntries(entries: string[], config: Presta): Promise<
           const type = response.headers ? response.headers['Content-Type'] : ''
           const ext = type ? mime.extension(type as string) || 'html' : 'html'
           const filename = pathnameToFile(url, ext)
+          const html = response.body + (config.env === Env.PRODUCTION ? '' : devClient)
+
+          fs.outputFileSync(path.join(config.staticOutputDir, filename), html, 'utf-8')
 
           allGeneratedFiles.push(filename)
           nextFiles.push(filename)
-
-          fs.outputFileSync(path.join(config.staticOutputDir, filename), response.body, 'utf-8')
 
           logger.info({
             label: 'built',
