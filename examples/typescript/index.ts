@@ -11,7 +11,7 @@ export async function handler(event: Event, context: Context) {
   return {
     html: html({
       head: {
-        title: 'Basic Example | Presta',
+        title: 'Typescript Example | Presta',
         link: [{ rel: 'stylesheet', href: 'https://unpkg.com/svbstrate@5.1.0/svbstrate.css' }],
       },
       body: `
