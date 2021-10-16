@@ -1,5 +1,11 @@
 # @presta/html
 
+## 0.1.6
+
+### Patch Changes
+
+- [`e3c34f2`](https://github.com/sure-thing/presta/commit/e3c34f2542cce964fd170d8d8d4098264c4c2f06) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Update default favicon
+
 ## 0.1.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # presta
 
+## 0.40.7
+
+### Patch Changes
+
+- [`1ac8f37`](https://github.com/sure-thing/presta/commit/1ac8f373fa0fe01dd3d78eee246ee99f446908c9) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Adds back livereload script to static HTML files, fixes #137
+
 ## 0.40.6
 
 ### Patch Changes
