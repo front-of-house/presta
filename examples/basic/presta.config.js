@@ -1,1 +1,1 @@
-export const files = 'index.js'
+export const files = 'pages/*.ts'
