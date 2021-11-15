@@ -1,6 +1,5 @@
 import fs from 'fs-extra'
-// @ts-ignore
-import graph from 'watch-dependency-graph'
+import { create } from 'watch-dependency-graph'
 import chokidar from 'chokidar'
 import match from 'picomatch'
 
@@ -56,7 +55,7 @@ export async function watch(config: Presta) {
   /*
    * Set up all watchers
    */
-  const fileWatcher = graph({ alias: { '@': config.cwd } })
+  const fileWatcher = create({ alias: { '@': config.cwd } })
   const globalWatcher = chokidar.watch(config.cwd, {
     ignoreInitial: true,
     ignored: [config.output, config.assets],
@@ -94,7 +93,7 @@ export async function watch(config: Presta) {
     handleFileChange(file)
   })
 
-  fileWatcher.on('remove', async ([id]: string[]) => {
+  fileWatcher.onRemove(async ([id]) => {
     logger.debug({
       label: 'watch',
       message: `fileWatcher - removed ${id}`,
@@ -120,38 +119,40 @@ export async function watch(config: Presta) {
     ;(builtStaticFiles[id] || []).forEach((file) => removeBuiltStaticFile(file, config))
   })
 
-  fileWatcher.on('change', async ([id]: string[]) => {
-    logger.debug({
-      label: 'watch',
-      message: `fileWatcher - changed ${id}`,
-    })
+  fileWatcher.onChange(async (files) => {
+    for (const id of files) {
+      logger.debug({
+        label: 'watch',
+        message: `fileWatcher - changed ${id}`,
+      })
 
-    if (id === config.configFilepath) {
-      // clear config file for re-require
-      delete require.cache[config.configFilepath]
+      if (id === config.configFilepath) {
+        // clear config file for re-require
+        delete require.cache[config.configFilepath]
 
-      try {
-        // merge in new values from config file
-        config = await createConfig({
-          config: getConfigFile(config.configFilepath),
-        })
+        try {
+          // merge in new values from config file
+          config = await createConfig({
+            config: getConfigFile(config.configFilepath),
+          })
 
-        handleConfigUpdate()
-      } catch (e) {
-        logger.error({
-          label: 'error',
-          error: e as Error,
-        })
+          handleConfigUpdate()
+        } catch (e) {
+          logger.error({
+            label: 'error',
+            error: e as Error,
+          })
+        }
+      } else {
+        handleFileChange(id)
       }
-    } else {
-      handleFileChange(id)
     }
   })
 
-  fileWatcher.on('error', (e: Error) => {
+  fileWatcher.onError((e) => {
     logger.error({
       label: 'error',
-      error: e,
+      error: typeof e === 'string' ? new Error(e) : e,
     })
   })
 
@@ -174,7 +175,7 @@ export async function watch(config: Presta) {
 
       files.push(file)
 
-      fileWatcher.add(file)
+      await fileWatcher.add(file)
 
       handleFileChange(file)
     }
@@ -186,7 +187,7 @@ export async function watch(config: Presta) {
         message: `globalWatcher - add config file ${file}`,
       })
 
-      fileWatcher.add(config.configFilepath)
+      await fileWatcher.add(config.configFilepath)
 
       try {
         // merge in new values from config file
@@ -209,8 +210,8 @@ export async function watch(config: Presta) {
   /**
    * Init watching after event subscriptions
    */
-  fileWatcher.add(files)
-  if (hasConfigFile) fileWatcher.add(config.configFilepath)
+  await fileWatcher.add(files)
+  if (hasConfigFile) await fileWatcher.add(config.configFilepath)
 
   /**
    * Prime files to check for errors on startup and register any plugins

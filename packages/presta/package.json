@@ -45,7 +45,7 @@
     "sade": "^1.7.3",
     "sirv": "^1.0.7",
     "tiny-glob": "^0.2.9",
-    "watch-dependency-graph": "^2.6.1"
+    "watch-dependency-graph": "^3.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.12",
