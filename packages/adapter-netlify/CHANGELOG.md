@@ -1,5 +1,12 @@
 # @presta/adapter-netlify
 
+## 0.2.4
+
+### Patch Changes
+
+- Updated dependencies [[`07a540f`](https://github.com/sure-thing/presta/commit/07a540fa296edeea304d90de84c9c9f98f6bb0b1)]:
+  - presta@0.41.0
+
 ## 0.2.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # presta
 
+## 0.41.0
+
+### Minor Changes
+
+- [`07a540f`](https://github.com/sure-thing/presta/commit/07a540fa296edeea304d90de84c9c9f98f6bb0b1) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Update watch-dependency-graph to v3
+
 ## 0.40.7
 
 ### Patch Changes
