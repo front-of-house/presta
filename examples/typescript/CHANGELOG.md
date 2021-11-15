@@ -4,6 +4,13 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`07a540f`](https://github.com/sure-thing/presta/commit/07a540fa296edeea304d90de84c9c9f98f6bb0b1)]:
+  - presta@0.41.0
+
+## null
+
+### Patch Changes
+
 - [`21da20a`](https://github.com/sure-thing/presta/commit/21da20abfb66c6d8e15ba5f751a3dd4e7d95c561) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Add typescript example
 
 - Updated dependencies [[`61a3341`](https://github.com/sure-thing/presta/commit/61a3341036badd8d87eba4345cc520ba58289f54), [`bb5a090`](https://github.com/sure-thing/presta/commit/bb5a090871ce11ee183ce4f4d9cf8cf735e0e203)]:
