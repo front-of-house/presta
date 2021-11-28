@@ -26,6 +26,8 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<AWS['Ha
       })
     : undefined
 
+  // TODO lowercase headers
+
   return {
     path: req.url as string,
     httpMethod: req.method as string,

@@ -6,14 +6,16 @@ import sirv from 'sirv'
 import chokidar from 'chokidar'
 import mime from 'mime-types'
 import toRegExp from 'regexparam'
+import status from 'statuses'
 
 import { timer } from './timer'
 import * as logger from './log'
-import { default404 } from './default404'
+import { createDefaultHtmlResponse } from './createDefaultHtmlResponse'
 import { requestToEvent } from './requestToEvent'
 import { sendServerlessResponse } from './sendServerlessResponse'
 import { createLiveReloadScript } from './liveReloadScript'
 import { AWS, Presta } from './types'
+import { normalizeResponse } from './normalizeResponse'
 
 function resolveHTML(dir: string, url: string) {
   let file = path.join(dir, url)
@@ -75,6 +77,12 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
             })
             .map(({ route }) => manifest[route])[0]
 
+          const event = await requestToEvent(req) // stock AWS Event shape
+          const accept = event.headers.Accept || event.headers.accept
+          const acceptsJson = accept && accept.includes('json')
+
+          console.log({ acceptsJson })
+
           /**
            * If we have a serverless function, delegate to it, otherwise 404
            */
@@ -85,8 +93,24 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
             })
 
             const { handler }: { handler: AWS['Handler'] } = require(lambdaFilepath)
-            const event = await requestToEvent(req)
-            const response = await handler(event, {})
+            let response: AWS['HandlerResponse']
+
+            try {
+              response = await handler(event, {}) // wrapped in ./wrapHandler.ts
+            } catch (e) {
+              logger.error({
+                label: 'serve',
+                message: `lambda`,
+                error: e as Error,
+              })
+
+              response = normalizeResponse({
+                statusCode: 500,
+                html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 500 }),
+                json: acceptsJson ? { detail: status.message[500] } : undefined,
+              })
+            }
+
             const headers = response.headers || {}
             const redir = response.statusCode > 299 && response.statusCode < 399
 
@@ -145,10 +169,14 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
                 duration: time(),
               })
 
-              sendServerlessResponse(res, {
-                statusCode: 404,
-                body: default404 + devClient,
-              })
+              sendServerlessResponse(
+                res,
+                normalizeResponse({
+                  statusCode: 404,
+                  html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 404 }),
+                  json: acceptsJson ? { detail: status.message[404] } : undefined,
+                })
+              )
             }
           }
         } catch (e) {
