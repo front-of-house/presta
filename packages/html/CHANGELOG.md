@@ -1,5 +1,11 @@
 # @presta/html
 
+## 0.1.7
+
+### Patch Changes
+
+- [`7798391`](https://github.com/sure-thing/presta/commit/7798391e9019a576bcc1e8d02ec158da85495633) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Make sure new logo is used
+
 ## 0.1.6
 
 ### Patch Changes

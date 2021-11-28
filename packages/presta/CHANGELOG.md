@@ -1,5 +1,19 @@
 # presta
 
+## 0.41.1
+
+### Patch Changes
+
+- [`d18d29f`](https://github.com/sure-thing/presta/commit/d18d29fc6aaf18a3dd4a72a468bb3d1dd5f6265b) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Standardize dev server responses
+
+* [`021c290`](https://github.com/sure-thing/presta/commit/021c2905059c5d27a558289117191320633c6c13) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Remove error handling and logging from `wrapHandler.ts` — this should only be handled during dev. In prod, users should rely on other libraries like `hypr`.
+
+- [`eb59ca9`](https://github.com/sure-thing/presta/commit/eb59ca940a3ff0a6f92a47f177ed2799d9f2e12e) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Normalize request headers & query params, add tests
+
+* [`79c9482`](https://github.com/sure-thing/presta/commit/79c948243403944d680a9a1da54ea3af59c134cf) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Remove static 404.html handling — this is specific to every hosting platform, we should not attempt to mimic it locally because it can result in non-prod-like edge cases that could confuse users.
+
+- [`7798391`](https://github.com/sure-thing/presta/commit/7798391e9019a576bcc1e8d02ec158da85495633) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Make sure new logo is used
+
 ## 0.41.0
 
 ### Minor Changes
