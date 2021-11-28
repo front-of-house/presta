@@ -170,11 +170,8 @@ export function html({
 }) {
   // insert favicon during dev, if not otherwise specified
   if (head.link && !head.link.find((m) => (typeof m === 'object' ? m.rel === 'icon' : /rel="icon/.test(m)))) {
-    head.link.push({
-      rel: 'icon',
-      type: 'image/svg',
-      href: `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8c3R5bGU+CiAgICAjZmF2aWNvbiB7CiAgICAgIGZpbGw6ICMyMzI4M0Q7CiAgICB9CgogICAgQG1lZGlhIChwcmVmZXJzLWNvbG9yLXNjaGVtZTogZGFyaykgewogICAgICAjZmF2aWNvbiB7CiAgICAgICAgZmlsbDogI0RBREVGMDsKICAgICAgfQogICAgfQogIDwvc3R5bGU+CgogIDxnIGNsaXAtcGF0aD0idXJsKCNhKSI+CiAgICA8cGF0aCBpZD0iZmF2aWNvbiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMC40IDdjLS4zIDAtLjguMi0xIC41TDEuMSAyMi4xYy0uMi4zIDAgLjYuMy42bDQgLjMtMi4xIDIuNmMtLjIuMy0uMS42LjIuNmwxNi44IDEuM2MuNCAwIC44LS4yIDEtLjRMMzIgMTMuOWMuMi0uMi4xLS41LS4yLS41bC02LjQtLjUgMi4yLTRjLjItLjMgMC0uNS0uMy0uNkwxMC40IDdaTTI0IDEyLjhsMS45LTMuNC0xNS41LTEuMi03LjcgMTMuNCAzLjYuMyA3LjUtOS40Yy4zLS4zLjctLjUgMS0uNGw5LjIuN1pNNy42IDIybDcuMS04LjkgOC43LjctNS4yIDlMNy42IDIyWm0tMSAxLjEgMTEuNiAxYy4zIDAgLjgtLjMgMS0uNmw1LjUtOS42IDUuNS41LTkuNyAxMkw1IDI1LjJsMS43LTJaIiBmaWxsPSIjMjMyODNEIi8+CiAgPC9nPgogIDxkZWZzPgogICAgPGNsaXBQYXRoIGlkPSJhIj4KICAgICAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAgMGgzMnYzMkgweiIvPgogICAgPC9jbGlwUGF0aD4KICA8L2RlZnM+Cjwvc3ZnPgo=`,
-    })
+    head.link.push({ rel: 'icon', type: 'image/png', href: 'https://presta.run/favicon.png' })
+    head.link.push({ rel: 'icon', type: 'image/svg', href: 'https://presta.run/favicon.svg' })
   }
 
   // insert default charset and viewport, if not otherwise specified
