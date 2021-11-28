@@ -60,6 +60,10 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
       })
 
       sirv(staticDir, { dev: true })(req, res, async () => {
+        const event = await requestToEvent(req) // stock AWS Event shape
+        const accept = event.headers.Accept || event.headers.accept
+        const acceptsJson = accept && accept.includes('json')
+
         try {
           /*
            * No asset file, no static file, try dynamic
@@ -77,12 +81,6 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
             })
             .map(({ route }) => manifest[route])[0]
 
-          const event = await requestToEvent(req) // stock AWS Event shape
-          const accept = event.headers.Accept || event.headers.accept
-          const acceptsJson = accept && accept.includes('json')
-
-          console.log({ acceptsJson })
-
           /**
            * If we have a serverless function, delegate to it, otherwise 404
            */
@@ -96,7 +94,7 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
             let response: AWS['HandlerResponse']
 
             try {
-              response = await handler(event, {}) // wrapped in ./wrapHandler.ts
+              response = normalizeResponse(await handler(event, {})) // wrapped in ./wrapHandler.ts
             } catch (e) {
               logger.error({
                 label: 'serve',
@@ -125,9 +123,7 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
             })
 
             sendServerlessResponse(res, {
-              statusCode: response.statusCode,
-              headers: response.headers,
-              multiValueHeaders: response.multiValueHeaders,
+              ...response,
               // only html can be live-reloaded, duh
               body: ext === 'html' ? (response.body || '').split('</body>')[0] + devClient : response.body,
             })
@@ -141,7 +137,7 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
              * Try to fall back to a static 404 page
              */
             try {
-              const file = resolveHTML(staticDir, '404') + devClient
+              const file = resolveHTML(staticDir, '404')
 
               logger.warn({
                 label: 'serve',
@@ -149,10 +145,13 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
                 duration: time(),
               })
 
-              sendServerlessResponse(res, {
-                statusCode: 404,
-                body: file,
-              })
+              sendServerlessResponse(
+                res,
+                normalizeResponse({
+                  statusCode: 404,
+                  html: file + devClient,
+                })
+              )
             } catch (e) {
               if (!(e as Error).message.includes('ENOENT')) {
                 console.error(e)
@@ -173,7 +172,7 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
                 res,
                 normalizeResponse({
                   statusCode: 404,
-                  html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 404 }),
+                  html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 404 }) + devClient,
                   json: acceptsJson ? { detail: status.message[404] } : undefined,
                 })
               )
@@ -192,10 +191,14 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
             duration: time(),
           })
 
-          sendServerlessResponse(res, {
-            statusCode: 500,
-            body: '' + devClient, // TODO default 500 screen
-          })
+          sendServerlessResponse(
+            res,
+            normalizeResponse({
+              statusCode: 500,
+              html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 500 }) + devClient,
+              json: acceptsJson ? { detail: status.message[500] } : undefined,
+            })
+          )
         }
       })
     })
