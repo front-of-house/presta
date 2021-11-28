@@ -39,12 +39,9 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
     const time = timer()
     const url = req.url as string
 
-    /*
-     * If this is an asset other than HTML files, just serve it
-     */
     logger.debug({
       label: 'debug',
-      message: `attempting to serve user static asset ${url}`,
+      message: `handling ${url}`,
     })
 
     /*
@@ -128,62 +125,22 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
               body: ext === 'html' ? (response.body || '').split('</body>')[0] + devClient : response.body,
             })
           } else {
-            logger.debug({
-              label: 'debug',
-              message: `attempting to render static 404.html page for ${url}`,
+            logger.warn({
+              label: 'serve',
+              message: `404 ${url}`,
+              duration: time(),
             })
 
-            /*
-             * Try to fall back to a static 404 page
-             */
-            try {
-              const file = resolveHTML(staticDir, '404')
-
-              logger.warn({
-                label: 'serve',
-                message: `404 ${url}`,
-                duration: time(),
+            sendServerlessResponse(
+              res,
+              normalizeResponse({
+                statusCode: 404,
+                html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 404 }) + devClient,
+                json: acceptsJson ? { detail: status.message[404] } : undefined,
               })
-
-              sendServerlessResponse(
-                res,
-                normalizeResponse({
-                  statusCode: 404,
-                  html: file + devClient,
-                })
-              )
-            } catch (e) {
-              if (!(e as Error).message.includes('ENOENT')) {
-                console.error(e)
-              }
-
-              logger.debug({
-                label: 'debug',
-                message: `rendering default 404 HTML page for ${url}`,
-              })
-
-              logger.warn({
-                label: 'serve',
-                message: `404 ${url}`,
-                duration: time(),
-              })
-
-              sendServerlessResponse(
-                res,
-                normalizeResponse({
-                  statusCode: 404,
-                  html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 404 }) + devClient,
-                  json: acceptsJson ? { detail: status.message[404] } : undefined,
-                })
-              )
-            }
+            )
           }
         } catch (e) {
-          logger.debug({
-            label: 'debug',
-            message: `rendering default 500 HTML page for ${url}`,
-          })
-
           logger.error({
             label: 'serve',
             message: `500 ${url}`,
