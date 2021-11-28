@@ -23,8 +23,6 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "@netlify/functions": "^0.7.2",
-    "@types/mime-types": "^2.1.0",
     "chokidar": "^3.4.3",
     "deepmerge": "^4.2.2",
     "esbuild": "^0.12.28",
@@ -49,7 +47,9 @@
     "watch-dependency-graph": "^3.0.0"
   },
   "devDependencies": {
+    "@netlify/functions": "^0.7.2",
     "@types/fs-extra": "^9.0.12",
+    "@types/mime-types": "^2.1.0",
     "@types/picomatch": "^2.2.4",
     "@types/sade": "^1.7.3",
     "@types/statuses": "^2.0.0",
