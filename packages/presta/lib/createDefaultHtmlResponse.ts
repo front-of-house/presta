@@ -19,7 +19,7 @@ export function createDefaultHtmlResponse({ statusCode }: { statusCode: number }
         </style>
       </head>
       <body class='w f aic jcc' style='height: 100vh'>
-        <div class='p12'>
+        <div class='p12 tac'>
           <h1>${statusCode}</h1>
           <p>${status.message[statusCode]}</p>
         </div>
