@@ -31,7 +31,7 @@ jobs:
       - name: pnpm - config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
       - name: pnpm - output bin stubs
-        run: echo "#! /usr/bin/env node" > ./packages/presta/cli.js
+        run: mkdir ./packages/presta/dist && echo "#! /usr/bin/env node" > ./packages/presta/dist/cli.js
       - name: pnpm - install
         run: pnpm install
 
