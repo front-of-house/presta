@@ -1,9 +1,10 @@
 {
   "extends": "@tsconfig/node12/tsconfig.json",
-  "include": ["lib/*.ts", "index.d.ts"],
+  "include": ["lib/index.ts", "lib/cli.ts"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "declaration": true,
-    "declarationDir": "dist",
+    "declarationDir": "./dist",
     "resolveJsonModule": true
   }
 }

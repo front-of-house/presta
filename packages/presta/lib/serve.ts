@@ -17,17 +17,19 @@ import { createLiveReloadScript } from './liveReloadScript'
 import { AWS, Presta } from './types'
 import { normalizeResponse } from './normalizeResponse'
 
-function resolveHTML(dir: string, url: string) {
-  let file = path.join(dir, url)
+export function getLambda(url: string, manifest: { [route: string]: string }): { handler: AWS['Handler'] } {
+  const routes = Object.keys(manifest)
+  const lambdaFilepath = routes
+    .map((route) => ({
+      matcher: toRegExp(route),
+      route,
+    }))
+    .filter(({ matcher }) => {
+      return matcher.pattern.test(url.split('?')[0])
+    })
+    .map(({ route }) => manifest[route])[0]
 
-  // if no extension, it's probably intended to be an HTML file
-  if (!path.extname(url)) {
-    try {
-      return fs.readFileSync(path.join(dir, url, 'index.html'), 'utf8')
-    } catch (e) {}
-  }
-
-  return fs.readFileSync(file, 'utf8')
+  return lambdaFilepath ? require(lambdaFilepath) : undefined
 }
 
 export function createServerHandler({ port, config }: { port: number; config: Presta }) {
@@ -61,33 +63,24 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
         const accept = event.headers.Accept || event.headers.accept
         const acceptsJson = accept && accept.includes('json')
 
+        /*
+         * No asset file, no static file, try dynamic
+         */
         try {
-          /*
-           * No asset file, no static file, try dynamic
-           */
           delete require.cache[config.functionsManifest]
           const manifest = require(config.functionsManifest)
-          const routes = Object.keys(manifest)
-          const lambdaFilepath = routes
-            .map((route) => ({
-              matcher: toRegExp(route),
-              route,
-            }))
-            .filter(({ matcher }) => {
-              return matcher.pattern.test(url.split('?')[0])
-            })
-            .map(({ route }) => manifest[route])[0]
+          const lambda = getLambda(url, manifest)
 
           /**
            * If we have a serverless function, delegate to it, otherwise 404
            */
-          if (lambdaFilepath) {
+          if (lambda) {
             logger.debug({
               label: 'debug',
               message: `attempting to render lambda for ${url}`,
             })
 
-            const { handler }: { handler: AWS['Handler'] } = require(lambdaFilepath)
+            const { handler }: { handler: AWS['Handler'] } = lambda
             let response: AWS['HandlerResponse']
 
             try {
