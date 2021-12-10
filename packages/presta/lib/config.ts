@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import getPort from 'get-port'
 
 import * as logger from './log'
 import { createEmitter, createEmitHook, createOnHook } from './createEmitter'
@@ -101,7 +102,7 @@ export async function createConfig({
     assets: path.resolve(cli.assets || config.assets || 'public'),
     files: cli.files && cli.files.length ? cli.files : config.files ? ([] as string[]).concat(config.files) : [],
   }
-  const port = cli.port ? parseInt(cli.port) : config.port || 4000
+  const port = await getPort({ port: cli.port ? parseInt(cli.port) : config.port || 4000 })
 
   const previous = getCurrentPrestaInstance()
   // only create once

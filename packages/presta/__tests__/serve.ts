@@ -7,207 +7,190 @@ import { makeFetch } from 'supertest-fetch'
 import proxy from 'proxyquire'
 
 import { createConfig } from '../lib/config'
-import { createServerHandler as base } from '../lib/serve'
+import { createHttpError, getMimeType, loadLambdaFroManifest, processHandler } from '../lib/serve'
 import type { AWS } from '../lib/types'
 
-type CreateServerHandler = {
-  createServerHandler: typeof base
-}
+const event = {
+  path: '/',
+  headers: {},
+} as AWS['HandlerEvent']
 
-tap.test('createServerHandler - searches for static assets', async (t) => {
-  const assets = './assets'
-
-  const dirs: string[] = []
-  let called = false
-
-  const config = await createConfig({
-    cli: { assets, output: t.testdirName },
-  })
-  const expectedDirs = [path.join(process.cwd(), assets), config.staticOutputDir]
-  const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
-    sirv: (dir: string) => (req: http.ClientRequest, res: http.ServerResponse, cb: () => {}) => {
-      dirs.push(dir)
-      cb()
-    },
-    './sendServerlessResponse': {
-      sendServerlessResponse() {
-        called = true
-      },
-    },
-  })
-  const serverHandler = createServerHandler({ port: 4000, config })
-  const imageFilepath = path.join(config.staticOutputDir, 'image.png')
-
-  fs.outputFileSync(imageFilepath, '')
-
-  const server = http.createServer(async (req, res) => {
-    await serverHandler(req, res)
-    res.end()
-  })
-
-  const fetch = makeFetch(server)
-
-  await fetch('/image.png') // would normally match
-
-  t.same(dirs, expectedDirs)
-  t.ok(called)
-
-  fs.removeSync(imageFilepath)
+tap.test('createHttpError', async (t) => {
+  const e = createHttpError(404, 'oops')
+  t.equal(e.statusCode, 404)
+  t.equal(e.message, 'oops')
 })
 
-/**
- * Sirv handles these now https://github.com/lukeed/sirv/tree/master/packages/sirv#optsextensions
- */
-tap.test('createServerHandler - resolves a static index route', async (t) => {
-  let found = false
-
-  const config = await createConfig({ cli: { output: t.testdirName } })
-  const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
-    './sendServerlessResponse': {
-      sendServerlessResponse() {
-        // should never hit this, picked up by sirv
-        found = true
-      },
-    },
-  })
-  const serverHandler = createServerHandler({ port: 4000, config })
-  const indexRouteFilepath = path.join(config.staticOutputDir, 'index.html')
-
-  fs.outputFileSync(indexRouteFilepath, '')
-
-  const server = http.createServer(async (req, res) => {
-    await serverHandler(req, res)
+tap.test('getMimeType', async (t) => {
+  const html = getMimeType({
+    headers: { 'Content-Type': 'text/html' },
   })
 
-  const fetch = makeFetch(server)
+  t.equal(html, 'html')
 
-  await fetch('/')
+  const none = getMimeType({
+    headers: {},
+  })
 
-  t.notOk(found)
-
-  fs.removeSync(indexRouteFilepath)
+  t.equal(none, 'html')
 })
 
-tap.test('createServerHandler - resolves a lambda', async (t) => {
-  let responses: boolean[] = []
+tap.test('loadLambdaFroManifest', async (t) => {
+  const dir = t.testdir({
+    'lambda.js': `module.exports = { handler: true }`,
+  })
+  const manifest = {
+    '/page': path.join(dir, 'lambda.js'),
+    '/page/:slug': path.join(dir, 'lambda.js'),
+  }
+
+  t.same(loadLambdaFroManifest('/page', manifest), { handler: true })
+  t.same(loadLambdaFroManifest('/page/path', manifest), { handler: true })
+  t.same(loadLambdaFroManifest('/page?query', manifest), { handler: true })
+})
+
+tap.test('processHandler - works', async (t) => {
+  const res = await processHandler(event, {
+    async handler(event, ctx) {
+      return {
+        statusCode: 204,
+      }
+    },
+  })
+
+  t.equal(res.statusCode, 204)
+})
+
+tap.test('processHandler - no lambda', async (t) => {
+  // @ts-expect-error
+  const res = await processHandler(event)
+  t.equal(res.statusCode, 404)
+})
+
+tap.test('processHandler - no handler', async (t) => {
+  // @ts-expect-error
+  const res = await processHandler(event, {})
+  t.equal(res.statusCode, 404)
+})
+
+tap.test('processHandler - throws', async (t) => {
+  const res = await processHandler(event, {
+    async handler(ev, ctx) {
+      throw new Error('error')
+    },
+  })
+  t.equal(res.statusCode, 500)
+  // @ts-ignore
+  t.ok(res.headers['Content-Type'].includes('text/html'))
+})
+
+tap.test('processHandler - throws as json', async (t) => {
+  const e = Object.assign({}, event, {
+    headers: {
+      Accept: 'application/json',
+    },
+  })
+  const res = await processHandler(e, {
+    async handler(ev, ctx) {
+      throw new Error('error')
+    },
+  })
+  t.equal(res.statusCode, 500)
+  // @ts-ignore
+  t.ok(res.headers['Content-Type'].includes('application/json'))
+})
+
+// tap.test('createRequestHandler', async (t) => {
+//   t.plan(3)
+
+//   const dir = t.testdir({
+//     'lambda.js': `export function handler() {
+//       return { statusCode: 204 }
+//     }`,
+//   })
+//   const config = await createConfig({ cli: { output: t.testdirName } })
+//   const manifest = {
+//     '/': path.join(dir, 'lambda.js'),
+//   }
+//   const { createRequestHandler } = proxy('../lib/serve', {
+//     './timer': {
+//       timer() {
+//         t.pass()
+
+//         return () => {
+//           t.pass()
+//         }
+//       },
+//     },
+//     './requestToEvent': {
+//       requestToEvent() {
+//         return event
+//       },
+//     },
+//     './utils': {
+//       requireFresh() {
+//         return manifest
+//       },
+//     },
+//     './sendServerlessResponse': {
+//       sendServerlessResponse() {
+//         t.pass()
+//       },
+//     },
+//   })
+
+//   const requestHandler = createRequestHandler({ port: 4000, config })
+//   // @ts-ignore
+//   const req = new http.IncomingMessage(null)
+//   const res = new http.ServerResponse(req)
+
+//   requestHandler(req, res)
+// })
+
+tap.test('createServerHandler', async (t) => {
+  t.plan(2)
 
   const config = await createConfig({ cli: { output: t.testdirName } })
-  const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
-    './sendServerlessResponse': {
-      sendServerlessResponse(_: http.ServerResponse, response: Partial<AWS['HandlerResponse']>) {
-        if (response.statusCode !== 404) {
-          responses.push(true)
-        } else {
-          responses.push(false)
+  const { createServerHandler } = proxy('../lib/serve', {
+    sirv: (dir: string, options: any) => {
+      t.ok(options.dev)
+      return () => {
+        t.pass()
+      }
+    },
+  })
+  const serveHandler = createServerHandler({ port: 4000, config })
+
+  // @ts-ignore
+  serveHandler({ url: '' }, {})
+})
+
+tap.test('serve', async (t) => {
+  t.plan(3)
+
+  const { serve } = proxy('../lib/serve', {
+    http: {
+      createServer() {
+        return {
+          listen() {
+            t.pass()
+          },
+        }
+      },
+    },
+    'pocket.io': () => {
+      t.pass()
+    },
+    chokidar: {
+      watch() {
+        t.pass()
+        return {
+          on() {},
         }
       },
     },
   })
-  const serverHandler = createServerHandler({ port: 4000, config })
-
-  const functionFilepath = path.join(config.functionsOutputDir, 'Route.js')
-  const functionsManifestFilepath = path.join(config.output, 'routes.json')
-  fs.outputFileSync(
-    functionsManifestFilepath,
-    JSON.stringify({
-      '/:slug?': functionFilepath,
-    })
-  )
-  fs.outputFileSync(functionFilepath, `module.exports = { handler () {} }`)
-
-  const server = http.createServer(async (req, res) => {
-    await serverHandler(req, res)
-    res.end()
-  })
-
-  const fetch = makeFetch(server)
-
-  await fetch('/') // found
-  await fetch('/foo/bar/baz') // not found
-
-  t.same(responses, [true, false])
-
-  fs.removeSync(functionFilepath)
-  fs.removeSync(functionsManifestFilepath)
-})
-
-tap.test('createServerHandler - wildcards can pick up extensions too', async (t) => {
-  let responses: boolean[] = []
-
   const config = await createConfig({ cli: { output: t.testdirName } })
-  const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
-    './sendServerlessResponse': {
-      sendServerlessResponse(_: http.ServerResponse, response: Partial<AWS['HandlerResponse']>) {
-        if (response.statusCode !== 404) {
-          responses.push(true)
-        } else {
-          responses.push(false)
-        }
-      },
-    },
-  })
-  const serverHandler = createServerHandler({ port: 4000, config })
 
-  const functionFilepath = path.join(config.functionsOutputDir, 'Wild.js')
-  const functionsManifestFilepath = path.join(config.output, 'routes.json')
-  fs.outputFileSync(
-    functionsManifestFilepath,
-    JSON.stringify({
-      '*': functionFilepath,
-    })
-  )
-  fs.outputFileSync(functionFilepath, `module.exports = { handler () {} }`)
-
-  const server = http.createServer(async (req, res) => {
-    await serverHandler(req, res)
-    res.end()
-  })
-
-  const fetch = makeFetch(server)
-
-  await fetch('/example.png')
-  await fetch('/example.json')
-
-  t.same(responses, [true, true])
-
-  fs.removeSync(functionFilepath)
-  fs.removeSync(functionsManifestFilepath)
-})
-
-tap.test('createServerHandler - throws 500', async (t) => {
-  let did500 = false
-
-  const config = await createConfig({ cli: { output: t.testdirName } })
-  const { createServerHandler }: CreateServerHandler = proxy('../lib/serve', {
-    './sendServerlessResponse': {
-      sendServerlessResponse(_: http.ServerResponse, response: Partial<AWS['HandlerResponse']>) {
-        if (response.statusCode === 500) {
-          did500 = true
-        }
-      },
-    },
-  })
-  const serverHandler = createServerHandler({ port: 4000, config })
-
-  const functionFilepath = path.join(config.functionsOutputDir, 'Route.js')
-  fs.outputFileSync(
-    path.join(config.output, 'routes.json'),
-    JSON.stringify({
-      '*': functionFilepath,
-    })
-  )
-  fs.outputFileSync(functionFilepath, `module.exports = { handler () { throw 'error' } }`)
-
-  const server = http.createServer(async (req, res) => {
-    await serverHandler(req, res)
-    res.end()
-  })
-
-  const fetch = makeFetch(server)
-
-  await fetch('/') // throws
-
-  t.ok(did500)
-
-  fs.removeSync(t.testdirName)
+  serve(config)
 })
