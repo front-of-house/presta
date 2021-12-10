@@ -1,5 +1,4 @@
 import http from 'http'
-import getPort from 'get-port'
 import sirv from 'sirv'
 import chokidar from 'chokidar'
 import mime from 'mime-types'
@@ -135,7 +134,7 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
 }
 
 export async function serve(config: Presta) {
-  const port = await getPort({ port: config.port })
+  const port = config.port
   const server = http.createServer(createServerHandler({ port, config })).listen(port)
   const socket = require('pocket.io')(server, { serveClient: false })
 

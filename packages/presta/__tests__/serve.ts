@@ -166,13 +166,9 @@ tap.test('createServerHandler', async (t) => {
 })
 
 tap.test('serve', async (t) => {
-  t.plan(4)
+  t.plan(3)
 
   const { serve } = proxy('../lib/serve', {
-    'get-port': () => {
-      t.pass()
-      return 4000
-    },
     http: {
       createServer() {
         return {
@@ -188,6 +184,9 @@ tap.test('serve', async (t) => {
     chokidar: {
       watch() {
         t.pass()
+        return {
+          on() {},
+        }
       },
     },
   })
