@@ -1,5 +1,3 @@
-import fs from 'fs'
-import path from 'path'
 import http from 'http'
 import getPort from 'get-port'
 import sirv from 'sirv'
@@ -14,10 +12,28 @@ import { createDefaultHtmlResponse } from './createDefaultHtmlResponse'
 import { requestToEvent } from './requestToEvent'
 import { sendServerlessResponse } from './sendServerlessResponse'
 import { createLiveReloadScript } from './liveReloadScript'
-import { AWS, Presta } from './types'
+import { AWS, Presta, Response } from './types'
 import { normalizeResponse } from './normalizeResponse'
+import { requireFresh } from './utils'
 
-export function getLambda(url: string, manifest: { [route: string]: string }): { handler: AWS['Handler'] } {
+export interface HttpError extends Error {
+  statusCode?: number
+  message: string
+}
+
+export function createHttpError(statusCode: number, message: string): HttpError {
+  const error = new Error(message)
+  // @ts-ignore
+  error.statusCode = statusCode
+  return error
+}
+
+export function getMimeType(response: Response) {
+  const type = (response?.headers || {})['Content-Type'] || 'html'
+  return type ? mime.extension(String(type)) || 'html' : 'html'
+}
+
+export function loadLambdaFroManifest(url: string, manifest: { [route: string]: string }): { handler: AWS['Handler'] } {
   const routes = Object.keys(manifest)
   const lambdaFilepath = routes
     .map((route) => ({
@@ -32,8 +48,63 @@ export function getLambda(url: string, manifest: { [route: string]: string }): {
   return lambdaFilepath ? require(lambdaFilepath) : undefined
 }
 
+export async function processHandler(event: AWS['HandlerEvent'], lambda: { handler: AWS['Handler'] }) {
+  const accept = event.headers.Accept || event.headers.accept
+  const acceptsJson = accept && accept.includes('json')
+
+  /*
+   * No asset file, no static file, try dynamic
+   */
+  try {
+    if (!lambda || !lambda.handler) {
+      throw createHttpError(404, '')
+    }
+
+    return normalizeResponse(await lambda.handler(event, {}))
+  } catch (e) {
+    const error = e as HttpError
+    const { statusCode = 500 } = error
+
+    if (statusCode > 499)
+      logger.error({
+        label: 'error',
+        message: error.message || status.message[statusCode],
+        error,
+      })
+
+    return normalizeResponse({
+      statusCode: statusCode,
+      html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode }),
+      json: acceptsJson ? { detail: status.message[statusCode] } : undefined,
+    })
+  }
+}
+
+export function createRequestHandler({ port, config }: { port: number; config: Presta }) {
+  return async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
+    const time = timer()
+    const event = await requestToEvent(req) // stock AWS Event shape
+    const manifest = requireFresh(config.functionsManifest)
+    const lambda = loadLambdaFroManifest(event.path, manifest)
+    const response = await processHandler(event, lambda)
+    const redir = response.statusCode > 299 && response.statusCode < 399
+    const mime = getMimeType(response)
+
+    if (mime === 'html') {
+      response.body = (response.body || '').split('</body>')[0] + createLiveReloadScript({ port })
+    }
+
+    logger[response.statusCode < 299 ? 'info' : 'error']({
+      label: 'serve',
+      message: `${response.statusCode} ${redir ? response?.headers?.Location || event.path : event.path}`,
+      duration: time(),
+    })
+
+    sendServerlessResponse(res, response)
+  }
+}
+
 export function createServerHandler({ port, config }: { port: number; config: Presta }) {
-  const devClient = createLiveReloadScript({ port })
   const staticDir = config.staticOutputDir
   const assetDir = config.assets
 
@@ -46,110 +117,18 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
       message: `handling ${url}`,
     })
 
-    /*
-     * first check the vcs-tracked static folder,
-     * then check the presta-built static folder
-     *
-     * @see https://github.com/sure-thing/presta/issues/30
-     */
-    sirv(assetDir, { dev: true })(req, res, () => {
-      logger.debug({
-        label: 'debug',
-        message: `attempting to serve generated static asset ${url}`,
+    // hook into sirv for logging only
+    function setHeaders(res: http.ServerResponse, pathname: string) {
+      logger.info({
+        label: 'serve',
+        message: `${res.statusCode} ${pathname}`,
+        duration: time(),
       })
+    }
 
-      sirv(staticDir, { dev: true })(req, res, async () => {
-        const event = await requestToEvent(req) // stock AWS Event shape
-        const accept = event.headers.Accept || event.headers.accept
-        const acceptsJson = accept && accept.includes('json')
-
-        /*
-         * No asset file, no static file, try dynamic
-         */
-        try {
-          delete require.cache[config.functionsManifest]
-          const manifest = require(config.functionsManifest)
-          const lambda = getLambda(url, manifest)
-
-          /**
-           * If we have a serverless function, delegate to it, otherwise 404
-           */
-          if (lambda) {
-            logger.debug({
-              label: 'debug',
-              message: `attempting to render lambda for ${url}`,
-            })
-
-            const { handler }: { handler: AWS['Handler'] } = lambda
-            let response: AWS['HandlerResponse']
-
-            try {
-              response = normalizeResponse(await handler(event, {})) // wrapped in ./wrapHandler.ts
-            } catch (e) {
-              logger.error({
-                label: 'serve',
-                message: `lambda`,
-                error: e as Error,
-              })
-
-              response = normalizeResponse({
-                statusCode: 500,
-                html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 500 }),
-                json: acceptsJson ? { detail: status.message[500] } : undefined,
-              })
-            }
-
-            const headers = response.headers || {}
-            const redir = response.statusCode > 299 && response.statusCode < 399
-
-            // get mime type
-            const type = headers['Content-Type'] as string
-            const ext = type ? mime.extension(type) : 'html'
-
-            logger.info({
-              label: 'serve',
-              message: `${response.statusCode} ${redir ? headers.Location : url}`,
-              duration: time(),
-            })
-
-            sendServerlessResponse(res, {
-              ...response,
-              // only html can be live-reloaded, duh
-              body: ext === 'html' ? (response.body || '').split('</body>')[0] + devClient : response.body,
-            })
-          } else {
-            logger.warn({
-              label: 'serve',
-              message: `404 ${url}`,
-              duration: time(),
-            })
-
-            sendServerlessResponse(
-              res,
-              normalizeResponse({
-                statusCode: 404,
-                html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 404 }) + devClient,
-                json: acceptsJson ? { detail: status.message[404] } : undefined,
-              })
-            )
-          }
-        } catch (e) {
-          logger.error({
-            label: 'serve',
-            message: `500 ${url}`,
-            error: e as Error,
-            duration: time(),
-          })
-
-          sendServerlessResponse(
-            res,
-            normalizeResponse({
-              statusCode: 500,
-              html: acceptsJson ? undefined : createDefaultHtmlResponse({ statusCode: 500 }) + devClient,
-              json: acceptsJson ? { detail: status.message[500] } : undefined,
-            })
-          )
-        }
+    sirv(assetDir, { dev: true, setHeaders })(req, res, () => {
+      sirv(staticDir, { dev: true, setHeaders })(req, res, async () => {
+        createRequestHandler({ port, config })(req, res)
       })
     })
   }
