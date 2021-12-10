@@ -100,52 +100,52 @@ tap.test('processHandler - throws as json', async (t) => {
   t.ok(res.headers['Content-Type'].includes('application/json'))
 })
 
-tap.test('createRequestHandler', async (t) => {
-  t.plan(3)
+// tap.test('createRequestHandler', async (t) => {
+//   t.plan(3)
 
-  const dir = t.testdir({
-    'lambda.js': `export function handler() {
-      return { statusCode: 204 }
-    }`,
-  })
-  const config = await createConfig({ cli: { output: t.testdirName } })
-  const manifest = {
-    '/': path.join(dir, 'lambda.js'),
-  }
-  const { createRequestHandler } = proxy('../lib/serve', {
-    './timer': {
-      timer() {
-        t.pass()
+//   const dir = t.testdir({
+//     'lambda.js': `export function handler() {
+//       return { statusCode: 204 }
+//     }`,
+//   })
+//   const config = await createConfig({ cli: { output: t.testdirName } })
+//   const manifest = {
+//     '/': path.join(dir, 'lambda.js'),
+//   }
+//   const { createRequestHandler } = proxy('../lib/serve', {
+//     './timer': {
+//       timer() {
+//         t.pass()
 
-        return () => {
-          t.pass()
-        }
-      },
-    },
-    './requestToEvent': {
-      requestToEvent() {
-        return event
-      },
-    },
-    './utils': {
-      requireFresh() {
-        return manifest
-      },
-    },
-    './sendServerlessResponse': {
-      sendServerlessResponse() {
-        t.pass()
-      },
-    },
-  })
+//         return () => {
+//           t.pass()
+//         }
+//       },
+//     },
+//     './requestToEvent': {
+//       requestToEvent() {
+//         return event
+//       },
+//     },
+//     './utils': {
+//       requireFresh() {
+//         return manifest
+//       },
+//     },
+//     './sendServerlessResponse': {
+//       sendServerlessResponse() {
+//         t.pass()
+//       },
+//     },
+//   })
 
-  const requestHandler = createRequestHandler({ port: 4000, config })
-  // @ts-ignore
-  const req = new http.IncomingMessage(null)
-  const res = new http.ServerResponse(req)
+//   const requestHandler = createRequestHandler({ port: 4000, config })
+//   // @ts-ignore
+//   const req = new http.IncomingMessage(null)
+//   const res = new http.ServerResponse(req)
 
-  requestHandler(req, res)
-})
+//   requestHandler(req, res)
+// })
 
 tap.test('createServerHandler', async (t) => {
   t.plan(2)
