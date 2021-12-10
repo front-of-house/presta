@@ -2,6 +2,13 @@
 
 ## null
 
+### Patch Changes
+
+- Updated dependencies [[`b030000`](https://github.com/sure-thing/presta/commit/b03000046aa462216e6a973059c7ae740d58f761), [`513b9bd`](https://github.com/sure-thing/presta/commit/513b9bd199c9c7850041f8a545b29c0894d23024), [`efca778`](https://github.com/sure-thing/presta/commit/efca77808259f866e63c9465292d5344482beaa0)]:
+  - presta@0.42.0
+
+## null
+
 ### Minor Changes
 
 - [`8f365c6`](https://github.com/sure-thing/presta/commit/8f365c6a9e62e9bf16cc7f8b3c65ddfaa5e70cb5) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Update basic example

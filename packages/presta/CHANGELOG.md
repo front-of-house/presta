@@ -1,5 +1,17 @@
 # presta
 
+## 0.42.0
+
+### Minor Changes
+
+- [#146](https://github.com/sure-thing/presta/pull/146) [`b030000`](https://github.com/sure-thing/presta/commit/b03000046aa462216e6a973059c7ae740d58f761) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Update file exports and type generation for easier maintenance
+
+* [#148](https://github.com/sure-thing/presta/pull/148) [`efca778`](https://github.com/sure-thing/presta/commit/efca77808259f866e63c9465292d5344482beaa0) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Refactor server code for better testing
+
+### Patch Changes
+
+- [#148](https://github.com/sure-thing/presta/pull/148) [`513b9bd`](https://github.com/sure-thing/presta/commit/513b9bd199c9c7850041f8a545b29c0894d23024) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fix port assignment, update tests
+
 ## 0.41.1
 
 ### Patch Changes
