@@ -1,2 +1,6 @@
+/__tests__
+/scripts
+.gitignore
+test.ts
 tsconfig.json
-pnpm-lock.yaml
+index.ts

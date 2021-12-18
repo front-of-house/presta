@@ -1,6 +1,4 @@
-/__tests__
 /scripts
-.gitignore
-test.ts
 tsconfig.json
 index.ts
+.gitignore

@@ -1,4 +1,5 @@
-/test
-/fixtures
+/lib
+/scripts
+.gitignore
 tsconfig.json
-pnpm-lock.yaml
+test.ts
