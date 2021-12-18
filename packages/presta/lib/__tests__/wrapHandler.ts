@@ -1,7 +1,10 @@
-import tap from 'tap'
+import { suite } from 'uvu'
+import * as assert from 'uvu/assert'
 
-import { wrapHandler } from '../lib/wrapHandler'
-import { AWS } from '../lib/types'
+import { wrapHandler } from '../wrapHandler'
+import { AWS } from '../types'
+
+const test = suite('presta - getFiles')
 
 const context = {} as AWS['HandlerContext']
 
@@ -21,13 +24,14 @@ function stubEvent(props: Partial<AWS['HandlerEvent']>): AWS['HandlerEvent'] {
   }
 }
 
-tap.test('wrapHandler', async (t) => {
-  t.plan(2)
+test('wrapHandler', async () => {
+  let plan = 0
 
   const handler = wrapHandler({
     route: '/:slug',
     async handler(event, context) {
-      t.equal(event.routeParameters.slug, 'foo')
+      plan++
+      assert.equal(event.routeParameters.slug, 'foo')
       return {
         body: 'foo',
       }
@@ -41,5 +45,8 @@ tap.test('wrapHandler', async (t) => {
     context
   )
 
-  t.equal(response.body, 'foo')
+  assert.equal(response.body, 'foo')
+  assert.equal(plan, 1)
 })
+
+test.run()

@@ -1,9 +1,13 @@
-import tap from 'tap'
+import { suite } from 'uvu'
+import * as assert from 'uvu/assert'
+
 import { prime, load, flush, createLoadCache } from '../'
+
+const test = suite('@presta/load')
 
 const wait = (t: number) => new Promise((r) => setTimeout(r, t, null))
 
-tap.test('runs', async (t) => {
+test('runs', async () => {
   let i = 0
 
   const loader = async () => {
@@ -19,12 +23,12 @@ tap.test('runs', async (t) => {
 
   const { content, data } = await flush(component)
 
-  t.equal(content, 'runs')
-  t.equal(data.runs.value, 'runs')
-  t.equal(i, 2)
+  assert.equal(content, 'runs')
+  assert.equal(data.runs.value, 'runs')
+  assert.equal(i, 2)
 })
 
-tap.test('nested - cached', async (t) => {
+test('nested - cached', async () => {
   let i = 0
 
   const loader = async () => {
@@ -46,12 +50,12 @@ tap.test('nested - cached', async (t) => {
 
   const { content, data } = await flush(entry)
 
-  t.equal(content, 'nested')
-  t.equal(data.nested.value, 'nested')
-  t.equal(i, 3)
+  assert.equal(content, 'nested')
+  assert.equal(data.nested.value, 'nested')
+  assert.equal(i, 3)
 })
 
-tap.test('nested - not cached', async (t) => {
+test('nested - not cached', async () => {
   let i = 0
 
   const loader = async () => {
@@ -73,13 +77,13 @@ tap.test('nested - not cached', async (t) => {
 
   const { content, data } = await flush(entry)
 
-  t.equal(content, 'nested')
-  t.equal(data.nested_entry.value, 'nested')
-  t.equal(data.nested_child.value, 'nested')
-  t.equal(i, 5)
+  assert.equal(content, 'nested')
+  assert.equal(data.nested_entry.value, 'nested')
+  assert.equal(data.nested_child.value, 'nested')
+  assert.equal(i, 5)
 })
 
-tap.test('no recursion on error', async (t) => {
+test('no recursion on error', async () => {
   let i = 0
 
   const loader = async () => {
@@ -96,10 +100,10 @@ tap.test('no recursion on error', async (t) => {
 
   await flush(component)
 
-  t.equal(i, 1)
+  assert.equal(i, 1)
 })
 
-tap.test('prime', async (t) => {
+test('prime', async () => {
   let i = 0
 
   const loader = async () => {
@@ -116,10 +120,10 @@ tap.test('prime', async (t) => {
 
   await flush(component)
 
-  t.equal(i, 1)
+  assert.equal(i, 1)
 })
 
-tap.test('catches sync and async errors', async (t) => {
+test('catches sync and async errors', async () => {
   let one = 0
   let two = 0
 
@@ -145,46 +149,46 @@ tap.test('catches sync and async errors', async (t) => {
   }
 
   await flush(asyncComponent)
-  t.equal(one, 2)
+  assert.equal(one, 2)
 
   await flush(syncComponent)
-  t.equal(two, 1)
+  assert.equal(two, 1)
 })
 
-tap.test('loadCache - simple', async (t) => {
+test('loadCache - simple', async () => {
   const cache = createLoadCache('simple')
 
   cache.set('foo', 'bar')
 
-  t.equal('bar', cache.get('foo'))
+  assert.equal('bar', cache.get('foo'))
 
   cache.cleanup()
 })
 
-tap.test('loadCache - duration', async (t) => {
+test('loadCache - duration', async () => {
   const cache = createLoadCache('duration')
 
   cache.set('foo', 'bar', 1000)
 
   await wait(1100)
 
-  t.notOk(cache.get('foo'))
+  assert.not.ok(cache.get('foo'))
 
   cache.cleanup()
 })
 
-tap.test('loadCache - clear', async (t) => {
+test('loadCache - clear', async () => {
   const cache = createLoadCache('clear')
 
   cache.set('foo', 'bar')
   cache.clear('foo')
 
-  t.notOk(cache.get('foo'))
+  assert.not.ok(cache.get('foo'))
 
   cache.cleanup()
 })
 
-tap.test('loadCache - clearMemory', async (t) => {
+test('loadCache - clearMemory', async () => {
   const cache = createLoadCache('clearMemory')
 
   cache.set('foo', 'bar')
@@ -192,8 +196,10 @@ tap.test('loadCache - clearMemory', async (t) => {
 
   cache.clearAllMemory()
 
-  t.notOk(cache.get('foo'))
-  t.equal('qux', cache.get('baz'))
+  assert.not.ok(cache.get('foo'))
+  assert.equal('qux', cache.get('baz'))
 
   cache.cleanup()
 })
+
+test.run()
