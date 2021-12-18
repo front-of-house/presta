@@ -1,7 +1,11 @@
-import tap from 'tap'
+import { suite } from 'uvu'
+import * as assert from 'uvu/assert'
+
 import { html, filterUnique, tag, prefixToObjects, createHeadTags } from '../'
 
-tap.test('html - works on its own', (t) => {
+const test = suite('@presta/html')
+
+test('html - works on its own', () => {
   const doc = html({
     body: 'original',
     head: {
@@ -9,12 +13,10 @@ tap.test('html - works on its own', (t) => {
     },
   })
 
-  t.ok(doc.includes('<title>original</title>'))
-
-  t.end()
+  assert.ok(doc.includes('<title>original</title>'))
 })
 
-tap.test('html - attributes work', (t) => {
+test('html - attributes work', () => {
   const doc = html({
     body: 'original',
     head: {
@@ -29,16 +31,14 @@ tap.test('html - attributes work', (t) => {
     },
   })
 
-  t.ok(doc.includes('<html lang="en"'))
-  t.ok(doc.includes('<title>original</title>'))
-  t.ok(doc.includes('class="foo'))
-
-  t.end()
+  assert.ok(doc.includes('<html lang="en"'))
+  assert.ok(doc.includes('<title>original</title>'))
+  assert.ok(doc.includes('class="foo'))
 })
 
-tap.test('filterUnique', (t) => {
+test('filterUnique', () => {
   // takes last defined
-  t.same(
+  assert.equal(
     filterUnique([
       { name: 'author', content: 'foo' },
       { name: 'author', content: 'bar' },
@@ -46,54 +46,49 @@ tap.test('filterUnique', (t) => {
     [{ name: 'author', content: 'bar' }]
   )
 
-  t.equal(filterUnique([{ href: 'style.css' }, { href: 'style.css' }]).length, 1)
+  assert.equal(filterUnique([{ href: 'style.css' }, { href: 'style.css' }]).length, 1)
 
-  t.equal(filterUnique([{ src: 'index.js' }, { src: 'index.js' }, { src: 'vendor.js' }]).length, 2)
+  assert.equal(filterUnique([{ src: 'index.js' }, { src: 'index.js' }, { src: 'vendor.js' }]).length, 2)
 
-  t.equal(filterUnique([`<style>.class { color: blue }</style>`, `<style>.class { color: blue }</style>`]).length, 1)
-
-  t.end()
+  assert.equal(
+    filterUnique([`<style>.class { color: blue }</style>`, `<style>.class { color: blue }</style>`]).length,
+    1
+  )
 })
 
-tap.test('objectToTag', (t) => {
+test('objectToTag', () => {
   const meta = tag('meta')({ name: 'author', content: 'foo' })
-  t.equal(meta, `<meta name="author" content="foo" />`)
+  assert.equal(meta, `<meta name="author" content="foo" />`)
 
   const link = tag('link')({ rel: 'stylesheet', href: 'style.css' })
-  t.equal(link, `<link rel="stylesheet" href="style.css" />`)
+  assert.equal(link, `<link rel="stylesheet" href="style.css" />`)
 
   const style = tag('style')({ id: 'style', children: '.class { color: blue }' })
-  t.equal(style, `<style id="style">.class { color: blue }</style>`)
+  assert.equal(style, `<style id="style">.class { color: blue }</style>`)
 
   const script = tag('script')({ id: 'script', children: 'function () {}' })
-  t.equal(script, `<script id="script">function () {}</script>`)
+  assert.equal(script, `<script id="script">function () {}</script>`)
 
   const str = tag('link')(`<link href="/foo" />`)
-  t.equal(str, `<link href="/foo" />`)
-
-  t.end()
+  assert.equal(str, `<link href="/foo" />`)
 })
 
-tap.test('prefixToObjects', (t) => {
+test('prefixToObjects', () => {
   const objects = prefixToObjects('og', {
     url: 'test.com',
   })
-  t.equal(objects[0].content, 'test.com')
-
-  t.end()
+  assert.equal(objects[0].content, 'test.com')
 })
 
-tap.test('createHeadTags - defaults', (t) => {
+test('createHeadTags - defaults', () => {
   const head = createHeadTags({})
 
-  t.ok(head.includes('Presta'))
-  t.ok(head.includes('charset'))
-  t.ok(head.includes('viewport'))
-
-  t.end()
+  assert.ok(head.includes('Presta'))
+  assert.ok(head.includes('charset'))
+  assert.ok(head.includes('viewport'))
 })
 
-tap.test('createHeadTags - basic', (t) => {
+test('createHeadTags - basic', () => {
   const head = createHeadTags({
     title: 'test',
     description: 'test description',
@@ -107,46 +102,40 @@ tap.test('createHeadTags - basic', (t) => {
     script: [`<script src="/test.js"></script>`],
   })
 
-  t.ok(head.includes('<title>test'))
-  t.ok(head.includes('name="description" content="test description'))
-  t.ok(head.includes('name="author" content="test'))
-  t.ok(head.includes('src="/test.js"'))
-
-  t.end()
+  assert.ok(head.includes('<title>test'))
+  assert.ok(head.includes('name="description" content="test description'))
+  assert.ok(head.includes('name="author" content="test'))
+  assert.ok(head.includes('src="/test.js"'))
 })
 
-tap.test('twitter and og', (t) => {
+test('twitter and og', () => {
   const head = createHeadTags({
     title: 'test',
     description: 'test description',
   })
 
-  t.ok(head.includes('og:title'))
-  t.ok(head.includes('og:description'))
-  t.ok(head.includes('twitter:title'))
-  t.ok(head.includes('twitter:description'))
-
-  t.end()
+  assert.ok(head.includes('og:title'))
+  assert.ok(head.includes('og:description'))
+  assert.ok(head.includes('twitter:title'))
+  assert.ok(head.includes('twitter:description'))
 })
 
-tap.test('image shorthand', (t) => {
+test('image shorthand', () => {
   const head = createHeadTags({
     image: 'foo',
   })
 
-  t.ok(head.includes('og:image'))
-  t.ok(head.includes('twitter:image'))
-
-  t.end()
+  assert.ok(head.includes('og:image'))
+  assert.ok(head.includes('twitter:image'))
 })
 
-tap.test('url shorthand', (t) => {
+test('url shorthand', () => {
   const head = createHeadTags({
     url: 'foo',
   })
 
-  t.ok(head.includes('og:url'))
-  t.ok(head.includes('twitter:url'))
-
-  t.end()
+  assert.ok(head.includes('og:url'))
+  assert.ok(head.includes('twitter:url'))
 })
+
+test.run()

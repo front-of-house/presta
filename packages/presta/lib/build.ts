@@ -92,6 +92,7 @@ export async function build(config: Presta) {
       // log out errors
       tasks.forEach((task) => {
         if (task.status === 'rejected') {
+          // TODO can swallow errors in testing
           logger.error({
             label: 'error',
             error: task.reason,
@@ -99,8 +100,7 @@ export async function build(config: Presta) {
         }
       })
 
-      process.exit(1)
-      return
+      throw new Error('presta build failed')
     }
 
     if (staticTime || dynamicTime) {

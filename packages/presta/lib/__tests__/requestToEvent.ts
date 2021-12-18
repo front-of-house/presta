@@ -1,7 +1,8 @@
 import http from 'http'
-import tap from 'tap'
+import { suite } from 'uvu'
+import * as assert from 'uvu/assert'
 
-import { requestToEvent, normalizeHeaders, getQueryStringParameters } from '../lib/requestToEvent'
+import { requestToEvent, normalizeHeaders, getQueryStringParameters } from '../requestToEvent'
 
 function createRequest(props: Partial<http.IncomingMessage>): http.IncomingMessage {
   // @ts-ignore
@@ -12,33 +13,35 @@ function createRequest(props: Partial<http.IncomingMessage>): http.IncomingMessa
   return req
 }
 
-tap.only('normalizeHeaders', async (t) => {
+const test = suite('presta - requestToEvent')
+
+test('normalizeHeaders', async () => {
   const { headers, multiValueHeaders } = normalizeHeaders({
     'Content-Type': 'text/html',
     'Set-Cookie': ['foo=1', 'bar=2'],
     'X-Version': undefined,
   })
 
-  t.same(headers, {
+  assert.equal(headers, {
     'content-type': 'text/html',
   })
-  t.same(multiValueHeaders, {
+  assert.equal(multiValueHeaders, {
     'set-cookie': ['foo=1', 'bar=2'],
   })
 })
 
-tap.only('getQueryStringParameters', async (t) => {
+test('getQueryStringParameters', async () => {
   const { queryStringParameters, multiValueQueryStringParameters } = getQueryStringParameters('foo=bar&bar=a,b')
 
-  t.same(queryStringParameters, {
+  assert.equal(queryStringParameters, {
     foo: 'bar',
   })
-  t.same(multiValueQueryStringParameters, {
+  assert.equal(multiValueQueryStringParameters, {
     bar: ['a', 'b'],
   })
 })
 
-tap.only('requestToEvent', async (t) => {
+test('requestToEvent', async () => {
   const event = await requestToEvent(
     createRequest({
       url: '/',
@@ -46,7 +49,7 @@ tap.only('requestToEvent', async (t) => {
     })
   )
 
-  t.same(event, {
+  assert.equal(event, {
     rawUrl: '/',
     path: '/',
     httpMethod: 'GET',
@@ -60,7 +63,7 @@ tap.only('requestToEvent', async (t) => {
   })
 })
 
-tap.only('requestToEvent - shouldBase64Encode', async (t) => {
+test('requestToEvent - shouldBase64Encode', async () => {
   const event = await requestToEvent(
     createRequest({
       url: '/',
@@ -71,5 +74,7 @@ tap.only('requestToEvent - shouldBase64Encode', async (t) => {
     })
   )
 
-  t.equal(event.isBase64Encoded, true)
+  assert.equal(event.isBase64Encoded, true)
 })
+
+test.run()
