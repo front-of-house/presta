@@ -57,13 +57,13 @@ export async function watch(config: Config, hooks: Hooks) {
     }
 
     // update dynamic entry with ALL dynamic files
-    if (isDynamic(file)) {
-      updateLambdas(existing.filter(isDynamic), config)
-    }
+    updateLambdas(existing.filter(isDynamic), config)
   }
 
   async function buildFiles(files: string[], existing: string[], config: Config) {
-    return files.forEach((file) => buildFile(file, existing, config))
+    for (const file of files) {
+      await buildFile(file, existing, config)
+    }
   }
 
   /**
