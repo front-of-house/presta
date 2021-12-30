@@ -21,4 +21,4 @@ export type Response = Omit<LambdaResponse, 'statusCode'> & {
   xml?: string
 }
 
-export type Handler = (event: Event, context: Context) => Promise<Response>
+export type Handler = (event: Event, context: Context) => Promise<Response | string> | Response | string
