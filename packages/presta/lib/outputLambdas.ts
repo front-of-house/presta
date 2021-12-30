@@ -7,12 +7,25 @@ import * as logger from './log'
 import { Config } from './config'
 import { Env } from './constants'
 
+function slugify(filename: string) {
+  return filename
+    .replace(process.cwd(), '') // /pages/File.page.js
+    .split('.') // [/pages/File, page, js]
+    .reverse()
+    .slice(1)
+    .reverse()
+    .join('-') // /pages/File.page
+    .split('/')
+    .filter(Boolean)
+    .join('-') // pages-File-page
+}
+
 export function outputLambdas(inputs: string[], config: Config) {
   const lambdas = inputs
     .map((input) => {
       try {
         const { route } = require(input)
-        const name = path.basename(input).split('.').reverse().slice(1).reverse().join('.')
+        const name = slugify(input)
         const output = path.join(
           config.functionsOutputDir,
           config.env === Env.PRODUCTION
