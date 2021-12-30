@@ -155,7 +155,7 @@ test('serveCommand', async () => {
 /*
  * E2E test, runs servers and closes them
  */
-test('devCommand E2E', async () => {
+test.skip('devCommand E2E', async () => {
   let plan = 0
 
   const fixture = afix({
