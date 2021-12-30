@@ -6,8 +6,10 @@ import { afix } from 'afix'
 // @ts-ignore
 import proxy from 'proxyquire'
 
-import { createConfig } from '../config'
+import { create } from '../config'
 import { build } from '../build'
+import { Env } from '../constants'
+import { createEmitter, createHooks } from '../createEmitter'
 
 const test = suite('presta - build')
 
@@ -15,19 +17,22 @@ test('build - static files', async () => {
   const fixture = afix({
     static: [
       'static.js',
-      `
-      export const getStaticPaths = () => ([ 'foo' ])
-      export const handler = () => 'page'
-    `,
+      `export const getStaticPaths = () => ([ 'foo' ])
+      export const handler = () => 'page'`,
     ],
   })
 
-  const filepath = fixture.files.static.path
-  const config = await createConfig({
-    cli: { files: filepath, output: fixture.root },
-  })
+  const config = create(
+    Env.PRODUCTION,
+    {
+      _: [fixture.files.static.path],
+      port: 4000,
+      output: fixture.root,
+    },
+    {}
+  )
 
-  await build(config)
+  await build(config, createHooks(createEmitter()))
 
   const contents = fs.readFileSync(path.join(config.staticOutputDir, 'foo/index.html'), 'utf8')
 
@@ -47,12 +52,15 @@ test('build - dynamic files', async () => {
     ],
   })
 
-  const config = await createConfig({
-    cli: {
-      files: fixture.files.dynamic.path,
+  const config = create(
+    Env.DEVELOPMENT,
+    {
+      _: [fixture.files.dynamic.path],
       output: fixture.root,
+      port: 4000,
     },
-  })
+    {}
+  )
 
   let called = false
 
@@ -64,7 +72,7 @@ test('build - dynamic files', async () => {
     },
   })
 
-  await build(config)
+  await build(config, createHooks(createEmitter()))
 
   assert.ok(called)
 

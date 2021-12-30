@@ -1,10 +1,16 @@
 /*
- * Any used exports of the core library go here
+ * Any used exports of the core library need to be in this file
  */
+
 import * as log from './log'
+export const logger = log
 
 export { Env } from './constants'
-export * from './types'
-export const logger = log
+export * from './lambda'
+export { Config, Options } from './config'
+export { createPlugin } from './plugins'
+
+/*
+ * for use in prod functions
+ */
 export { wrapHandler } from './wrapHandler'
-export { getCurrentPrestaInstance } from './currentPrestaInstance'

@@ -1,4 +1,32 @@
-import { Callable } from './types'
+export enum Events {
+  PostBuild = 'post-build',
+  BuildFile = 'build-file',
+  BrowserRefresh = 'browser-refresh',
+}
+
+export type Callable = (...args: any[]) => void
+
+export type HookPostBuild = {
+  output: string
+  staticOutput: string
+  functionsOutput: string
+  functionsManifest: Record<string, string>
+}
+
+export type HookBuildFile = {
+  file: string
+}
+
+export type DestroyHookCallback = () => void
+
+export type Hooks = {
+  emitPostBuild(props: HookPostBuild): void
+  onPostBuild(cb: (props: HookPostBuild) => void): DestroyHookCallback
+  emitBuildFile(props: HookBuildFile): void
+  onBuildFile(cb: (props: HookBuildFile) => void): DestroyHookCallback
+  emitBrowserRefresh(): void
+  onBrowserRefresh(cb: () => void): DestroyHookCallback
+}
 
 export function createEmitter() {
   let events: { [event: string]: Callable[] } = {}
@@ -28,14 +56,25 @@ export function createEmitter() {
   }
 }
 
-export function createEmitHook(name: string, emitter: ReturnType<typeof createEmitter>) {
-  return function hook<T>(props: T) {
-    emitter.emit(name, props)
-  }
-}
-
-export function createOnHook(name: string, emitter: ReturnType<typeof createEmitter>) {
-  return function hook(callback: Callable) {
-    return emitter.on(name, callback)
+export function createHooks(emitter: ReturnType<typeof createEmitter>): Hooks {
+  return {
+    emitPostBuild(props) {
+      emitter.emit('postBuild', props)
+    },
+    onPostBuild(cb) {
+      return emitter.on('postBuild', cb)
+    },
+    emitBuildFile(props) {
+      emitter.emit('buildFile', props)
+    },
+    onBuildFile(cb) {
+      return emitter.on('buildFile', cb)
+    },
+    emitBrowserRefresh() {
+      emitter.emit('browserRefresh')
+    },
+    onBrowserRefresh(cb) {
+      return emitter.on('browserRefresh', cb)
+    },
   }
 }

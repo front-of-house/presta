@@ -1,6 +1,5 @@
 import http from 'http'
 import sirv from 'sirv'
-import chokidar from 'chokidar'
 import mime from 'mime-types'
 import toRegExp from 'regexparam'
 import status from 'statuses'
@@ -11,7 +10,9 @@ import { createDefaultHtmlResponse } from './createDefaultHtmlResponse'
 import { requestToEvent } from './requestToEvent'
 import { sendServerlessResponse } from './sendServerlessResponse'
 import { createLiveReloadScript } from './liveReloadScript'
-import { AWS, Presta, Response } from './types'
+import { Handler, Event, Response, Context } from './lambda'
+import { Config } from './config'
+import { Hooks } from './createEmitter'
 import { normalizeResponse } from './normalizeResponse'
 import { requireFresh } from './utils'
 
@@ -32,7 +33,7 @@ export function getMimeType(response: Response) {
   return type ? mime.extension(String(type)) || 'html' : 'html'
 }
 
-export function loadLambdaFroManifest(url: string, manifest: { [route: string]: string }): { handler: AWS['Handler'] } {
+export function loadLambdaFroManifest(url: string, manifest: { [route: string]: string }): { handler: Handler } {
   const routes = Object.keys(manifest)
   const lambdaFilepath = routes
     .map((route) => ({
@@ -47,7 +48,7 @@ export function loadLambdaFroManifest(url: string, manifest: { [route: string]: 
   return lambdaFilepath ? require(lambdaFilepath) : undefined
 }
 
-export async function processHandler(event: AWS['HandlerEvent'], lambda: { handler: AWS['Handler'] }) {
+export async function processHandler(event: Event, lambda: { handler: Handler }) {
   const accept = event.headers.Accept || event.headers.accept
   const acceptsJson = accept && accept.includes('json')
 
@@ -59,7 +60,7 @@ export async function processHandler(event: AWS['HandlerEvent'], lambda: { handl
       throw createHttpError(404, '')
     }
 
-    return normalizeResponse(await lambda.handler(event, {}))
+    return normalizeResponse(await lambda.handler(event, {} as Context))
   } catch (e) {
     const error = e as HttpError
     const { statusCode = 500 } = error
@@ -79,7 +80,7 @@ export async function processHandler(event: AWS['HandlerEvent'], lambda: { handl
   }
 }
 
-export function createRequestHandler({ port, config }: { port: number; config: Presta }) {
+export function createRequestHandler({ port, config }: { port: number; config: Config }) {
   return async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
     const time = timer()
     const event = await requestToEvent(req) // stock AWS Event shape
@@ -103,7 +104,7 @@ export function createRequestHandler({ port, config }: { port: number; config: P
   }
 }
 
-export function createServerHandler({ port, config }: { port: number; config: Presta }) {
+export function createServerHandler({ port, config }: { port: number; config: Config }) {
   const staticDir = config.staticOutputDir
   const assetDir = config.assets
 
@@ -133,12 +134,12 @@ export function createServerHandler({ port, config }: { port: number; config: Pr
   }
 }
 
-export async function serve(config: Presta) {
+export function serve(config: Config, hooks: Hooks) {
   const port = config.port
   const server = http.createServer(createServerHandler({ port, config })).listen(port)
   const socket = require('pocket.io')(server, { serveClient: false })
 
-  config.hooks.onBrowserRefresh(() => {
+  hooks.onBrowserRefresh(() => {
     logger.debug({
       label: 'debug',
       message: `refresh event received`,
@@ -147,9 +148,15 @@ export async function serve(config: Presta) {
     socket.emit('refresh')
   })
 
-  chokidar.watch(config.assets, { ignoreInitial: true }).on('all', () => {
-    config.hooks.emitBrowserRefresh()
-  })
-
-  return { port }
+  return {
+    port,
+    async close() {
+      return new Promise((y, n) =>
+        server.close((e) => {
+          if (e) n(e)
+          else y(1)
+        })
+      )
+    },
+  }
 }

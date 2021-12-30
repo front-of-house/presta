@@ -2,13 +2,13 @@ import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 
 import { wrapHandler } from '../wrapHandler'
-import { AWS } from '../types'
+import { Context, Event } from '../lambda'
 
 const test = suite('presta - getFiles')
 
-const context = {} as AWS['HandlerContext']
+const context = {} as Context
 
-function stubEvent(props: Partial<AWS['HandlerEvent']>): AWS['HandlerEvent'] {
+function stubEvent(props: Partial<Event>): Event {
   return {
     rawUrl: '',
     rawQuery: '',
@@ -20,6 +20,7 @@ function stubEvent(props: Partial<AWS['HandlerEvent']>): AWS['HandlerEvent'] {
     multiValueQueryStringParameters: {},
     body: null,
     isBase64Encoded: false,
+    pathParameters: {},
     ...props,
   }
 }
@@ -31,8 +32,9 @@ test('wrapHandler', async () => {
     route: '/:slug',
     async handler(event, context) {
       plan++
-      assert.equal(event.routeParameters.slug, 'foo')
+      assert.equal(event.pathParameters.slug, 'foo')
       return {
+        statusCode: 200,
         body: 'foo',
       }
     },

@@ -1,22 +1,22 @@
 import fs from 'fs-extra'
+import path from 'path'
 import { create } from 'watch-dependency-graph'
 import chokidar from 'chokidar'
 import match from 'picomatch'
+import merge from 'deep-extend'
 
 import { outputLambdas } from './outputLambdas'
 import * as logger from './log'
 import { getFiles, isStatic, isDynamic } from './getFiles'
-import { renderStaticEntries } from './renderStaticEntries'
+import { buildStaticFiles, removeBuiltStaticFile, StaticFilesMap } from './renderStaticEntries'
 import { timer } from './timer'
-import { createConfig, removeConfigValues, getConfigFile } from './config'
-import { builtStaticFiles } from './builtStaticFiles'
-import { removeBuiltStaticFile } from './removeBuiltStaticFile'
-import { Presta } from './types'
+import { Config } from './config'
+import { Hooks } from './createEmitter'
 
 /*
  * Wraps outputLambdas for logging
  */
-function updateLambdas(inputs: string[], config: Presta) {
+function updateLambdas(inputs: string[], config: Config) {
   const time = timer()
 
   // always write this, even if inputs = []
@@ -32,12 +32,13 @@ function updateLambdas(inputs: string[], config: Presta) {
   }
 }
 
-export async function watch(config: Presta) {
-  /*
-   * Get files that match static/dynamic patters at startup
-   */
-  let files = getFiles(config)
-  let hasConfigFile = fs.existsSync(config.configFilepath)
+export function isNewValidFile(file: string, globs: string[], existing: string[]) {
+  return match(globs)(file) && !existing.includes(file)
+}
+
+export async function watch(config: Config, hooks: Hooks) {
+  let staticFilesMap: StaticFilesMap = {}
+  const files = getFiles(config.files)
 
   if (!files.length) {
     logger.warn({
@@ -46,107 +47,55 @@ export async function watch(config: Presta) {
     })
   }
 
-  /*
-   * Create initial dynamic entry regardless of if the user has routes, bc we
-   * need this file to serve 404 locally
-   */
-  updateLambdas(files.filter(isDynamic), config)
+  async function buildFile(file: string, existing: string[], config: Config) {
+    delete require.cache[file]
 
-  /*
-   * Set up all watchers
-   */
-  const fileWatcher = create({ alias: { '@': config.cwd } })
-  const globalWatcher = chokidar.watch(config.cwd, {
-    ignoreInitial: true,
-    ignored: [config.output, config.assets],
-  })
-
-  /*
-   * On a config update, the user may have passed in a new `files` array or
-   * other global config required by all files, so we need to re-fetch all
-   * files and rebuild everything.
-   */
-  async function handleConfigUpdate() {
-    files = getFiles(config)
-    await renderStaticEntries(files.filter(isStatic), config)
-    updateLambdas(files.filter(isDynamic), config)
-  }
-
-  /*
-   * On a changed file, we can just render it
-   */
-  async function handleFileChange(file: string) {
     // render just file that changed
     if (isStatic(file)) {
-      await renderStaticEntries([file], config)
+      const result = await buildStaticFiles([file], config, staticFilesMap)
+      staticFilesMap = merge({}, staticFilesMap, result.staticFilesMap)
     }
 
     // update dynamic entry with ALL dynamic files
     if (isDynamic(file)) {
-      updateLambdas(files.filter(isDynamic), config)
+      updateLambdas(existing.filter(isDynamic), config)
     }
-
-    config.hooks.emitBrowserRefresh()
   }
 
-  config.hooks.onBuildFile(({ file }) => {
-    handleFileChange(file)
+  async function buildFiles(files: string[], existing: string[], config: Config) {
+    return files.forEach((file) => buildFile(file, existing, config))
+  }
+
+  /**
+   * Important: if we ever remove initial rendering, we will need to
+   * re-introduce "file priming" where we require all files and surface errors
+   * on startup.
+   */
+  await buildFiles(files, files, config)
+  hooks.emitBrowserRefresh()
+
+  /*
+   * Filewatcher watches only presta files. It handles change and remove
+   * events, as well as surfaces dependency tree traversal errors
+   */
+  const fileWatcher = create({ alias: { '@': process.cwd() } })
+
+  fileWatcher.onChange(async (changed) => {
+    await buildFiles(changed, files, config)
+    hooks.emitBrowserRefresh()
   })
 
   fileWatcher.onRemove(async ([id]) => {
-    logger.debug({
-      label: 'watch',
-      message: `fileWatcher - removed ${id}`,
-    })
+    logger.debug({ label: 'watch', message: `removed ${id}` })
 
     // remove from local hash
     files.splice(files.indexOf(id), 1)
 
     // update this regardless, not sure if [id] was dynamic or static
     updateLambdas(files.filter(isDynamic), config)
+    ;(staticFilesMap[id] || []).forEach((file) => removeBuiltStaticFile(path.join(config.staticOutputDir, file)))
 
-    // if it was config, we gotta do a restart
-    if (id === config.configFilepath) {
-      // filter out values from the config file
-      config = await removeConfigValues()
-
-      // reset this!
-      hasConfigFile = false
-
-      handleConfigUpdate()
-    }
-
-    ;(builtStaticFiles[id] || []).forEach((file) => removeBuiltStaticFile(file, config))
-  })
-
-  fileWatcher.onChange(async (files) => {
-    for (const id of files) {
-      logger.debug({
-        label: 'watch',
-        message: `fileWatcher - changed ${id}`,
-      })
-
-      if (id === config.configFilepath) {
-        // clear config file for re-require
-        delete require.cache[config.configFilepath]
-
-        try {
-          // merge in new values from config file
-          config = await createConfig({
-            config: getConfigFile(config.configFilepath),
-          })
-
-          handleConfigUpdate()
-        } catch (e) {
-          logger.error({
-            label: 'error',
-            error: e as Error,
-          })
-        }
-      } else {
-        handleFileChange(id)
-      }
-    }
+    hooks.emitBrowserRefresh()
   })
 
   fileWatcher.onError((e) => {
@@ -156,72 +105,44 @@ export async function watch(config: Presta) {
     })
   })
 
+  await fileWatcher.add(files)
+
   /*
    * globalWatcher watches the raw file globs passed to the CLI or as `files`
    * in the config. If checks on add/change to see if a file should be upgraded
-   * to a a Presta source file, and added to the fileWatcher. It also watches
-   * for addition of a config file.
+   * to a a Presta source file, and added to the fileWatcher.
    */
-  globalWatcher.on('all', async (event, file) => {
-    // ignore events handled by wdg, or any directory events
-    if (!/add|change/.test(event) || !fs.existsSync(file) || fs.lstatSync(file).isDirectory()) return
+  const globalWatcher = chokidar.watch(process.cwd(), {
+    ignoreInitial: true,
+    ignored: [config.output, config.assets],
+  })
 
-    // if a file change matches any pages globs
-    if (match(config.files)(file) && !files.includes(file)) {
-      logger.debug({
-        label: 'watch',
-        message: `globalWatcher - add ${file}`,
-      })
+  globalWatcher.on('add', async (file) => {
+    if (!fs.existsSync(file) || fs.lstatSync(file).isDirectory()) return
+    if (!isNewValidFile(file, config.files, files)) return
 
-      files.push(file)
+    logger.debug({ label: 'watch', message: `add ${file}` })
 
-      await fileWatcher.add(file)
+    files.push(file)
+    await fileWatcher.add(file)
 
-      handleFileChange(file)
-    }
+    await buildFile(file, files, config)
 
-    // if file matches config file and we don't already have one
-    if (file === config.configFilepath && !hasConfigFile) {
-      logger.debug({
-        label: 'watch',
-        message: `globalWatcher - add config file ${file}`,
-      })
-
-      await fileWatcher.add(config.configFilepath)
-
-      try {
-        // merge in new values from config file
-        config = await createConfig({
-          config: getConfigFile(config.configFilepath),
-        })
-
-        hasConfigFile = true
-
-        handleConfigUpdate()
-      } catch (e) {
-        logger.error({
-          label: 'error',
-          error: e as Error,
-        })
-      }
-    }
+    hooks.emitBrowserRefresh()
   })
 
   /**
-   * Init watching after event subscriptions
+   * Listens for events from plugins requesting a file to be built
    */
-  await fileWatcher.add(files)
-  if (hasConfigFile) await fileWatcher.add(config.configFilepath)
+  hooks.onBuildFile(async ({ file }) => {
+    await buildFile(file, files, config)
+    hooks.emitBrowserRefresh()
+  })
 
-  /**
-   * Prime files to check for errors on startup and register any plugins
-   */
-  try {
-    files.map(require)
-  } catch (e) {
-    logger.error({
-      label: 'error',
-      error: e as Error,
-    })
+  return {
+    async close() {
+      await fileWatcher.close()
+      await globalWatcher.close()
+    },
   }
 }

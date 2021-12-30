@@ -1,3 +1,4 @@
 {
-  "reporter": ["text", "lcov"]
+  "reporter": ["text", "lcov"],
+  "exclude": ["test/index.ts", ".afix-*", "packages/**/test.ts", "**/__tests__/*.ts"]
 }

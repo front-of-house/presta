@@ -1,9 +1,9 @@
 import http from 'http'
 
 import { normalizeResponse } from './normalizeResponse'
-import { AWS } from './types'
+import { Response } from './lambda'
 
-export function sendServerlessResponse(res: http.ServerResponse, r: Partial<AWS['HandlerResponse']>) {
+export function sendServerlessResponse(res: http.ServerResponse, r: Partial<Response>) {
   const response = normalizeResponse(r)
 
   // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L73

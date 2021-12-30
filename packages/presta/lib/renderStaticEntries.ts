@@ -6,11 +6,11 @@ import * as logger from './log'
 import { timer } from './timer'
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
-import { builtStaticFiles } from './builtStaticFiles'
-import { removeBuiltStaticFile } from './removeBuiltStaticFile'
 import { createLiveReloadScript } from './liveReloadScript'
 import { Env } from './constants'
-import { Presta } from './types'
+import { Config } from './config'
+
+export type StaticFilesMap = { [filename: string]: string[] }
 
 export function pathnameToFile(pathname: string, ext = 'html') {
   return !!path.extname(pathname)
@@ -20,98 +20,94 @@ export function pathnameToFile(pathname: string, ext = 'html') {
     : `${pathname}.${ext}` // anything but HTML will need an extension, otherwise browsers will render as text
 }
 
-export function renderStaticEntries(entries: string[], config: Presta): Promise<{ allGeneratedFiles: string[] }> {
-  return new Promise(async (y, n) => {
-    logger.debug({
-      label: 'debug',
-      message: `rendering ${JSON.stringify(entries)}`,
-    })
+export async function removeBuiltStaticFile(file: string) {
+  logger.debug({
+    label: 'debug',
+    message: `removing old static file ${file}`,
+  })
 
-    const allGeneratedFiles: string[] = []
-    const devClient = createLiveReloadScript({ port: config.port })
+  return fs.remove(file)
+}
 
-    for (const entry of entries) {
-      const location = entry.replace(config.cwd, '')
+export async function removeBuiltFiles(files: string[]) {
+  return Promise.all(files.map(removeBuiltStaticFile))
+}
 
-      try {
-        delete require.cache[entry]
+export async function buildStaticFile(file: string, output: string, { footer }: { footer: string }) {
+  const lambda = require(file)
+  const paths = await lambda.getStaticPaths()
 
-        const file = require(entry)
-        const paths = await file.getStaticPaths()
+  const builtFiles: string[] = []
 
-        const prevFiles = (builtStaticFiles[entry] = builtStaticFiles[entry] || [])
-        const nextFiles: string[] = []
+  if (!paths || !paths.length) return builtFiles
 
-        if (!paths || !paths.length) {
-          logger.warn({
-            label: 'paths',
-            message: `${location} - no paths to render`,
-          })
+  for (const url of paths) {
+    const time = timer()
 
-          prevFiles.forEach((file) => removeBuiltStaticFile(file, config))
-
-          continue
-        }
-
-        for (const url of paths) {
-          const time = timer()
-          const event = {
-            path: url,
-            routeParameters: file.route ? getRouteParams(url, file.route) : {},
-          }
-
-          const response = normalizeResponse(await file.handler(event, {}))
-          const type = response.headers ? response.headers['Content-Type'] : ''
-          const ext = type ? mime.extension(type as string) || 'html' : 'html'
-          const filename = pathnameToFile(url, ext)
-          const html = response.body + (config.env === Env.PRODUCTION ? '' : devClient)
-
-          fs.outputFileSync(path.join(config.staticOutputDir, filename), html, 'utf-8')
-
-          allGeneratedFiles.push(filename)
-          nextFiles.push(filename)
-
-          logger.info({
-            label: 'built',
-            message: url,
-            duration: time(),
-          })
-        }
-
-        // diff and remove files
-        for (const file of prevFiles) {
-          if (!nextFiles.includes(file)) {
-            removeBuiltStaticFile(file, config)
-          }
-        }
-
-        builtStaticFiles[entry] = nextFiles
-      } catch (e) {
-        if (config.env === 'development') {
-          logger.error({
-            label: 'error',
-            message: 'errors detected, pausing...',
-            error: e as Error,
-          })
-
-          y({ allGeneratedFiles })
-        } else {
-          logger.error({
-            label: 'error',
-            error: e as Error,
-          })
-
-          n(e)
-        }
-
-        // exit loop on any error
-        break
-      }
+    const event = {
+      path: url,
+      pathParameters: lambda.route ? getRouteParams(url, lambda.route) : {},
     }
 
-    // clear to prevent memory leak
-    // loadCache.clearAllMemory() // TODO probs can't — emit?
+    const response = normalizeResponse(await lambda.handler(event, {}))
+    const type = response.headers ? response.headers['Content-Type'] : ''
+    const ext = type ? mime.extension(type as string) || 'html' : 'html'
+    const filename = pathnameToFile(url, ext)
+    const html = response.body + footer
 
-    y({ allGeneratedFiles })
-  })
+    fs.outputFileSync(path.join(output, filename), html, 'utf-8')
+
+    logger.info({
+      label: 'built',
+      message: url,
+      duration: time(),
+    })
+
+    builtFiles.push(filename)
+  }
+
+  return builtFiles
+}
+
+export async function buildStaticFiles(files: string[], config: Config, staticFilesMap: StaticFilesMap = {}) {
+  const isDev = config.env === Env.DEVELOPMENT
+  const output = config.staticOutputDir
+  const footer = isDev ? createLiveReloadScript({ port: config.port }) : ''
+
+  for (const file of files) {
+    try {
+      const filename = file.replace(process.cwd(), '')
+      const prevBuiltFiles = staticFilesMap[file] || []
+      const builtFiles = await buildStaticFile(file, output, { footer })
+
+      if (!builtFiles || !builtFiles.length) {
+        logger.warn({
+          label: 'paths',
+          message: `${filename} - no paths to render`,
+        })
+
+        removeBuiltFiles(prevBuiltFiles.map((file) => path.join(output, file)))
+
+        continue
+      }
+
+      // diff and remove files
+      for (const file of prevBuiltFiles) {
+        if (!builtFiles.includes(file)) {
+          removeBuiltStaticFile(path.join(output, file))
+        }
+      }
+
+      staticFilesMap[file] = builtFiles
+    } catch (e) {
+      logger.error({ label: 'error', error: e as Error })
+
+      // exit loop on any error
+      break
+    }
+  }
+
+  return {
+    staticFilesMap,
+  }
 }

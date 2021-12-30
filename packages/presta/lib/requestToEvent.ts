@@ -3,7 +3,7 @@ import { parse as parseUrl } from 'url'
 import { parse as parseQuery } from 'query-string'
 import rawBody from 'raw-body'
 import mime from 'mime-types'
-import { AWS } from './types'
+import { Event, Headers, MultiValueHeaders, QueryStringParameters, MultiValueQueryStringParameters } from './lambda'
 
 // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
 const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
@@ -12,8 +12,8 @@ function shouldBase64Encode(contentType: string) {
 }
 
 export function normalizeHeaders(rawHeaders: http.IncomingMessage['headers']) {
-  const headers: AWS['HandlerEvent']['headers'] = {}
-  const multiValueHeaders: AWS['HandlerEvent']['multiValueHeaders'] = {}
+  const headers: Headers = {}
+  const multiValueHeaders: MultiValueHeaders = {}
 
   for (const header of Object.keys(rawHeaders)) {
     const key = header.toLowerCase()
@@ -34,22 +34,22 @@ export function normalizeHeaders(rawHeaders: http.IncomingMessage['headers']) {
 export function getQueryStringParameters(query: string) {
   const params = parseQuery(query, { arrayFormat: 'comma' })
 
-  const queryStringParameters: AWS['HandlerEvent']['queryStringParameters'] = {}
-  const multiValueQueryStringParameters: AWS['HandlerEvent']['multiValueQueryStringParameters'] = {}
+  const queryStringParameters: QueryStringParameters = {}
+  const multiValueQueryStringParameters: MultiValueQueryStringParameters = {}
 
   for (const param of Object.keys(params)) {
     const value = params[param]
     if (Array.isArray(value)) {
       multiValueQueryStringParameters[param] = value
-    } else {
-      queryStringParameters[param] = value || undefined
+    } else if (value) {
+      queryStringParameters[param] = value
     }
   }
 
   return { queryStringParameters, multiValueQueryStringParameters }
 }
 
-export async function requestToEvent(req: http.IncomingMessage): Promise<AWS['HandlerEvent']> {
+export async function requestToEvent(req: http.IncomingMessage): Promise<Event> {
   const { url: path = '', method } = req
   const { headers, multiValueHeaders } = normalizeHeaders(req.headers)
   const isBase64Encoded = shouldBase64Encode(headers['content-type'] || '')
@@ -80,5 +80,6 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<AWS['Ha
     multiValueQueryStringParameters,
     body: body ? Buffer.from(body).toString(isBase64Encoded ? 'base64' : 'utf8') : null,
     isBase64Encoded,
+    pathParameters: {},
   }
 }
