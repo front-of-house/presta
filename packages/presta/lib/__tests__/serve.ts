@@ -5,16 +5,18 @@ import * as assert from 'uvu/assert'
 import proxy from 'proxyquire'
 import { afix } from 'afix'
 
-import { createConfig } from '../config'
+import { create } from '../config'
 import { createHttpError, getMimeType, loadLambdaFroManifest, processHandler } from '../serve'
-import type { AWS } from '../types'
+import { Event } from '../lambda'
+import { createEmitter, createHooks } from '../createEmitter'
+import { Env } from '../constants'
 
 const test = suite('presta - serve')
 
 const event = {
   path: '/',
   headers: {},
-} as AWS['HandlerEvent']
+} as Event
 
 test('createHttpError', async () => {
   const e = createHttpError(404, 'oops')
@@ -24,12 +26,14 @@ test('createHttpError', async () => {
 
 test('getMimeType', async () => {
   const html = getMimeType({
+    statusCode: 200,
     headers: { 'Content-Type': 'text/html' },
   })
 
   assert.equal(html, 'html')
 
   const none = getMimeType({
+    statusCode: 200,
     headers: {},
   })
 
@@ -114,7 +118,14 @@ test.skip('createRequestHandler', async () => {
     }`,
     ],
   })
-  const config = await createConfig({ cli: { output: fixture.root } })
+  const config = create(
+    Env.PRODUCTION,
+    {
+      _: [],
+      output: fixture.root,
+    },
+    {}
+  )
   const manifest = {
     '/': fixture.files.lambda.path,
   }
@@ -157,7 +168,7 @@ test.skip('createRequestHandler', async () => {
 
 test('createServerHandler', async () => {
   const fixture = afix({})
-  const config = await createConfig({ cli: { output: fixture.root } })
+  const config = create(Env.PRODUCTION, { _: [], output: fixture.root }, {})
 
   let count = 0
 
@@ -197,20 +208,12 @@ test('serve', async () => {
     'pocket.io': () => {
       count++
     },
-    chokidar: {
-      watch() {
-        count++
-        return {
-          on() {},
-        }
-      },
-    },
   })
-  const config = await createConfig({ cli: { output: fixture.root } })
+  const config = create(Env.PRODUCTION, { _: [], output: fixture.root }, {})
 
-  serve(config)
+  serve(config, createHooks(createEmitter()))
 
-  assert.equal(count, 3)
+  assert.equal(count, 2)
 
   fixture.cleanup()
 })

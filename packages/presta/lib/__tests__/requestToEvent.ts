@@ -60,6 +60,7 @@ test('requestToEvent', async () => {
     multiValueQueryStringParameters: {},
     body: null,
     isBase64Encoded: false,
+    pathParameters: {},
   })
 })
 

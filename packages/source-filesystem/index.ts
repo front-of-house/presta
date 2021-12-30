@@ -1,31 +1,42 @@
 import path from 'path'
-import { getCurrentPrestaInstance, Plugin } from 'presta'
+import { createPlugin, logger } from 'presta'
 import { addHook } from 'pirates'
 // @ts-ignore
 import filewatcher from 'filewatcher'
 import sync from 'tiny-glob/sync'
 
-let watcher: filewatcher
+let watcher: ReturnType<typeof filewatcher>
 
 const hash: {
   [parent: string]: string[]
 } = {}
 
-export const createPlugin: Plugin = () => {
-  return (context) => {
-    if (context().env !== 'production') {
+export default createPlugin(() => {
+  return (config, hooks) => {
+    if (config.env !== 'production' && !watcher) {
       watcher = filewatcher()
 
       watcher.on('change', (file: string) => {
         if (hash[file]) {
+          logger.debug({
+            level: logger.Levels.Debug,
+            label: `@presta/source-filesystem`,
+            message: `parent updated, reset`,
+          })
           // parent file, reset everything
           watcher.remove(hash[file])
           hash[file].map((file) => watcher.remove(file))
         } else {
+          logger.debug({
+            level: logger.Levels.Debug,
+            label: `@presta/source-filesystem`,
+            message: `watched file updated build parent`,
+          })
+
           outer: for (const parent of Object.keys(hash)) {
             for (const child of hash[parent]) {
               if (child === file) {
-                getCurrentPrestaInstance().hooks.emitBuildFile({ file: parent })
+                hooks.emitBuildFile({ file: parent })
                 continue outer
               }
             }
@@ -35,9 +46,33 @@ export const createPlugin: Plugin = () => {
     }
 
     // support .md
-    addHook((code) => `module.exports = \`${code.replace(/`/g, '\\`')}\``, { exts: ['.md'] })
+    const revert = addHook((code) => `module.exports = \`${code.replace(/`/g, '\\`')}\``, { exts: ['.md'] })
+
+    logger.debug({
+      level: logger.Levels.Debug,
+      label: `@presta/source-filesystem`,
+      message: `initialized`,
+    })
+
+    return {
+      cleanup() {
+        if (watcher) {
+          watcher.removeAll()
+          watcher = undefined
+        }
+
+        // otherwise we hook existing hooks recursively
+        revert()
+
+        logger.debug({
+          level: logger.Levels.Debug,
+          label: `@presta/source-filesystem`,
+          message: `cleaned up`,
+        })
+      },
+    }
   }
-}
+})
 
 export function source(globs: string, parent: string) {
   const dirname = path.dirname(parent)

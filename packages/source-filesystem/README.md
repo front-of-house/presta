@@ -7,7 +7,7 @@ Source and watch local files, rebuilding pages on change.
 First, set up the plugin in your config file:
 
 ```javascript
-import { createPlugin as sourceFs } from '@presta/source-filesystem'
+import sourceFs from '@presta/source-filesystem'
 
 export const plugins = [sourceFs()]
 ```

@@ -1,6 +1,5 @@
 import c, { Kleur } from 'kleur'
 
-import { getCurrentPrestaInstance } from './currentPrestaInstance'
 import { Env } from './constants'
 
 export enum Levels {
@@ -41,8 +40,8 @@ export function logger(message: Message) {
   if (process.env.TESTING) {
     logs.push(message)
   } else {
-    const debug = getCurrentPrestaInstance().debug
-    const context = getCurrentPrestaInstance().env === Env.PRODUCTION ? 'prod' : 'dev'
+    const debug = process.env.PRESTA_DEBUG
+    const context = process.env.PRESTA_ENV === Env.PRODUCTION ? 'prod' : 'dev'
 
     if (!debug && message.level === Levels.Debug) return
 

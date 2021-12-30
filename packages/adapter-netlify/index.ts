@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { Plugin, getCurrentPrestaInstance, logger } from 'presta'
+import { createPlugin, logger } from 'presta'
 import { parse as toml } from 'toml'
 // @ts-ignore
 import { parseFileRedirects } from 'netlify-redirect-parser'
@@ -53,8 +53,8 @@ export function generateRedirectsString(redirects: NetlifyRedirect[]) {
   return redirects.map((r) => [r.from, r.to, `${r.status}${r.force ? '!' : ''}`].join(' ')).join('\n')
 }
 
-export const createPlugin: Plugin = ({ cwd = process.cwd() }: { cwd?: string } = {}) => {
-  return async function plugin() {
+export default createPlugin(({ cwd = process.cwd() }: { cwd?: string } = {}) => {
+  return async function plugin(config, hooks) {
     logger.debug({
       label: '@presta/adapter-netlify',
       message: `init`,
@@ -85,7 +85,6 @@ export const createPlugin: Plugin = ({ cwd = process.cwd() }: { cwd?: string } =
 
     let canRemoveStaticOutput = false
     let canRemoveFunctionsOutput = false
-    const { hooks } = getCurrentPrestaInstance()
 
     logger.debug({
       label: '@presta/adapter-netlify',
@@ -138,4 +137,4 @@ export const createPlugin: Plugin = ({ cwd = process.cwd() }: { cwd?: string } =
       })
     })
   }
-}
+})

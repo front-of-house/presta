@@ -1,0 +1,73 @@
+<!-- built with presta https://npm.im/presta --><!DOCTYPE html><html><head><title>Presta</title><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta property="og:title" content="Presta" /><meta name="twitter:title" content="Presta" /><style>
+html, body {
+    padding-top:0px;
+    padding-bottom:0px;
+    padding-left:0px;
+    padding-right:0px;
+    margin-top:0px;
+    margin-bottom:0px;
+    margin-left:0px;
+    margin-right:0px;
+}
+
+a {
+    color:blue;
+}
+
+a:visited {
+    color:blue;
+}
+
+.__1b676g8 {
+    margin-right:16px;
+}
+
+.__1b676g8 {
+    margin-right:16px;
+}
+
+.__e1t5z9 {
+    display:flex;
+    align-items:center;
+    padding-top:32px;
+    padding-bottom:32px;
+    padding-left:32px;
+    padding-right:32px;
+    font-size:1.4rem;
+    font-family:sans-serif;
+    font-weight:600;
+}
+
+.__1b5dhe6 {
+    padding-left:32px;
+    padding-right:32px;
+    font-family:sans-serif;
+}
+</style></head><body><div class="__e1t5z9"><a href="/"class="__1b676g8">Home</a><a href="/about"class="__1b676g8">About</a></div><div class="__1b5dhe6"><h1 class="">Page: /about</h1></div></body></html>
+    <script>
+      (function (global) {
+        try {
+          const socketio = document.createElement('script')
+          socketio.src = 'https://unpkg.com/pocket.io@0.1.4/min.js'
+          socketio.onload = function init () {
+            var disconnected = false
+            var socket = io('http://localhost:4000', {
+              reconnectionAttempts: 3
+            })
+            socket.on('connect', function() { console.log('presta connected on port 4000') })
+            socket.on('refresh', function() {
+              global.location.reload()
+            })
+            socket.on('disconnect', function() {
+              disconnected = true
+            })
+            socket.on('reconnect_failed', function(e) {
+              if (disconnected) return
+              console.error("presta - connection to server on :4000 failed")
+            })
+          }
+          document.head.appendChild(socketio)
+        } catch (e) {}
+      })(this);
+    </script>
+  

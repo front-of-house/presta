@@ -4,7 +4,6 @@ import * as assert from 'uvu/assert'
 import { afix } from 'afix'
 
 import { isStatic, isDynamic, getFiles } from '../getFiles'
-import type { Presta } from '../types'
 
 const test = suite('presta - getFiles')
 
@@ -37,10 +36,7 @@ test('getFiles - getFiles', async () => {
     static: ['static.getFiles.js', `export function getStaticPaths() {};`],
   })
 
-  const results = getFiles({
-    cwd: process.cwd(),
-    files: [path.join(fixture.root, '*.getFiles.js')],
-  } as Presta)
+  const results = getFiles([path.join(fixture.root, '*.getFiles.js')])
 
   assert.equal(results.length, 3)
 })

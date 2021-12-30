@@ -3,37 +3,28 @@ import path from 'path'
 import getPort from 'get-port'
 
 import * as logger from './log'
-import { createEmitter, createEmitHook, createOnHook } from './createEmitter'
-import { setCurrentPrestaInstance, getCurrentPrestaInstance } from './currentPrestaInstance'
-import { Presta, Config, CLI, Callable } from './types'
-import { Env } from './constants'
+import { PrestaCLIDevOptions, PrestaCLIBuildOptions } from './cli'
+import { Plugin } from './plugins'
 
-const defaultConfigFilepath = 'presta.config.js'
-
-function resolveAbsolutePaths(
-  config: {
-    files?: string | string[]
-    output?: string
-    assets?: string
-  },
-  { cwd }: { cwd: string }
-) {
-  if (config.files) config.files = ([] as string[]).concat(config.files).map((p) => path.resolve(cwd, p))
-  if (config.output) config.output = path.resolve(cwd, config.output)
-  if (config.assets) config.assets = path.resolve(cwd, config.assets)
-  return config
+export type Options = {
+  files: string[]
+  output: string
+  assets: string
+  plugins: Plugin[]
+  port: number
 }
 
-/**
- * @private
- */
-export function _clearCurrentConfig() {
-  // @ts-ignore
-  global.__presta__ = {
-    pid: process.pid,
-    cwd: process.cwd(),
-    env: Env.PRODUCTION,
-  }
+export type Config = Options & {
+  env: string
+  staticOutputDir: string
+  functionsOutputDir: string
+  functionsManifest: string
+}
+
+export const defaultConfigFilepath = 'presta.config.js'
+
+export function getAvailablePort(preferred: string) {
+  return getPort({ port: parseInt(preferred, 10) })
 }
 
 /**
@@ -45,6 +36,7 @@ export function getConfigFile(filepath?: string, shouldExit: boolean = false) {
   const fp = path.resolve(filepath || defaultConfigFilepath)
 
   try {
+    delete require.cache[fp]
     return require(fp)
   } catch (e) {
     const exists = fs.existsSync(fp)
@@ -64,107 +56,32 @@ export function getConfigFile(filepath?: string, shouldExit: boolean = false) {
   }
 }
 
-/**
- * Creates a new instance _without_ any values provided by the config file.
- * This is used when the user deletes their config file.
- */
-export async function removeConfigValues() {
-  logger.debug({
-    label: 'debug',
-    message: `config file values cleared`,
-  })
-
-  return setCurrentPrestaInstance(
-    await createConfig({
-      ...getCurrentPrestaInstance(),
-      config: {},
-    })
-  )
-}
-
-export async function createConfig({
-  cwd = process.cwd(),
-  env = getCurrentPrestaInstance().env,
-  config = {},
-  cli = {},
-}: {
-  cwd?: string
-  env?: string
-  config?: Partial<Config>
-  cli?: Partial<CLI>
-}) {
-  config = resolveAbsolutePaths({ ...config }, { cwd }) // clone read-only obj
-  cli = resolveAbsolutePaths({ ...cli }, { cwd })
-
-  // combined config, preference to CLI args
-  const merged = {
-    output: path.resolve(cwd, cli.output || config.output || 'build'),
-    assets: path.resolve(cli.assets || config.assets || 'public'),
-    files: cli.files && cli.files.length ? cli.files : config.files ? ([] as string[]).concat(config.files) : [],
-  }
-  const port = await getPort({ port: cli.port ? parseInt(cli.port) : config.port || 4000 })
-
-  const previous = getCurrentPrestaInstance()
-  // only create once
-  const emitter = previous.events || createEmitter()
-
-  // deregister old events
-  emitter.clear()
-
-  // set instance
-  const next: Presta = setCurrentPrestaInstance({
-    ...previous,
-    ...merged, // overwrites every time
+export function create(env: string, cli: PrestaCLIBuildOptions | PrestaCLIDevOptions, file: Partial<Options>): Config {
+  const config = {
     env,
-    cwd,
-    port,
-    debug: cli.debug || getCurrentPrestaInstance().debug,
-    configFilepath: path.resolve(cli.config || defaultConfigFilepath),
-    staticOutputDir: path.join(merged.output, 'static'),
-    functionsOutputDir: path.join(merged.output, 'functions'),
-    functionsManifest: path.join(merged.output, 'routes.json'),
-    events: emitter,
-    hooks: {
-      emitPostBuild(props) {
-        emitter.emit('postBuild', props)
-      },
-      onPostBuild(cb) {
-        return emitter.on('postBuild', cb)
-      },
-      emitBuildFile(props) {
-        emitter.emit('buildFile', props)
-      },
-      onBuildFile(cb) {
-        return emitter.on('buildFile', cb)
-      },
-      emitBrowserRefresh() {
-        emitter.emit('browserRefresh')
-      },
-      onBrowserRefresh(cb) {
-        return emitter.on('browserRefresh', cb)
-      },
-    },
-  })
-
-  if (config.plugins) {
-    await Promise.all(
-      config.plugins.map((p) => {
-        try {
-          return p(getCurrentPrestaInstance)
-        } catch (e) {
-          logger.error({
-            label: 'error',
-            error: e as Error,
-          })
-        }
-      })
-    )
+    output: 'build',
+    assets: 'public',
+    plugins: [],
+    port: 4000,
+    files: [], // TODO where do we validate
+    ...file,
   }
 
-  logger.debug({
-    label: 'debug',
-    message: `config created ${JSON.stringify(next)}`,
-  })
+  // override with CLI
+  if (cli._.length) config.files = cli._
+  if (cli.output) config.output = cli.output
+  if (cli.assets) config.output = cli.assets
+  if (cli.port) config.port = cli.port
 
-  return next
+  // resolve absolute paths
+  if (config.files) config.files = ([] as string[]).concat(config.files).map((p) => path.resolve(process.cwd(), p))
+  if (config.output) config.output = path.resolve(process.cwd(), config.output)
+  if (config.assets) config.assets = path.resolve(process.cwd(), config.assets)
+
+  return {
+    ...config,
+    staticOutputDir: path.join(config.output, 'static'),
+    functionsOutputDir: path.join(config.output, 'functions'),
+    functionsManifest: path.join(config.output, 'routes.json'),
+  }
 }

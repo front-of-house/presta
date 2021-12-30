@@ -1,128 +1,149 @@
-#!/usr/bin/env node
-
 import fs from 'fs-extra'
-import sade from 'sade'
-
-import pkg from '../package.json'
+import path from 'path'
+import chokidar from 'chokidar'
 
 import * as logger from './log'
-import { createConfig, getConfigFile } from './config'
+import { Options, create, getConfigFile, defaultConfigFilepath, getAvailablePort } from './config'
 import { watch } from './watch'
+import { initPlugins } from './plugins'
+import { createEmitter, createHooks } from './createEmitter'
 import { build } from './build'
 import { serve } from './serve'
 import { Env } from './constants'
 
-const prog = sade('presta')
-const CONFIG_DEFAULT = 'presta.config.js'
+export type PrestaCLIOptions = {
+  config?: string
+  output?: string
+  debug?: boolean
+} & Partial<Options>
 
-function registerRuntime(options = {}) {
-  require('module-alias').addAliases({
-    '@': process.cwd(),
-    'presta:internal': __dirname, // wherever this is running from
-  })
-
-  require('esbuild-register/dist/node').register(options)
+export type PrestaCLIBuildOptions = PrestaCLIOptions & {
+  _: string[]
 }
 
-prog
-  .version(pkg.version)
-  // do not provide default config here
-  .option('--config, -c', `Path to a config file.  (default ${CONFIG_DEFAULT})`)
-  .option('--output, -o', `Specify output directory for built files.  (default ./build)`)
-  .option('--assets, -a', `Specify static asset directory.  (default ./public)`)
-  .option('--debug, -d', `Enable debug mode (prints more logs)`)
-  .example(`dev index.jsx -o dist`)
-  .example(`dev 'pages/*.tsx' -o static`)
-  .example(`'pages/*.tsx'`)
-  .example(`-c site.json`)
-  .example(`serve -p 8080`)
+export type PrestaCLIServeOptions = PrestaCLIBuildOptions & {
+  port?: string
+  'no-serve': boolean
+}
 
-prog
-  .command('build', 'Build project to output directory.', { default: true })
-  .example(``)
-  .example(`files/**/*.js`)
-  .example(`-c ${CONFIG_DEFAULT}`)
-  .action(async (opts) => {
-    registerRuntime()
+export type PrestaCLIDevOptions = PrestaCLIServeOptions
 
-    console.clear()
+export async function buildCommand(options: PrestaCLIBuildOptions) {
+  const configFile = getConfigFile(options.config, true)
+  const port = await getAvailablePort(options.port || configFile.port || 4000)
 
-    const config = await createConfig({
-      env: Env.PRODUCTION,
-      config: getConfigFile(opts.config, true),
-      cli: {
-        ...opts,
-        files: opts._,
-      },
-    })
+  const emitter = createEmitter()
+  const hooks = createHooks(emitter)
+  const config = create(Env.PRODUCTION, { ...options, port }, configFile)
+  await initPlugins(config.plugins, config, hooks)
 
-    fs.emptyDirSync(config.output)
+  fs.emptyDirSync(config.output)
 
-    logger.raw(`${logger.colors.blue('presta build')}`)
-    logger.newline()
+  logger.raw(`${logger.colors.blue('presta build')}`)
+  logger.newline()
 
-    await build(config)
-  })
+  await build(config, hooks)
+}
 
-prog
-  .command('dev', 'Start Presta dev server and watch files', { alias: 'watch' })
-  .option('--port, -p', `Port to run the local server.  (default 4000)`)
-  .option('--no-serve, -n', `Do not run local dev server.  (default false)`)
-  .describe('Watch project and build to output directory.')
-  .example(`dev`)
-  .example(`dev ./files/**/*.js`)
-  .example(`dev ./files/**/*.js -o ./out`)
-  .example(`dev -c ${CONFIG_DEFAULT}`)
-  .action(async (opts) => {
-    registerRuntime()
+export async function devCommand(options: PrestaCLIDevOptions) {
+  let devServer: any
+  let port: number
 
-    console.clear()
+  async function startDevServer() {
+    let watchTask: any
+    let httpServer: ReturnType<typeof serve>
+    let staticAssetWatcher: ReturnType<typeof chokidar.watch>
 
-    const config = await createConfig({
-      env: Env.DEVELOPMENT,
-      config: getConfigFile(opts.config),
-      cli: {
-        ...opts,
-        files: opts._,
-      },
-    })
+    const userConfigFile = getConfigFile(options.config)
 
-    if (!opts.n) {
-      const server = await serve(config)
-
-      logger.raw(`${logger.colors.blue('presta dev')} - http://localhost:${server.port}`)
-      logger.newline()
-    } else {
-      logger.info({
-        label: 'dev',
-      })
-      logger.newline()
+    if (!port || (userConfigFile.port && port !== userConfigFile.port)) {
+      port = await getAvailablePort(options.port || userConfigFile.port || 4000)
     }
 
-    watch(config)
-  })
+    const emitter = createEmitter()
+    const hooks = createHooks(emitter)
+    const config = create(Env.DEVELOPMENT, { ...options, port }, userConfigFile)
+    const plugins = await initPlugins(config.plugins, config, hooks)
 
-prog
-  .command('serve')
-  .option('--port, -p', `Port to run the local server.  (default 4000)`)
-  .describe('Serve built files, lambdas, and static assets.')
-  .example(`serve`)
-  .example(`serve -o ./out -p 8080`)
-  .example(`serve -c ${CONFIG_DEFAULT}`)
-  .action(async (opts) => {
-    registerRuntime()
-
-    console.clear()
-
-    const config = await createConfig({
-      env: Env.PRODUCTION,
-      config: getConfigFile(opts.config),
-      cli: opts,
+    logger.debug({
+      label: 'debug',
+      message: `config created ${JSON.stringify(config)}`,
     })
-    const server = await serve(config)
 
-    logger.raw(`${logger.colors.blue('presta serve')} - http://localhost:${server.port}`)
+    if (!options['no-serve']) {
+      httpServer = serve(config, hooks)
+
+      staticAssetWatcher = chokidar.watch(config.assets, { ignoreInitial: true }).on('all', () => {
+        hooks.emitBrowserRefresh()
+      })
+
+      logger.raw(`${logger.colors.blue('presta dev')} - http://localhost:${httpServer.port}`)
+    } else {
+      logger.raw(`${logger.colors.blue('presta dev')}`)
+    }
+
     logger.newline()
-  })
 
-prog.parse(process.argv)
+    watchTask = await watch(config, hooks)
+
+    return {
+      config,
+      async close() {
+        logger.newline()
+        logger.newline()
+        logger.debug({
+          label: 'debug',
+          message: `dev server restarting`,
+        })
+
+        emitter.clear()
+        await plugins.cleanup()
+        await staticAssetWatcher.close()
+        await watchTask.close()
+
+        if (httpServer) {
+          await httpServer.close()
+        }
+      },
+    }
+  }
+
+  const configWatcher = chokidar
+    .watch(path.resolve(options.config || defaultConfigFilepath), { ignoreInitial: true })
+    .on('all', async () => {
+      try {
+        await devServer.close()
+      } catch (e) {
+        console.error(e)
+      }
+
+      logger.info({ label: 'restart' })
+      logger.newline()
+
+      devServer = await startDevServer()
+    })
+
+  devServer = await startDevServer()
+
+  return {
+    async close() {
+      await configWatcher.close()
+      await devServer.close()
+    },
+  }
+}
+
+export async function serveCommand(options: PrestaCLIServeOptions) {
+  const configFile = getConfigFile(options.config, true)
+  const port = await getAvailablePort(options.port || configFile.port || 4000)
+
+  const emitter = createEmitter()
+  const hooks = createHooks(emitter)
+  const config = create(Env.PRODUCTION, { ...options, port }, configFile)
+  await initPlugins(config.plugins, config, hooks)
+
+  const server = serve(config, hooks)
+
+  logger.raw(`${logger.colors.blue('presta serve')} - http://localhost:${server.port}`)
+  logger.newline()
+}

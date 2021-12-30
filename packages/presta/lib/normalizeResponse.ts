@@ -1,10 +1,11 @@
-import { AWS, Response } from './types'
+import { Response as LambdaResponse } from 'lambda-types'
+import { Response } from './lambda'
 
 function stringify(obj: object | string) {
   return typeof obj === 'object' ? JSON.stringify(obj) : obj
 }
 
-export function normalizeResponse(response: Partial<Response> | string): AWS['HandlerResponse'] {
+export function normalizeResponse(response: Partial<Response> | string): LambdaResponse {
   const {
     isBase64Encoded = false,
     statusCode = 200,

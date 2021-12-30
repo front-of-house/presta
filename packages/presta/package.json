@@ -3,16 +3,16 @@
   "version": "0.42.1",
   "description": "Hyper minimal framework for the modern web.",
   "main": "./dist/index.js",
-  "types": "./dist/lib/index.d.ts",
+  "types": "./dist/index.d.ts",
   "bin": {
-    "presta": "dist/cli.js"
+    "presta": "dist/bin.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "node scripts/build && pnpx tsc --emitDeclarationOnly",
-    "cloc": "pnpx cloc lib/*.ts",
+    "cloc": "pnpm dlx cloc './lib/*.ts'",
     "typecheck": "pnpx tsc --noEmit"
   },
   "repository": {
@@ -27,7 +27,7 @@
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
     "chokidar": "^3.4.3",
-    "deepmerge": "^4.2.2",
+    "deep-extend": "^0.6.0",
     "esbuild": "^0.12.28",
     "esbuild-register": "^2.6.0",
     "filewatcher": "^3.0.1",
@@ -47,10 +47,12 @@
     "sirv": "^1.0.7",
     "statuses": "^2.0.1",
     "tiny-glob": "^0.2.9",
-    "watch-dependency-graph": "^3.0.0"
+    "watch-dependency-graph": "^3.0.1",
+    "ws": "^8.4.0"
   },
   "devDependencies": {
     "@netlify/functions": "^0.7.2",
+    "@types/deep-extend": "^0.4.32",
     "@types/fs-extra": "^9.0.12",
     "@types/mime-types": "^2.1.0",
     "@types/picomatch": "^2.2.4",

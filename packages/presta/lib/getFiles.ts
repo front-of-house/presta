@@ -3,7 +3,6 @@ import path from 'path'
 import globSync from 'tiny-glob/sync'
 
 import * as logger from './log'
-import { Presta } from './types'
 
 export function isDynamic(file: string) {
   return /export\s.+\sroute\s+\=/.test(fs.readFileSync(file, 'utf-8'))
@@ -17,13 +16,13 @@ export function isPrestaFile(file: string) {
   return isStatic(file) || isDynamic(file)
 }
 
-export function getFiles(config: Presta): string[] {
+export function getFiles(files: string[]): string[] {
   try {
     return ([] as string[])
-      .concat(config.files)
-      .map((file) => globSync(file, { cwd: config.cwd }))
+      .concat(files)
+      .map((file) => globSync(file))
       .flat()
-      .map((file) => path.resolve(config.cwd, file)) // make absolute
+      .map((file) => path.resolve(process.cwd(), file)) // make absolute
   } catch (e) {
     logger.error({
       label: 'paths',

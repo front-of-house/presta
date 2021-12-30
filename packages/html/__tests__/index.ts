@@ -1,7 +1,7 @@
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { html, filterUnique, tag, prefixToObjects, createHeadTags } from '../'
+import { html, filterUnique, tag, prefixToObjects, createHeadTags } from '../index'
 
 const test = suite('@presta/html')
 

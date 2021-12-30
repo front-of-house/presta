@@ -3,10 +3,11 @@ import { build as esbuild } from 'esbuild'
 
 import { outputLambdas } from './outputLambdas'
 import { getFiles, isStatic, isDynamic } from './getFiles'
-import { renderStaticEntries } from './renderStaticEntries'
+import { buildStaticFiles } from './renderStaticEntries'
 import { timer } from './timer'
 import * as logger from './log'
-import { Presta } from './types'
+import { Config } from './config'
+import { Hooks } from './createEmitter'
 
 function getRoutesManifestSafely(manifestFilepath: string) {
   try {
@@ -16,9 +17,9 @@ function getRoutesManifestSafely(manifestFilepath: string) {
   }
 }
 
-export async function build(config: Presta) {
+export async function build(config: Config, hooks: Hooks) {
   const totalTime = timer()
-  const files = getFiles(config)
+  const files = getFiles(config.files)
   const staticIds = files.filter(isStatic)
   const dynamicIds = files.filter(isDynamic)
 
@@ -43,10 +44,12 @@ export async function build(config: Presta) {
         if (staticIds.length) {
           const time = timer()
 
-          const { allGeneratedFiles } = await renderStaticEntries(staticIds, config)
+          const { staticFilesMap } = await buildStaticFiles(staticIds, config)
 
           staticTime = time()
-          staticFileAmount = allGeneratedFiles.length
+          staticFileAmount = Object.keys(staticFilesMap).reduce((count, key) => {
+            return (count += staticFilesMap[key].length)
+          }, 0)
         }
       })(),
       (async () => {
@@ -130,7 +133,7 @@ export async function build(config: Presta) {
       })
     }
 
-    config.hooks.emitPostBuild({
+    hooks.emitPostBuild({
       output: config.output,
       staticOutput: config.staticOutputDir,
       functionsOutput: config.functionsOutputDir,

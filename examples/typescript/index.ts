@@ -1,4 +1,4 @@
-import { Event, Context } from 'presta'
+import { Event, Context, Response } from 'presta'
 import { html } from '@presta/html'
 
 export const route = '*'
@@ -7,7 +7,7 @@ export function getStaticPaths() {
   return ['/', '/about']
 }
 
-export async function handler(event: Event, context: Context) {
+export async function handler(event: Event, context: Context): Promise<Response> {
   return {
     html: html({
       head: {
