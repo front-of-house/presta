@@ -2,28 +2,22 @@ export function createLiveReloadScript({ port }: { port: number }) {
   return `
     <script>
       (function (global) {
-        try {
-          const socketio = document.createElement('script')
-          socketio.src = 'https://unpkg.com/pocket.io@0.1.4/min.js'
-          socketio.onload = function init () {
-            var disconnected = false
-            var socket = io('http://localhost:${port}', {
-              reconnectionAttempts: 3
-            })
-            socket.on('connect', function() { console.log('presta connected on port ${port}') })
-            socket.on('refresh', function() {
-              global.location.reload()
-            })
-            socket.on('disconnect', function() {
-              disconnected = true
-            })
-            socket.on('reconnect_failed', function(e) {
-              if (disconnected) return
-              console.error("presta - connection to server on :${port} failed")
-            })
+        var socket = new WebSocket('ws://localhost:${port}');
+
+        socket.addEventListener('open', function (event) {
+          console.log('[presta] connected on port ${port}')
+        });
+
+        socket.addEventListener('message', function (event) {
+          console.log(\`'[presta] received \$\{event.data\}\`)
+          if (event.data === 'refresh') {
+            global.location.reload();
           }
-          document.head.appendChild(socketio)
-        } catch (e) {}
+        });
+
+        socket.addEventListener('close', function () {
+          console.log('[presta] disconnected')
+        });
       })(this);
     </script>
   `

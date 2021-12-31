@@ -48,6 +48,7 @@ export async function buildCommand(options: PrestaCLIBuildOptions) {
 export async function devCommand(options: PrestaCLIDevOptions) {
   let devServer: any
   let port: number
+  let restarting = false
 
   async function startDevServer() {
     let watchTask: any
@@ -70,6 +71,8 @@ export async function devCommand(options: PrestaCLIDevOptions) {
       message: `config created ${JSON.stringify(config)}`,
     })
 
+    logger.newline()
+
     if (!options['no-serve']) {
       httpServer = serve(config, hooks)
 
@@ -77,20 +80,16 @@ export async function devCommand(options: PrestaCLIDevOptions) {
         hooks.emitBrowserRefresh()
       })
 
-      logger.raw(`${logger.colors.blue('presta dev')} - http://localhost:${httpServer.port}`)
+      logger.raw(`${logger.colors.blue('presta dev')} - http://localhost:${config.port}`)
     } else {
       logger.raw(`${logger.colors.blue('presta dev')}`)
     }
-
-    logger.newline()
 
     watchTask = await watch(config, hooks)
 
     return {
       config,
       async close() {
-        logger.newline()
-        logger.newline()
         logger.debug({
           label: 'debug',
           message: `dev server restarting`,
@@ -111,16 +110,23 @@ export async function devCommand(options: PrestaCLIDevOptions) {
   const configWatcher = chokidar
     .watch(path.resolve(options.config || defaultConfigFilepath), { ignoreInitial: true })
     .on('all', async () => {
+      if (restarting) return
+
+      restarting = true
+
+      logger.info({ label: 'restarting...' })
+
       try {
         await devServer.close()
       } catch (e) {
         console.error(e)
       }
 
-      logger.info({ label: 'restart' })
-      logger.newline()
+      logger.info({ label: 'restarted!' })
 
       devServer = await startDevServer()
+
+      restarting = false
     })
 
   devServer = await startDevServer()
@@ -142,8 +148,8 @@ export async function serveCommand(options: PrestaCLIServeOptions) {
   const config = create(Env.PRODUCTION, { ...options, port }, configFile)
   await initPlugins(config.plugins, config, hooks)
 
-  const server = serve(config, hooks)
+  serve(config, hooks)
 
-  logger.raw(`${logger.colors.blue('presta serve')} - http://localhost:${server.port}`)
+  logger.raw(`${logger.colors.blue('presta serve')} - http://localhost:${config.port}`)
   logger.newline()
 }

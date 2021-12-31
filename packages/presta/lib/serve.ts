@@ -3,6 +3,7 @@ import sirv from 'sirv'
 import mime from 'mime-types'
 import toRegExp from 'regexparam'
 import status from 'statuses'
+import { WebSocketServer } from 'ws'
 
 import { timer } from './timer'
 import * as logger from './log'
@@ -137,7 +138,10 @@ export function createServerHandler({ port, config }: { port: number; config: Co
 export function serve(config: Config, hooks: Hooks) {
   const port = config.port
   const server = http.createServer(createServerHandler({ port, config })).listen(port)
-  const socket = require('pocket.io')(server, { serveClient: false })
+  const socket = new WebSocketServer({ server })
+  const websockets: any[] = []
+
+  socket.on('connection', (ws) => websockets.push(ws))
 
   hooks.onBrowserRefresh(() => {
     logger.debug({
@@ -145,18 +149,23 @@ export function serve(config: Config, hooks: Hooks) {
       message: `refresh event received`,
     })
 
-    socket.emit('refresh')
+    websockets.forEach((ws) => ws.send('refresh'))
   })
 
   return {
-    port,
     async close() {
-      return new Promise((y, n) =>
-        server.close((e) => {
-          if (e) n(e)
-          else y(1)
+      if (websockets.length) {
+        // let user know this might take a sec
+        logger.info({
+          label: 'server',
+          message: `closing open sockets...`,
         })
-      )
+      }
+
+      // this closes server too
+      websockets.forEach((ws) => ws.terminate())
+      // so just always resolve OK
+      await new Promise((y, n) => server.close((e) => y(1)))
     },
   }
 }

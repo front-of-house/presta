@@ -195,6 +195,14 @@ test('serve', async () => {
 
   let count = 0
 
+  class WebSocketServer {
+    constructor() {
+      count++
+    }
+
+    on() {}
+  }
+
   const { serve } = proxy('../serve', {
     http: {
       createServer() {
@@ -205,8 +213,8 @@ test('serve', async () => {
         }
       },
     },
-    'pocket.io': () => {
-      count++
+    ws: {
+      WebSocketServer,
     },
   })
   const config = create(Env.PRODUCTION, { _: [], output: fixture.root }, {})
