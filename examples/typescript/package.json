@@ -6,8 +6,8 @@
     "build": "presta"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.1.5",
-    "presta": "workspace:^0.42.0"
+    "@presta/html": "workspace:^0.2.0",
+    "presta": "workspace:^0.43.0"
   },
   "devDependencies": {
     "@tsconfig/node14": "^1.0.1",
