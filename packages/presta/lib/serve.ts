@@ -1,3 +1,4 @@
+import { Socket } from 'net'
 import http from 'http'
 import sirv from 'sirv'
 import mime from 'mime-types'
@@ -138,10 +139,13 @@ export function createServerHandler({ port, config }: { port: number; config: Co
 export function serve(config: Config, hooks: Hooks) {
   const port = config.port
   const server = http.createServer(createServerHandler({ port, config })).listen(port)
-  const socket = new WebSocketServer({ server })
-  const websockets: any[] = []
+  const websocket = new WebSocketServer({ server })
+  const sockets: Socket[] = []
 
-  socket.on('connection', (ws) => websockets.push(ws))
+  server.on('connection', (socket) => {
+    sockets.push(socket)
+    socket.on('close', () => sockets.splice(sockets.indexOf(socket), 1))
+  })
 
   hooks.onBrowserRefresh(() => {
     logger.debug({
@@ -149,23 +153,17 @@ export function serve(config: Config, hooks: Hooks) {
       message: `refresh event received`,
     })
 
-    websockets.forEach((ws) => ws.send('refresh'))
+    websocket.clients.forEach((ws) => ws.send('refresh'))
   })
 
   return {
     async close() {
-      if (websockets.length) {
-        // let user know this might take a sec
-        logger.info({
-          label: 'server',
-          message: `closing open sockets...`,
-        })
-      }
-
-      // this closes server too
-      websockets.forEach((ws) => ws.terminate())
       // so just always resolve OK
-      await new Promise((y, n) => server.close((e) => y(1)))
+      await new Promise((y) => {
+        server.close(() => y(1))
+        // sockets includes ws sockets
+        sockets.forEach((ws) => ws.destroy())
+      })
     },
   }
 }

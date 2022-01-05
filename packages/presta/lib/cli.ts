@@ -39,13 +39,15 @@ export async function buildCommand(options: PrestaCLIBuildOptions) {
 
   fs.emptyDirSync(config.output)
 
-  logger.raw(`${logger.colors.blue('presta build')}`)
-  logger.newline()
+  logger.info({
+    label: 'build',
+  })
 
   await build(config, hooks)
 }
 
 export async function devCommand(options: PrestaCLIDevOptions) {
+  const noServe = options['no-serve']
   let devServer: any
   let port: number
   let restarting = false
@@ -71,30 +73,24 @@ export async function devCommand(options: PrestaCLIDevOptions) {
       message: `config created ${JSON.stringify(config)}`,
     })
 
-    logger.newline()
-
-    if (!options['no-serve']) {
+    if (!noServe) {
       httpServer = serve(config, hooks)
 
       staticAssetWatcher = chokidar.watch(config.assets, { ignoreInitial: true }).on('all', () => {
         hooks.emitBrowserRefresh()
       })
-
-      logger.raw(`${logger.colors.blue('presta dev')} - http://localhost:${config.port}`)
-    } else {
-      logger.raw(`${logger.colors.blue('presta dev')}`)
     }
+
+    logger.info({
+      label: restarting ? 'restart' : 'start',
+      message: !noServe ? `http://localhost:${config.port}` : '',
+    })
 
     watchTask = await watch(config, hooks)
 
     return {
       config,
       async close() {
-        logger.debug({
-          label: 'debug',
-          message: `dev server restarting`,
-        })
-
         emitter.clear()
         await plugins.cleanup()
         await staticAssetWatcher.close()
@@ -114,15 +110,13 @@ export async function devCommand(options: PrestaCLIDevOptions) {
 
       restarting = true
 
-      logger.info({ label: 'restarting...' })
-
       try {
         await devServer.close()
       } catch (e) {
         console.error(e)
       }
 
-      logger.info({ label: 'restarted!' })
+      console.clear()
 
       devServer = await startDevServer()
 
@@ -150,6 +144,8 @@ export async function serveCommand(options: PrestaCLIServeOptions) {
 
   serve(config, hooks)
 
-  logger.raw(`${logger.colors.blue('presta serve')} - http://localhost:${config.port}`)
-  logger.newline()
+  logger.info({
+    label: 'serve',
+    message: `http://localhost:${config.port}`,
+  })
 }
