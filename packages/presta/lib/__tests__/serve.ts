@@ -199,8 +199,6 @@ test('serve', async () => {
     constructor() {
       count++
     }
-
-    on() {}
   }
 
   const { serve } = proxy('../serve', {
@@ -209,6 +207,11 @@ test('serve', async () => {
         return {
           listen() {
             count++
+            return {
+              on() {
+                count++
+              },
+            }
           },
         }
       },
@@ -221,7 +224,7 @@ test('serve', async () => {
 
   serve(config, createHooks(createEmitter()))
 
-  assert.equal(count, 2)
+  assert.equal(count, 3)
 
   fixture.cleanup()
 })
