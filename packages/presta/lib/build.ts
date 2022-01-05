@@ -106,10 +106,6 @@ export async function build(config: Config, hooks: Hooks) {
       throw new Error('presta build failed')
     }
 
-    if (staticTime || dynamicTime) {
-      logger.newline()
-    }
-
     if (staticTime) {
       logger.info({
         label: 'static',
@@ -141,12 +137,10 @@ export async function build(config: Config, hooks: Hooks) {
     })
 
     if (staticTime || dynamicTime) {
-      logger.newline()
       logger.info({
         label: 'complete',
         message: `in ${totalTime()}`,
       })
-      logger.newline()
     }
   }
 }
