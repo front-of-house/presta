@@ -6,10 +6,10 @@
     "build": "presta"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.1.5",
-    "@presta/source-filesystem": "workspace:^0.2.3",
+    "@presta/html": "workspace:^0.2.0",
+    "@presta/source-filesystem": "workspace:^0.3.0",
     "micromark": "^3.0.5",
-    "presta": "workspace:^0.42.0"
+    "presta": "workspace:^0.43.0"
   },
   "version": null
 }

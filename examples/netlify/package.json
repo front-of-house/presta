@@ -6,11 +6,11 @@
     "build": "presta"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.1.5"
+    "@presta/html": "workspace:^0.2.0"
   },
   "devDependencies": {
-    "@presta/adapter-netlify": "workspace:^0.2.5",
-    "presta": "workspace:^0.42.0"
+    "@presta/adapter-netlify": "workspace:^0.3.0",
+    "presta": "workspace:^0.43.0"
   },
   "version": null
 }

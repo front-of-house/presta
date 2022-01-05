@@ -1,5 +1,11 @@
 # presta
 
+## 0.43.0
+
+### Minor Changes
+
+- [`3b41578`](https://github.com/sure-thing/presta/commit/3b41578612855375f9ec25f89f5c974283cff0de) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Refactor config, watch, types, and update wdg.
+
 ## 0.42.1
 
 ### Patch Changes
