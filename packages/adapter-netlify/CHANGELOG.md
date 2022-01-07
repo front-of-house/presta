@@ -1,5 +1,11 @@
 # @presta/adapter-netlify
 
+## 0.4.1
+
+### Patch Changes
+
+- [`9b6f19f`](https://github.com/sure-thing/presta/commit/9b6f19f99827a9dae0612ba86ddfc46269c6746b) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Ensure redirects are output even if Presta/Netlify config paths match
+
 ## 0.4.0
 
 ### Minor Changes
