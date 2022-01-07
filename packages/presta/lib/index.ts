@@ -8,7 +8,8 @@ export const logger = log
 export { Env } from './constants'
 export * from './lambda'
 export { Config, Options } from './config'
-export { createPlugin } from './plugins'
+export { HookPostBuildPayload, HookBuildFilePayload } from './createEmitter'
+export { createPlugin, PluginInit, Plugin, PluginInterface } from './plugins'
 
 /*
  * for use in prod functions
