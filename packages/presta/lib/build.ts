@@ -1,3 +1,4 @@
+import path from 'path'
 import fs from 'fs-extra'
 import { build as esbuild } from 'esbuild'
 
@@ -8,14 +9,7 @@ import { timer } from './timer'
 import * as logger from './log'
 import { Config } from './config'
 import { Hooks } from './createEmitter'
-
-function getRoutesManifestSafely(manifestFilepath: string) {
-  try {
-    return require(manifestFilepath)
-  } catch (e) {
-    return {}
-  }
-}
+import { requireSafe } from './utils'
 
 export async function build(config: Config, hooks: Hooks) {
   const totalTime = timer()
@@ -55,17 +49,19 @@ export async function build(config: Config, hooks: Hooks) {
       (async () => {
         if (dynamicIds.length) {
           const time = timer()
+          const pkg = requireSafe(path.join(process.cwd(), 'package.json'))
 
           outputLambdas(dynamicIds, config)
 
           await esbuild({
             entryPoints: Object.values(require(config.functionsManifest)),
             outdir: config.functionsOutputDir,
-            bundle: true,
             platform: 'node',
             target: ['node12'],
             minify: true,
             allowOverwrite: true,
+            external: Object.keys(pkg.dependencies || {}),
+            bundle: true,
             define: {
               'process.env.PRESTA_SERVERLESS_RUNTIME': 'true',
             },
@@ -133,7 +129,7 @@ export async function build(config: Config, hooks: Hooks) {
       output: config.output,
       staticOutput: config.staticOutputDir,
       functionsOutput: config.functionsOutputDir,
-      functionsManifest: getRoutesManifestSafely(config.functionsManifest),
+      functionsManifest: requireSafe(config.functionsManifest),
     })
 
     if (staticTime || dynamicTime) {

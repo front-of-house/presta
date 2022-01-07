@@ -44,7 +44,7 @@ export function outputLambdas(inputs: string[], config: Config) {
 
         fs.outputFileSync(
           output,
-          `import { wrapHandler } from 'presta';
+          `import { wrapHandler } from 'presta/dist/wrapHandler';
       import * as file from '${input}';
       export const route = file.route
       export const handler = wrapHandler(file)`
