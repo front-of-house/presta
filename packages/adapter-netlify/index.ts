@@ -114,13 +114,10 @@ export async function onPostBuild(config: NetlifyConfig, props: HookPostBuildPay
     throw new Error(`Missing required netlify.toml config: build.functions`)
   }
 
-  if (shouldCopyStaticFiles) {
-    fs.copySync(staticOutput, config.build.publish)
-  }
+  if (shouldCopyStaticFiles) fs.copySync(staticOutput, config.build.publish)
+  if (shouldCopyFunctions) fs.copySync(functionsOutput, config.build.functions as string)
 
-  if (shouldCopyFunctions) {
-    fs.copySync(functionsOutput, config.build.functions as string)
-
+  if (hasFunctions) {
     const prestaRedirects = prestaRoutesToNetlifyRedirects(Object.entries(functionsManifest))
     const combinedRedirects = userConfiguredRedirects.concat(prestaRedirects)
     const redirectsFilepath = path.join(config.build.publish, '_redirects')

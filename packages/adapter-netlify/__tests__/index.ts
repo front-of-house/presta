@@ -237,6 +237,39 @@ test('onPostBuild - has functions, not configured', async () => {
   process.chdir(cwd)
 })
 
+test(`onPostBuild - has functions, paths match`, async () => {
+  const cwd = process.cwd()
+  const fixtures = afix({
+    html: ['build/static/index.html', ''],
+    lambda: ['build/functions/lambda.js', ''],
+  })
+
+  process.chdir(fixtures.root)
+
+  const config = validateAndNormalizeNetlifyConfig({
+    build: {
+      publish: 'build/static',
+      functions: 'build/functions',
+    },
+  })
+  const props = {
+    output: path.join(fixtures.root, 'build'),
+    staticOutput: path.join(fixtures.root, 'build/static'),
+    functionsOutput: path.join(fixtures.root, 'build/functions'),
+    functionsManifest: { '*': fixtures.files.lambda.path },
+  }
+
+  await onPostBuild(config, props)
+
+  assert.ok(fs.existsSync(path.join(config.build.publish, 'index.html')))
+  // @ts-ignore
+  assert.ok(fs.existsSync(path.join(config.build.publish, '_redirects')))
+  // @ts-ignore
+  assert.ok(fs.existsSync(path.join(config.build.functions, 'lambda.js')))
+
+  process.chdir(cwd)
+})
+
 test(`onPostBuild - has functions, paths don't match`, async () => {
   const cwd = process.cwd()
   const fixtures = afix({
@@ -298,8 +331,8 @@ test('createPlugin with config', async () => {
 
   let plan = 0
 
-  // @ts-ignore
   await createPlugin()(
+    // @ts-ignore
     {},
     {
       onPostBuild() {
