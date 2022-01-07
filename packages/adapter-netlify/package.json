@@ -23,8 +23,10 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "fs-extra": "^10.0.0",
+    "fs-extra": "^9.0.1",
+    "mk-dirs": "^3.0.0",
     "netlify-redirect-parser": "^8.0.0",
+    "premove": "^4.0.0",
     "presta": "workspace:^0.43.0",
     "toml": "^3.0.0"
   }

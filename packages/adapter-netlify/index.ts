@@ -1,14 +1,17 @@
+import assert from 'assert'
 import fs from 'fs-extra'
 import path from 'path'
-import { createPlugin, logger } from 'presta'
+import { premove } from 'premove/sync'
+import { mkdir } from 'mk-dirs/sync'
+import { createPlugin, logger, HookPostBuildPayload } from 'presta'
 import { parse as toml } from 'toml'
 // @ts-ignore
 import { parseFileRedirects } from 'netlify-redirect-parser'
 
 // TODO do I need more here?
 export type NetlifyConfig = {
-  build?: {
-    publish?: string
+  build: {
+    publish: string
     functions?: string
   }
 }
@@ -17,10 +20,10 @@ export type NetlifyRedirect = {
   from: string
   to: string
   status: number
-  query?: { [param: string]: string }
-  force?: boolean
-  conditions?: { [param: string]: string }
-  signed?: string
+  force: boolean
+  query: { [param: string]: string }
+  conditions: { [param: string]: string }
+  signed: string | undefined
 }
 
 export function getNetlifyConfig({ cwd }: { cwd: string }): Partial<NetlifyConfig> | undefined {
@@ -28,7 +31,25 @@ export function getNetlifyConfig({ cwd }: { cwd: string }): Partial<NetlifyConfi
   const raw = fs.readFileSync(filepath, 'utf8')
   const json = toml(raw)
 
-  return json ? JSON.parse(JSON.stringify(json)) : undefined
+  return JSON.parse(JSON.stringify(json))
+}
+
+export function validateAndNormalizeNetlifyConfig(config?: Partial<NetlifyConfig>): NetlifyConfig {
+  assert(!!config, `Missing required netlify.toml config file`)
+  assert(!!config.build, `Missing required netlify.toml config: build`)
+
+  const publish = toAbsolutePath(process.cwd(), config.build.publish)
+
+  assert(!!publish, `Missing required netlify.toml config: build.publish`)
+
+  const functions = toAbsolutePath(process.cwd(), config.build.functions)
+
+  return {
+    build: {
+      publish,
+      functions,
+    },
+  }
 }
 
 export function toAbsolutePath(cwd: string, file?: string) {
@@ -46,6 +67,10 @@ export function prestaRoutesToNetlifyRedirects(routes: [string, string][]): Netl
     from: normalizeNetlifyRoute(route),
     to: `/.netlify/functions/${path.basename(filename, '.js')}`,
     status: 200,
+    force: false,
+    query: {},
+    conditions: {},
+    signed: undefined,
   }))
 }
 
@@ -53,88 +78,84 @@ export function generateRedirectsString(redirects: NetlifyRedirect[]) {
   return redirects.map((r) => [r.from, r.to, `${r.status}${r.force ? '!' : ''}`].join(' ')).join('\n')
 }
 
-export default createPlugin(({ cwd = process.cwd() }: { cwd?: string } = {}) => {
+export async function getUserConfiguredRedirects(dir: string) {
+  return (
+    [
+      ...(await parseFileRedirects(path.join(process.cwd(), '_redirects'))),
+      ...(await parseFileRedirects(path.join(dir, '_redirects'))),
+    ] as NetlifyRedirect[]
+  ).reduce((redirects, redirect) => {
+    if (redirects.find((r) => r.from === redirect.from)) return redirects
+    return redirects.concat(redirect)
+  }, [] as NetlifyRedirect[])
+}
+
+export async function onPostBuild(config: NetlifyConfig, props: HookPostBuildPayload) {
+  const { output, staticOutput, functionsOutput, functionsManifest } = props
+  const hasFunctions = fs.existsSync(functionsOutput)
+  const shouldCopyStaticFiles = config.build.publish !== staticOutput && fs.existsSync(staticOutput)
+  const shouldCopyFunctions = config.build.functions !== functionsOutput && hasFunctions
+  const userConfiguredRedirects = await getUserConfiguredRedirects(config.build.publish)
+
+  const debug = {
+    netlifyConfig: config,
+    postBuildPayload: props,
+    hasFunctions,
+    shouldCopyStaticFiles,
+    shouldCopyFunctions,
+  }
+
+  logger.debug({
+    label: '@presta/adapter-netlify',
+    message: `handling onPostBuild hook\n${JSON.stringify(debug)}`,
+  })
+
+  if (hasFunctions && !config.build.functions) {
+    throw new Error(`Missing required netlify.toml config: build.functions`)
+  }
+
+  if (shouldCopyStaticFiles) {
+    fs.copySync(staticOutput, config.build.publish)
+  }
+
+  if (shouldCopyFunctions) {
+    fs.copySync(functionsOutput, config.build.functions as string)
+
+    const prestaRedirects = prestaRoutesToNetlifyRedirects(Object.entries(functionsManifest))
+    const combinedRedirects = userConfiguredRedirects.concat(prestaRedirects)
+    const redirectsFilepath = path.join(config.build.publish, '_redirects')
+
+    mkdir(path.dirname(redirectsFilepath))
+    fs.writeFileSync(path.join(config.build.publish, '_redirects'), generateRedirectsString(combinedRedirects), 'utf8')
+  }
+
+  if ((shouldCopyStaticFiles && !shouldCopyFunctions) || (shouldCopyStaticFiles && shouldCopyFunctions)) {
+    premove(output)
+  }
+
+  logger.info({
+    label: '@presta/adapter-netlify',
+    message: `complete`,
+  })
+}
+
+export default createPlugin(() => {
   return async function plugin(config, hooks) {
     logger.debug({
       label: '@presta/adapter-netlify',
       message: `init`,
     })
 
-    const netlifyConfig = getNetlifyConfig({ cwd })
-
-    if (!netlifyConfig) {
-      throw new Error(`Missing required netlify.toml config file`)
-    }
-    if (!netlifyConfig.build) {
-      throw new Error(`Missing required netlify.toml config: build`)
-    }
-
-    const publishDir = toAbsolutePath(cwd, netlifyConfig.build.publish)
-
-    if (!publishDir) {
-      throw new Error(`Missing required netlify.toml config: build.publish`)
-    }
-
-    const functionsDir = toAbsolutePath(cwd, netlifyConfig.build.functions)
-    const fileRedirects = Array.from(
-      new Set([
-        ...(await parseFileRedirects(path.join(cwd, '_redirects'))),
-        ...(await parseFileRedirects(path.join(publishDir || cwd, '_redirects'))),
-      ])
-    )
-
-    let canRemoveStaticOutput = false
-    let canRemoveFunctionsOutput = false
+    const netlify = validateAndNormalizeNetlifyConfig(getNetlifyConfig({ cwd: process.cwd() }))
 
     logger.debug({
       label: '@presta/adapter-netlify',
-      message: `configured`,
+      message: `configured ${JSON.stringify(netlify)}`,
     })
 
     hooks.onPostBuild((props) => {
-      logger.debug({
-        label: '@presta/adapter-netlify',
-        message: `handling onPostBuild hook`,
-      })
-
-      const { output, staticOutput, functionsOutput, functionsManifest } = props
-      const hasStaticFiles = fs.existsSync(staticOutput)
-      const hasFunctions = fs.existsSync(functionsOutput)
-
-      if (hasFunctions && !functionsDir) {
-        throw new Error(`Missing required netlify.toml config: build.functions`)
-      }
-
-      if (hasStaticFiles) {
-        if (publishDir !== staticOutput) {
-          fs.copySync(staticOutput, publishDir)
-          fs.removeSync(staticOutput)
-          canRemoveStaticOutput = true
-        }
-      }
-
-      if (hasFunctions) {
-        if (functionsDir !== functionsOutput) {
-          fs.copySync(functionsOutput, functionsDir as string)
-          fs.removeSync(functionsOutput)
-          canRemoveFunctionsOutput = true
-        }
-
-        const prestaRedirects = prestaRoutesToNetlifyRedirects(Object.entries(functionsManifest))
-        const combinedRedirects = fileRedirects.concat(prestaRedirects)
-        const redirectsContent = generateRedirectsString(combinedRedirects)
-
-        fs.outputFileSync(path.join(publishDir, '_redirects'), redirectsContent)
-      }
-
-      if (canRemoveStaticOutput && canRemoveFunctionsOutput) {
-        fs.removeSync(output)
-      }
-
-      logger.info({
-        label: '@presta/adapter-netlify',
-        message: `complete`,
-      })
+      /* c8 ignore next */
+      onPostBuild(netlify, props)
     })
   }
 })
