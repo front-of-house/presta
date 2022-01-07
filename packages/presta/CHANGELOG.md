@@ -1,5 +1,11 @@
 # presta
 
+## 0.43.1
+
+### Patch Changes
+
+- [#156](https://github.com/sure-thing/presta/pull/156) [`a29752f`](https://github.com/sure-thing/presta/commit/a29752fa95faf0dad9785128f7e195668e229d5d) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Export more plugin types
+
 ## 0.43.0
 
 ### Minor Changes

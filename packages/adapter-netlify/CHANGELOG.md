@@ -1,5 +1,16 @@
 # @presta/adapter-netlify
 
+## 0.4.0
+
+### Minor Changes
+
+- [#156](https://github.com/sure-thing/presta/pull/156) [`c7df0a2`](https://github.com/sure-thing/presta/commit/c7df0a2c4416464d27f18aff3bf0635f9bf06a87) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Refactor, write tests for 100% coverage
+
+### Patch Changes
+
+- Updated dependencies [[`a29752f`](https://github.com/sure-thing/presta/commit/a29752fa95faf0dad9785128f7e195668e229d5d)]:
+  - presta@0.43.1
+
 ## 0.3.0
 
 ### Minor Changes
