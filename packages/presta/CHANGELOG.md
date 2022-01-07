@@ -1,5 +1,11 @@
 # presta
 
+## 0.43.2
+
+### Patch Changes
+
+- [`16db9fe`](https://github.com/sure-thing/presta/commit/16db9fe13b429ce0a098d63d49f27950347d360f) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Reduce lambda bundle size
+
 ## 0.43.1
 
 ### Patch Changes
