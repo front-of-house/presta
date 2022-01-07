@@ -12,7 +12,7 @@
   "devDependencies": {
     "@presta/adapter-netlify": "workspace:^0.4.0",
     "netlify": "^10.1.1",
-    "presta": "workspace:^0.43.1"
+    "presta": "workspace:^0.43.2"
   },
   "version": null
 }
