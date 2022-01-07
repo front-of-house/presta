@@ -6,24 +6,24 @@ export enum Events {
 
 export type Callable = (...args: any[]) => void
 
-export type HookPostBuild = {
+export type HookPostBuildPayload = {
   output: string
   staticOutput: string
   functionsOutput: string
   functionsManifest: Record<string, string>
 }
 
-export type HookBuildFile = {
+export type HookBuildFilePayload = {
   file: string
 }
 
 export type DestroyHookCallback = () => void
 
 export type Hooks = {
-  emitPostBuild(props: HookPostBuild): void
-  onPostBuild(cb: (props: HookPostBuild) => void): DestroyHookCallback
-  emitBuildFile(props: HookBuildFile): void
-  onBuildFile(cb: (props: HookBuildFile) => void): DestroyHookCallback
+  emitPostBuild(props: HookPostBuildPayload): void
+  onPostBuild(cb: (props: HookPostBuildPayload) => void): DestroyHookCallback
+  emitBuildFile(props: HookBuildFilePayload): void
+  onBuildFile(cb: (props: HookBuildFilePayload) => void): DestroyHookCallback
   emitBrowserRefresh(): void
   onBrowserRefresh(cb: () => void): DestroyHookCallback
 }
