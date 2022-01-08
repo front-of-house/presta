@@ -10,6 +10,7 @@ export * from './lambda'
 export { Config, Options } from './config'
 export { HookPostBuildPayload, HookBuildFilePayload } from './createEmitter'
 export { createPlugin, PluginInit, Plugin, PluginInterface } from './plugins'
+export { getRouteParams as parsePathParameters } from './getRouteParams'
 
 /*
  * for use in prod functions
