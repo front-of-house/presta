@@ -1,5 +1,11 @@
 # presta
 
+## 0.43.5
+
+### Patch Changes
+
+- [`1c2faa8`](https://github.com/sure-thing/presta/commit/1c2faa824e5d7594fccaa8d15cdaa1bb1651e00e) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Add PRESTA_SERVE_URL to env
+
 ## 0.43.4
 
 ### Patch Changes
