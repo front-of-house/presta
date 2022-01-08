@@ -1,5 +1,11 @@
 # presta
 
+## 0.43.3
+
+### Patch Changes
+
+- [`24457dd`](https://github.com/sure-thing/presta/commit/24457dd3891b6f97a9369127f1324bc6f5763c73) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Export parsePathParameters util
+
 ## 0.43.2
 
 ### Patch Changes
