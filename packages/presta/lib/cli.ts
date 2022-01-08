@@ -61,6 +61,7 @@ export async function devCommand(options: PrestaCLIDevOptions) {
 
     if (!port || (userConfigFile.port && port !== userConfigFile.port)) {
       port = await getAvailablePort(options.port || userConfigFile.port || 4000)
+      process.env.PRESTA_SERVE_URL = `http://localhost:${port}`
     }
 
     const emitter = createEmitter()
