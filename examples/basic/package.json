@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@presta/html": "workspace:^0.2.0",
-    "presta": "workspace:^0.43.2"
+    "presta": "workspace:^0.43.3"
   },
   "devDependencies": {
     "micromark": "^3.0.5"
