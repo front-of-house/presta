@@ -28,6 +28,7 @@
   "dependencies": {
     "chokidar": "^3.4.3",
     "deep-extend": "^0.6.0",
+    "dotenv": "^10.0.0",
     "esbuild": "^0.12.28",
     "esbuild-register": "^2.6.0",
     "filewatcher": "^3.0.1",

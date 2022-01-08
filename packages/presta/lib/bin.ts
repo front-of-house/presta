@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import path from 'path'
 import sade from 'sade'
 
 import pkg from '../package.json'
@@ -9,6 +10,8 @@ import { defaultConfigFilepath } from './config'
 import { Env } from './constants'
 
 export function registerRuntime(options = {}) {
+  require('dotenv').config({ path: path.join(process.cwd(), '.env') })
+
   require('module-alias').addAliases({
     '@': process.cwd(),
     'presta:internal': __dirname, // TODO wherever this is running from
