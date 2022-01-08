@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@presta/html": "workspace:^0.2.0",
-    "presta": "workspace:^0.43.3"
+    "presta": "workspace:^0.43.4"
   },
   "version": null,
   "devDependencies": {

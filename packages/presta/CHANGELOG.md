@@ -1,5 +1,11 @@
 # presta
 
+## 0.43.4
+
+### Patch Changes
+
+- [`15e3c7b`](https://github.com/sure-thing/presta/commit/15e3c7bc16930f6a176555d9fdcada3b22995ead) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Add support for .env with dotenv
+
 ## 0.43.3
 
 ### Patch Changes
