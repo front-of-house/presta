@@ -1,5 +1,11 @@
 # presta
 
+## 0.43.6
+
+### Patch Changes
+
+- [`89420b3`](https://github.com/sure-thing/presta/commit/89420b30dbd8188e142d24c28f1f12b6c8607484) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Stub awsRequestId in dev
+
 ## 0.43.5
 
 ### Patch Changes
