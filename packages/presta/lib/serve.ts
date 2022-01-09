@@ -62,7 +62,7 @@ export async function processHandler(event: Event, lambda: { handler: Handler })
       throw createHttpError(404, '')
     }
 
-    return normalizeResponse(await lambda.handler(event, {} as Context))
+    return normalizeResponse(await lambda.handler(event, { awsRequestId: 'presta dev' } as Context))
   } catch (e) {
     const error = e as HttpError
     const { statusCode = 500 } = error
