@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.1
+
+### Patch Changes
+
+- [`aed931e`](https://github.com/sure-thing/presta/commit/aed931e20ba4c98a8f7c99663238e4680b5ed7fd) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fix regex string and match leading slash on function names
+
 ## 0.1.0
 
 ### Minor Changes
