@@ -91,7 +91,6 @@ Presta builds everything to `config.output`.
 
 - [@presta/html](https://github.com/sure-thing/presta/tree/main/packages/html) — util for creating HTML pages
 - [@presta/adapter-netlify](https://github.com/sure-thing/presta/tree/main/packages/adapter-netlify) — deployment adapter for Netlify
-- [@presta/adapter-vercel](https://github.com/sure-thing/presta/tree/main/packages/adapter-vercel) — deployment adapter for Vercel
 - [@presta/source-filesystem](https://github.com/sure-thing/presta/tree/main/packages/source-filesystem) — source and watch local files
 
 ## Contributing

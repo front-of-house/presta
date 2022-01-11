@@ -5,7 +5,9 @@ import merge from 'deep-extend'
 import toRegExp from 'regexparam'
 import { createPlugin, logger, HookPostBuildPayload } from 'presta'
 
-const output = path.join(process.cwd(), './.output')
+const out = path.join(process.cwd(), './.output')
+const staticOut = path.join(out, 'static')
+const serverOut = path.join(out, 'server/pages')
 
 export function requireSafe(mod: string) {
   try {
@@ -15,7 +17,7 @@ export function requireSafe(mod: string) {
   }
 }
 
-export function generateRoutesManifest(prestaFunctionsManifest: HookPostBuildPayload['functionsManifest']) {
+export function generateRoutes(prestaFunctionsManifest: HookPostBuildPayload['functionsManifest']) {
   const vercelRoutesManifest: {
     version: 3
     basePath: string
@@ -32,9 +34,21 @@ export function generateRoutesManifest(prestaFunctionsManifest: HookPostBuildPay
   }
 
   for (const route of Object.keys(prestaFunctionsManifest)) {
+    const filename = prestaFunctionsManifest[route]
+    const basename = path.basename(filename, '.js')
+    const outfile = path.join(serverOut, basename + '.js')
     const { pattern } = toRegExp(route)
+
+    fs.outputFileSync(
+      outfile,
+      `const { route, handler } = require('${filename}');
+module.exports = async (req, res) => {
+  res.end('presta function ' + route)
+}`
+    )
+
     vercelRoutesManifest.dynamicRoutes.push({
-      page: '/' + path.basename(prestaFunctionsManifest[route], '.js'),
+      page: '/' + basename,
       regex: pattern.toString().slice(1).slice(0, -2).replace(/\\/g, ''),
     })
   }
@@ -44,7 +58,7 @@ export function generateRoutesManifest(prestaFunctionsManifest: HookPostBuildPay
     message: `manifest generated ${JSON.stringify(vercelRoutesManifest)}`,
   })
 
-  fs.outputFileSync(path.join(output, 'routes-manifest.json'), JSON.stringify(vercelRoutesManifest, null, '  '))
+  fs.outputFileSync(path.join(out, 'routes-manifest.json'), JSON.stringify(vercelRoutesManifest, null, '  '))
 }
 
 export function mergeVercelConfig() {
@@ -61,10 +75,8 @@ export function mergeVercelConfig() {
 export function onPostBuild(props: HookPostBuildPayload) {
   const { output: prestaOutput, staticOutput, functionsOutput, functionsManifest } = props
 
-  fs.copySync(staticOutput, path.join(output, 'static'))
-  fs.copySync(functionsOutput, path.join(output, 'server/pages'))
-
-  if (Object.keys(functionsManifest).length) generateRoutesManifest(functionsManifest)
+  fs.copySync(staticOutput, staticOut)
+  if (Object.keys(functionsManifest).length) generateRoutes(functionsManifest)
 
   fs.outputFileSync(path.join(process.cwd(), 'vercel.json'), JSON.stringify(mergeVercelConfig(), null, '  '))
 
