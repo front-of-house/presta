@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.2
+
+### Patch Changes
+
+- [`0f94152`](https://github.com/sure-thing/presta/commit/0f9415250493ce26ba85f5c736ce0962c3129c56) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fix excaped regex string
+
 ## 0.1.1
 
 ### Patch Changes
