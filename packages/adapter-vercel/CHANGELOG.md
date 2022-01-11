@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.3
+
+### Patch Changes
+
+- [`a33a438`](https://github.com/sure-thing/presta/commit/a33a438255724c292327cf10b782a73ba22960a2) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Remove .js extension from pages
+
 ## 0.1.2
 
 ### Patch Changes
