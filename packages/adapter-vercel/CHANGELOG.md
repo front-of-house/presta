@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.4
+
+### Patch Changes
+
+- [`d00c8ff`](https://github.com/sure-thing/presta/commit/d00c8ff70f48433727d09bb3dd7bb496f8b915ff) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Update function output definition
+
 ## 0.1.3
 
 ### Patch Changes
