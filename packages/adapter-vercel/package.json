@@ -1,0 +1,34 @@
+{
+  "name": "@presta/adapter-vercel",
+  "version": "0.0.0",
+  "description": "Vercel adapter for Presta.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node scripts/build && pnpx tsc --emitDeclarationOnly",
+    "typecheck": "pnpx tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sure-thing/presta.git"
+  },
+  "author": "estrattonbailey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sure-thing/presta/issues"
+  },
+  "homepage": "https://github.com/sure-thing/presta#readme",
+  "dependencies": {
+    "deep-extend": "^0.6.0",
+    "fs-extra": "^9.0.1",
+    "premove": "^4.0.0",
+    "presta": "workspace:^0.43.1",
+    "regexparam": "^1.3.0"
+  },
+  "devDependencies": {
+    "@types/deep-extend": "^0.4.32"
+  }
+}
