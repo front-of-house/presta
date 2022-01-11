@@ -34,8 +34,8 @@ export function generateRoutesManifest(prestaFunctionsManifest: HookPostBuildPay
   for (const route of Object.keys(prestaFunctionsManifest)) {
     const { pattern } = toRegExp(route)
     vercelRoutesManifest.dynamicRoutes.push({
-      page: path.basename(prestaFunctionsManifest[route]),
-      regex: String(pattern),
+      page: '/' + path.basename(prestaFunctionsManifest[route]),
+      regex: String(pattern).slice(1).slice(0, -2),
     })
   }
 
