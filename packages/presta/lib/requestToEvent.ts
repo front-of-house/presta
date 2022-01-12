@@ -49,6 +49,11 @@ export function getQueryStringParameters(query: string) {
   return { queryStringParameters, multiValueQueryStringParameters }
 }
 
+/**
+ * Generic util. This is now exported.
+ *
+ * TODO extract this?
+ */
 export async function requestToEvent(req: http.IncomingMessage): Promise<Event> {
   const { url: path = '', method } = req
   const { headers, multiValueHeaders } = normalizeHeaders(req.headers)
@@ -62,12 +67,6 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<Event> 
     : undefined
   const rawQuery = parseUrl(path).query || ''
   const { queryStringParameters, multiValueQueryStringParameters } = getQueryStringParameters(rawQuery)
-
-  /**
-   * Just fake this locally
-   * @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L208
-   */
-  headers['client-ip'] = '0.0.0.0'
 
   return {
     rawUrl: path,

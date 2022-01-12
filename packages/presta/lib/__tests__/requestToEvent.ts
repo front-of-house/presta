@@ -53,7 +53,7 @@ test('requestToEvent', async () => {
     rawUrl: '/',
     path: '/',
     httpMethod: 'GET',
-    headers: { 'client-ip': '0.0.0.0' },
+    headers: {},
     multiValueHeaders: {},
     rawQuery: '',
     queryStringParameters: {},
