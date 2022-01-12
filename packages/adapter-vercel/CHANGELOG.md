@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.6
+
+### Patch Changes
+
+- [`a046aa8`](https://github.com/sure-thing/presta/commit/a046aa8adcd483771d508a4e9a30a26ee0a2fa74) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Full wrapper test, bundle all deps
+
 ## 0.1.5
 
 ### Patch Changes
