@@ -1,5 +1,11 @@
 # presta
 
+## 0.43.7
+
+### Patch Changes
+
+- [`a2f4fed`](https://github.com/sure-thing/presta/commit/a2f4fed0c3c11bceb5ed95d0ab4848015d6597cb) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Export requestToEvent util
+
 ## 0.43.6
 
 ### Patch Changes
