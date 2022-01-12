@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
       target: ['node12'],
       minify: true,
       allowOverwrite: true,
-      // external: Object.keys(pkg.dependencies || {}),
+      external: ['mime-types', 'raw-body'],
       bundle: true,
     })
 
