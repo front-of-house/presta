@@ -45,9 +45,23 @@ export async function generateRoutes(
 
     fs.outputFileSync(
       tmpfile,
-      `const { route, handler } = require('${source}');
+      `import { requestToEvent } from 'presta/dist/requestToEvent';
+import { route, handler } from '${source}';
+
 module.exports = async (req, res) => {
-  res.end('presta function ' + route)
+  const event = await requestToEvent(req);
+  const response = await handler(event, {});
+
+  for (const key in response.multiValueHeaders) {
+    res.setHeader(key, String(response.multiValueHeaders[key]));
+  }
+
+  for (const key in response.headers) {
+    res.setHeader(key, String(response.headers[key]));
+  }
+
+  res.statusCode = response.statusCode;
+  res.end(response.body);
 }`
     )
 

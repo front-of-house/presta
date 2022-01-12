@@ -26,7 +26,7 @@
     "esbuild": "^0.14.11",
     "fs-extra": "^9.0.1",
     "premove": "^4.0.0",
-    "presta": "workspace:^0.43.1",
+    "presta": "^0.43.8",
     "regexparam": "^1.3.0"
   },
   "devDependencies": {
