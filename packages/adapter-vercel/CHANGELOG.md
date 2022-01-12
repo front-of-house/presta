@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.5
+
+### Patch Changes
+
+- [`5ea51ce`](https://github.com/sure-thing/presta/commit/5ea51ce7f2b64334ade17404797e22cc53633365) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Compile with esbuild
+
 ## 0.1.4
 
 ### Patch Changes
