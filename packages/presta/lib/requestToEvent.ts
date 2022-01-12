@@ -1,3 +1,9 @@
+/**
+ * THIS IS PROD CODE, BE CAREFUL WHAT YOU ADD TO THIS FILE
+ *
+ * TODO extract this to new package?
+ */
+
 import http from 'http'
 import { parse as parseUrl } from 'url'
 import { parse as parseQuery } from 'query-string'
@@ -49,11 +55,6 @@ export function getQueryStringParameters(query: string) {
   return { queryStringParameters, multiValueQueryStringParameters }
 }
 
-/**
- * Generic util. This is now exported.
- *
- * TODO extract this?
- */
 export async function requestToEvent(req: http.IncomingMessage): Promise<Event> {
   const { url: path = '', method } = req
   const { headers, multiValueHeaders } = normalizeHeaders(req.headers)

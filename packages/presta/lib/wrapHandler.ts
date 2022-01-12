@@ -1,7 +1,5 @@
 /**
  * THIS IS PROD CODE, BE CAREFUL WHAT YOU ADD TO THIS FILE
- *
- * TODO this should be a separate file to avoid needing to tree shake
  */
 
 import { getRouteParams } from './getRouteParams'

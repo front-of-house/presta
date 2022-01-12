@@ -3,7 +3,7 @@ const path = require('path')
 const pkg = require('../package.json')
 
 require('esbuild').buildSync({
-  entryPoints: ['lib/bin.ts', 'lib/index.ts', 'lib/wrapHandler.ts'],
+  entryPoints: ['lib/bin.ts', 'lib/index.ts', 'lib/wrapHandler.ts', 'lib/requestToEvent.ts'],
   outdir: path.join(__dirname, '../dist'),
   bundle: true,
   minify: true,
