@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.7
+
+### Patch Changes
+
+- [`82ba5cb`](https://github.com/sure-thing/presta/commit/82ba5cbbf43c3b52b5a222893be7a34db2fc8181) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Externalize some deps
+
 ## 0.1.6
 
 ### Patch Changes
