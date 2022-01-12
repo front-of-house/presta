@@ -23,6 +23,7 @@
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
     "deep-extend": "^0.6.0",
+    "esbuild": "^0.14.11",
     "fs-extra": "^9.0.1",
     "premove": "^4.0.0",
     "presta": "workspace:^0.43.1",
