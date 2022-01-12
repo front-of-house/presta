@@ -1,5 +1,11 @@
 # presta
 
+## 0.43.8
+
+### Patch Changes
+
+- [`91ca4b0`](https://github.com/sure-thing/presta/commit/91ca4b02d9890c053d2fd76c3edce99b727caeef) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Create separate file for requestToEvent
+
 ## 0.43.7
 
 ### Patch Changes
