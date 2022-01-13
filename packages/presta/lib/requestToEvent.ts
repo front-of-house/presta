@@ -63,7 +63,7 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<Event> 
   const body = contentLengthHeader
     ? await rawBody(req, {
         limit: '1mb',
-        encoding: mime.charset(contentLengthHeader) || undefined,
+        encoding: headers['content-type'] ? mime.charset(headers['content-type']) || true : true,
       })
     : undefined
   const rawQuery = parseUrl(path).query || ''
