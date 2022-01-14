@@ -45,24 +45,9 @@ export async function generateRoutes(
 
     fs.outputFileSync(
       tmpfile,
-      `import { requestToEvent } from 'presta/dist/requestToEvent';
-import { route, handler } from '${source}';
-
-module.exports = async (req, res) => {
-  const event = await requestToEvent(req);
-  const response = await handler(event, {});
-
-  for (const key in response.multiValueHeaders) {
-    res.setHeader(key, String(response.multiValueHeaders[key]));
-  }
-
-  for (const key in response.headers) {
-    res.setHeader(key, String(response.headers[key]));
-  }
-
-  res.statusCode = response.statusCode;
-  res.end(response.body);
-}`
+      `import { adapter } from '@presta/adapter-vercel/dist/adapter';
+import { handler } from '${source}';
+module.exports = adapter(handler);`
     )
 
     await esbuild({
@@ -72,7 +57,6 @@ module.exports = async (req, res) => {
       target: ['node12'],
       minify: true,
       allowOverwrite: true,
-      external: ['mime-types', 'raw-body'],
       bundle: true,
     })
 
@@ -107,8 +91,6 @@ export async function onPostBuild(props: HookPostBuildPayload) {
   fs.copySync(staticOutput, staticOut)
   if (Object.keys(functionsManifest).length) await generateRoutes(prestaOutput, functionsManifest)
 
-  fs.outputFileSync(path.join(process.cwd(), 'vercel.json'), JSON.stringify(mergeVercelConfig(), null, '  '))
-
   premove(prestaOutput)
 
   logger.info({
@@ -123,6 +105,8 @@ export default createPlugin(() => {
       label: '@presta/adapter-vercel',
       message: `init`,
     })
+
+    fs.outputFileSync(path.join(process.cwd(), 'vercel.json'), JSON.stringify(mergeVercelConfig(), null, '  '))
 
     hooks.onPostBuild((props) => {
       onPostBuild(props)
