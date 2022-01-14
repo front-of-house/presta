@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.8
+
+### Patch Changes
+
+- [#177](https://github.com/sure-thing/presta/pull/177) [`d6076e8`](https://github.com/sure-thing/presta/commit/d6076e877f37eb2b56a41366adcd9372f974ac02) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Refactor to trim take advantage of util file exports from Presta
+
 ## 0.1.7
 
 ### Patch Changes

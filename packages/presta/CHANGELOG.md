@@ -1,5 +1,13 @@
 # presta
 
+## 0.43.9
+
+### Patch Changes
+
+- [#177](https://github.com/sure-thing/presta/pull/177) [`7ad6812`](https://github.com/sure-thing/presta/commit/7ad68128de91a2306530318eba7c3d29ad49d81e) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Parse correct body enconding
+
+* [#177](https://github.com/sure-thing/presta/pull/177) [`f687184`](https://github.com/sure-thing/presta/commit/f687184ff1600f169fd2444ab77a0f8fa76de35d) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Export normalizeHeaders and parseQueryStringParameters as separate files
+
 ## 0.43.8
 
 ### Patch Changes
