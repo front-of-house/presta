@@ -1,6 +1,6 @@
 {
   "name": "@presta/adapter-vercel",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Vercel adapter for Presta.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.9
+
+### Patch Changes
+
+- [`1470087`](https://github.com/sure-thing/presta/commit/14700873ac5b0275aaf4026dd3ae0fcc3b91ce32) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Name root functions index.js
+
 ## 0.1.8
 
 ### Patch Changes
