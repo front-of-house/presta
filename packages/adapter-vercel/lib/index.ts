@@ -39,7 +39,7 @@ export async function generateRoutes(
 
   for (const route of Object.keys(prestaFunctionsManifest)) {
     const source = prestaFunctionsManifest[route]
-    const filename = path.basename(source, '.js')
+    const filename = route === '/' ? 'index' : path.basename(source, '.js')
     const tmpfile = path.join(prestaOutput, 'tmp', filename + '.js')
     const { pattern } = toRegExp(route)
 
@@ -47,7 +47,7 @@ export async function generateRoutes(
       tmpfile,
       `import { adapter } from '@presta/adapter-vercel/dist/adapter';
 import { handler } from '${source}';
-module.exports = adapter(handler);`
+export default adapter(handler);`
     )
 
     await esbuild({
