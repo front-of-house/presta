@@ -1,3 +1,7 @@
+/**
+ * THIS IS PROD CODE, BE CAREFUL WHAT YOU ADD TO THIS FILE
+ */
+
 import { Response as LambdaResponse } from 'lambda-types'
 import { Response } from './lambda'
 

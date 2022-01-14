@@ -2,7 +2,9 @@ import http from 'http'
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 
-import { requestToEvent, normalizeHeaders, getQueryStringParameters } from '../requestToEvent'
+import { requestToEvent } from '../requestToEvent'
+import { normalizeHeaders } from '../normalizeHeaders'
+import { parseQueryStringParameters } from '../parseQueryStringParameters'
 
 function createRequest(props: Partial<http.IncomingMessage>): http.IncomingMessage {
   // @ts-ignore
@@ -30,8 +32,8 @@ test('normalizeHeaders', async () => {
   })
 })
 
-test('getQueryStringParameters', async () => {
-  const { queryStringParameters, multiValueQueryStringParameters } = getQueryStringParameters('foo=bar&bar=a,b')
+test('parseQueryStringParameters', async () => {
+  const { queryStringParameters, multiValueQueryStringParameters } = parseQueryStringParameters('foo=bar&bar=a,b')
 
   assert.equal(queryStringParameters, {
     foo: 'bar',

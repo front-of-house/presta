@@ -1,58 +1,16 @@
-/**
- * THIS IS PROD CODE, BE CAREFUL WHAT YOU ADD TO THIS FILE
- *
- * TODO extract this to new package?
- */
-
 import http from 'http'
 import { parse as parseUrl } from 'url'
-import { parse as parseQuery } from 'query-string'
 import rawBody from 'raw-body'
 import mime from 'mime-types'
-import { Event, Headers, MultiValueHeaders, QueryStringParameters, MultiValueQueryStringParameters } from './lambda'
+
+import { Event } from './lambda'
+import { normalizeHeaders } from './normalizeHeaders'
+import { parseQueryStringParameters } from './parseQueryStringParameters'
 
 // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
 const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
 function shouldBase64Encode(contentType: string) {
   return Boolean(contentType) && BASE_64_MIME_REGEXP.test(contentType)
-}
-
-export function normalizeHeaders(rawHeaders: http.IncomingMessage['headers']) {
-  const headers: Headers = {}
-  const multiValueHeaders: MultiValueHeaders = {}
-
-  for (const header of Object.keys(rawHeaders)) {
-    const key = header.toLowerCase()
-    const value = rawHeaders[header]
-
-    if (!value) continue
-
-    if (Array.isArray(value)) {
-      multiValueHeaders[key] = value
-    } else {
-      headers[key] = value
-    }
-  }
-
-  return { headers, multiValueHeaders }
-}
-
-export function getQueryStringParameters(query: string) {
-  const params = parseQuery(query, { arrayFormat: 'comma' })
-
-  const queryStringParameters: QueryStringParameters = {}
-  const multiValueQueryStringParameters: MultiValueQueryStringParameters = {}
-
-  for (const param of Object.keys(params)) {
-    const value = params[param]
-    if (Array.isArray(value)) {
-      multiValueQueryStringParameters[param] = value
-    } else if (value) {
-      queryStringParameters[param] = value
-    }
-  }
-
-  return { queryStringParameters, multiValueQueryStringParameters }
 }
 
 export async function requestToEvent(req: http.IncomingMessage): Promise<Event> {
@@ -63,11 +21,11 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<Event> 
   const body = contentLengthHeader
     ? await rawBody(req, {
         limit: '1mb',
-        encoding: mime.charset(contentLengthHeader) || undefined,
+        encoding: headers['content-type'] ? mime.charset(headers['content-type']) || true : true,
       })
     : undefined
   const rawQuery = parseUrl(path).query || ''
-  const { queryStringParameters, multiValueQueryStringParameters } = getQueryStringParameters(rawQuery)
+  const { queryStringParameters, multiValueQueryStringParameters } = parseQueryStringParameters(rawQuery)
 
   return {
     rawUrl: path,
