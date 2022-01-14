@@ -10,7 +10,7 @@
     "presta": "workspace:^0.43.9"
   },
   "devDependencies": {
-    "@presta/adapter-vercel": "workspace:^0.1.8",
+    "@presta/adapter-vercel": "workspace:^0.1.9",
     "micromark": "^3.0.5"
   },
   "version": null
