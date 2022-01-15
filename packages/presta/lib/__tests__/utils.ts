@@ -31,4 +31,10 @@ test('hashContent', () => {
   assert.equal(utils.hashContent('foobar'), utils.hashContent('foobar'))
 })
 
+test('createLiveReloadScript', () => {
+  const script = utils.createLiveReloadScript({ port: 4000 })
+  assert.type(script, 'string')
+  assert.ok(/localhost:4000/.test(script))
+})
+
 test.run()

@@ -6,7 +6,7 @@ import * as logger from './log'
 import { timer } from './timer'
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
-import { createLiveReloadScript } from './liveReloadScript'
+import { createLiveReloadScript } from './utils'
 import { Env } from './constants'
 import { Config } from './config'
 
