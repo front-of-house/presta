@@ -70,7 +70,7 @@ export function create(env: string, cli: PrestaCLIBuildOptions | PrestaCLIDevOpt
   // override with CLI
   if (cli._.length) config.files = cli._
   if (cli.output) config.output = cli.output
-  if (cli.assets) config.output = cli.assets
+  if (cli.assets) config.assets = cli.assets
   if (cli.port) config.port = cli.port
 
   // resolve absolute paths
