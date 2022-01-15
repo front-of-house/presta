@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import rsort from 'route-sort'
 
-import { hashContent } from './hashContent'
+import { hashContent } from './utils'
 import * as logger from './log'
 import { Config } from './config'
 import { Env } from './constants'
