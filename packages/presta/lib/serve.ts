@@ -10,7 +10,6 @@ import { timer } from './timer'
 import * as logger from './log'
 import { createDefaultHtmlResponse } from './createDefaultHtmlResponse'
 import { requestToEvent } from './requestToEvent'
-import { sendServerlessResponse } from './sendServerlessResponse'
 import { createLiveReloadScript } from './utils'
 import { Handler, Event, Response, Context } from './lambda'
 import { Config } from './config'
@@ -31,8 +30,8 @@ export function createHttpError(statusCode: number, message: string): HttpError 
 }
 
 export function getMimeType(response: Response) {
-  const type = (response?.headers || {})['Content-Type'] || 'html'
-  return type ? mime.extension(String(type)) || 'html' : 'html'
+  const type = (response?.headers || {})['content-type']
+  return mime.extension(String(type)) || 'html'
 }
 
 export function loadLambdaFroManifest(url: string, manifest: { [route: string]: string }): { handler: Handler } {
@@ -82,6 +81,23 @@ export async function processHandler(event: Event, lambda: { handler: Handler })
   }
 }
 
+export function sendServerlessResponse(res: http.ServerResponse, r: Partial<Response>) {
+  const response = normalizeResponse(r)
+
+  // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L73
+  for (const key in r.multiValueHeaders) {
+    res.setHeader(key, String(r.multiValueHeaders[key]))
+  }
+
+  for (const key in r.headers) {
+    res.setHeader(key, String(r.headers[key]))
+  }
+
+  res.statusCode = response.statusCode
+  res.write(response.body)
+  res.end()
+}
+
 export function createRequestHandler({ port, config }: { port: number; config: Config }) {
   return async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
     const time = timer()
@@ -96,13 +112,13 @@ export function createRequestHandler({ port, config }: { port: number; config: C
       response.body = (response.body || '').split('</body>')[0] + createLiveReloadScript({ port })
     }
 
+    sendServerlessResponse(res, response)
+
     logger[response.statusCode < 299 ? 'info' : 'error']({
       label: 'serve',
       message: `${response.statusCode} ${redir ? response?.headers?.Location || event.path : event.path}`,
       duration: time(),
     })
-
-    sendServerlessResponse(res, response)
   }
 }
 
@@ -120,6 +136,7 @@ export function createServerHandler({ port, config }: { port: number; config: Co
     })
 
     // hook into sirv for logging only
+    /* c8 ignore start */
     function setHeaders(res: http.ServerResponse, pathname: string) {
       logger.info({
         label: 'serve',
@@ -127,7 +144,9 @@ export function createServerHandler({ port, config }: { port: number; config: Co
         duration: time(),
       })
     }
+    /* c8 ignore end */
 
+    /* c8 ignore next 2 */
     sirv(assetDir, { dev: true, setHeaders })(req, res, () => {
       sirv(staticDir, { dev: true, setHeaders })(req, res, async () => {
         createRequestHandler({ port, config })(req, res)
@@ -159,7 +178,7 @@ export function serve(config: Config, hooks: Hooks) {
   return {
     async close() {
       // so just always resolve OK
-      await new Promise((y) => {
+      return new Promise((y) => {
         server.close(() => y(1))
         // sockets includes ws sockets
         sockets.forEach((ws) => ws.destroy())

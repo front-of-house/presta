@@ -6,7 +6,7 @@ import proxy from 'proxyquire'
 import { afix } from 'afix'
 
 import { create } from '../config'
-import { createHttpError, getMimeType, loadLambdaFroManifest, processHandler } from '../serve'
+import { createHttpError, getMimeType, loadLambdaFroManifest, processHandler, sendServerlessResponse } from '../serve'
 import { Event } from '../lambda'
 import { createEmitter, createHooks } from '../createEmitter'
 import { Env } from '../constants'
@@ -27,7 +27,7 @@ test('createHttpError', async () => {
 test('getMimeType', async () => {
   const html = getMimeType({
     statusCode: 200,
-    headers: { 'Content-Type': 'text/html' },
+    headers: { 'content-type': 'text/html' },
   })
 
   assert.equal(html, 'html')
@@ -38,6 +38,19 @@ test('getMimeType', async () => {
   })
 
   assert.equal(none, 'html')
+
+  const nully = getMimeType({
+    statusCode: 200,
+    headers: { 'content-type': 'foo/bar' },
+  })
+
+  assert.equal(nully, 'html')
+
+  const noHeaders = getMimeType({
+    statusCode: 200,
+  })
+
+  assert.equal(noHeaders, 'html')
 })
 
 test('loadLambdaFroManifest', async () => {
@@ -52,6 +65,7 @@ test('loadLambdaFroManifest', async () => {
   assert.equal(loadLambdaFroManifest('/page', manifest), { handler: true })
   assert.equal(loadLambdaFroManifest('/page/path', manifest), { handler: true })
   assert.equal(loadLambdaFroManifest('/page?query', manifest), { handler: true })
+  assert.equal(loadLambdaFroManifest('/foo/bar', manifest), undefined)
 
   fixture.cleanup()
 })
@@ -107,7 +121,50 @@ test('processHandler - throws as json', async () => {
   assert.ok(res.headers['Content-Type'].includes('application/json'))
 })
 
-test.skip('createRequestHandler', async () => {
+test('sendServerlessResponse', async () => {
+  function createRequest() {
+    let headers = []
+    let body = ''
+
+    return {
+      get headers() {
+        return headers
+      },
+      statusCode: null,
+      get body() {
+        return body
+      },
+      setHeader(key: string, value: string) {
+        headers.push({ key, value })
+      },
+      write(body: string) {
+        body = body
+      },
+      end() {}
+    } as unknown as http.ServerResponse & { headers: any[] }
+  }
+
+  const one = createRequest()
+  sendServerlessResponse(one, {
+    statusCode: 200,
+    headers: {
+      'x-header': 'foo'
+    },
+    multiValueHeaders: {
+      'x-header-multi': [
+        'foo',
+        'foo'
+      ]
+    }
+  })
+  assert.equal(one.statusCode, 200)
+  assert.equal(one.headers, [
+    { key: 'x-header-multi', value: 'foo,foo' },
+    { key: 'x-header', value: 'foo' },
+  ])
+})
+
+test('createRequestHandler', async () => {
   let plan = 0
 
   const fixture = afix({
@@ -141,17 +198,13 @@ test.skip('createRequestHandler', async () => {
     },
     './requestToEvent': {
       requestToEvent() {
+        plan++
         return event
       },
     },
     './utils': {
       requireFresh() {
         return manifest
-      },
-    },
-    './sendServerlessResponse': {
-      sendServerlessResponse() {
-        plan++
       },
     },
   })
@@ -161,7 +214,7 @@ test.skip('createRequestHandler', async () => {
   const req = new http.IncomingMessage(null)
   const res = new http.ServerResponse(req)
 
-  requestHandler(req, res)
+  await requestHandler(req, res)
 
   assert.equal(plan, 3)
 })
@@ -199,18 +252,31 @@ test('serve', async () => {
     constructor() {
       count++
     }
+
+    clients = [
+      {
+        send() {
+          count++
+        }
+      }
+    ]
   }
 
   const { serve } = proxy('../serve', {
     http: {
       createServer() {
         return {
-          listen() {
+          listen: () => {
             count++
+
             return {
-              on() {
+              on: () =>{
                 count++
               },
+              close: (y) => {
+                count++
+                y()
+              }
             }
           },
         }
@@ -221,10 +287,14 @@ test('serve', async () => {
     },
   })
   const config = create(Env.PRODUCTION, { _: [], output: fixture.root }, {})
+  const hooks = createHooks(createEmitter())
+  const server = serve(config, hooks)
 
-  serve(config, createHooks(createEmitter()))
+  hooks.emitBrowserRefresh()
 
-  assert.equal(count, 3)
+  await server.close()
+
+  assert.equal(count, 5)
 
   fixture.cleanup()
 })
