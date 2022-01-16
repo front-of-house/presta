@@ -29,7 +29,7 @@ export async function removeBuiltStaticFile(file: string) {
   return fs.remove(file)
 }
 
-export async function removeBuiltFiles(files: string[]) {
+export async function removeBuiltStaticFiles(files: string[]) {
   return Promise.all(files.map(removeBuiltStaticFile))
 }
 
@@ -50,12 +50,13 @@ export async function buildStaticFile(file: string, output: string, { footer }: 
     }
 
     const response = normalizeResponse(await lambda.handler(event, {}))
-    const type = response.headers ? response.headers['Content-Type'] : ''
-    const ext = type ? mime.extension(type as string) || 'html' : 'html'
+    const type = (response?.headers || {})['content-type']
+    const ext = mime.extension(type as string) || 'html'
     const filename = pathnameToFile(url, ext)
-    const html = response.body + footer
+    const html = response.body + (ext === 'html' ? footer : '')
+    const outfile = path.join(output, filename)
 
-    fs.outputFileSync(path.join(output, filename), html, 'utf-8')
+    fs.outputFileSync(outfile, html, 'utf-8')
 
     logger.info({
       label: 'built',
@@ -63,7 +64,7 @@ export async function buildStaticFile(file: string, output: string, { footer }: 
       duration: time(),
     })
 
-    builtFiles.push(filename)
+    builtFiles.push(outfile)
   }
 
   return builtFiles
@@ -86,15 +87,15 @@ export async function buildStaticFiles(files: string[], config: Config, staticFi
           message: `${filename} - no paths to render`,
         })
 
-        removeBuiltFiles(prevBuiltFiles.map((file) => path.join(output, file)))
+        removeBuiltStaticFiles(prevBuiltFiles)
 
         continue
       }
 
       // diff and remove files
-      for (const file of prevBuiltFiles) {
-        if (!builtFiles.includes(file)) {
-          removeBuiltStaticFile(path.join(output, file))
+      for (const prev of prevBuiltFiles) {
+        if (!builtFiles.includes(prev)) {
+          removeBuiltStaticFile(prev)
         }
       }
 

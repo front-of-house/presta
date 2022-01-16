@@ -4,7 +4,7 @@ import { build as esbuild } from 'esbuild'
 
 import { outputLambdas } from './outputLambdas'
 import { getFiles, isStatic, isDynamic } from './getFiles'
-import { buildStaticFiles } from './renderStaticEntries'
+import { buildStaticFiles } from './buildStaticFiles'
 import { timer } from './timer'
 import * as logger from './log'
 import { Config } from './config'

@@ -56,7 +56,12 @@ export function getConfigFile(filepath?: string, shouldExit: boolean = false) {
   }
 }
 
-export function create(env: string, cli: PrestaCLIBuildOptions | PrestaCLIDevOptions, file: Partial<Options>): Config {
+export function create(
+  env: string,
+  cli: PrestaCLIBuildOptions | PrestaCLIDevOptions,
+  file: Partial<Options>,
+  cwd = process.cwd()
+): Config {
   const config = {
     env,
     output: 'build',
@@ -74,9 +79,9 @@ export function create(env: string, cli: PrestaCLIBuildOptions | PrestaCLIDevOpt
   if (cli.port) config.port = cli.port
 
   // resolve absolute paths
-  if (config.files) config.files = ([] as string[]).concat(config.files).map((p) => path.resolve(process.cwd(), p))
-  if (config.output) config.output = path.resolve(process.cwd(), config.output)
-  if (config.assets) config.assets = path.resolve(process.cwd(), config.assets)
+  if (config.files) config.files = ([] as string[]).concat(config.files).map((p) => path.resolve(cwd, p))
+  if (config.output) config.output = path.resolve(cwd, config.output)
+  if (config.assets) config.assets = path.resolve(cwd, config.assets)
 
   return {
     ...config,

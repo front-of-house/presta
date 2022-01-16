@@ -102,7 +102,7 @@ test('processHandler - throws', async () => {
   })
   assert.equal(res.statusCode, 500)
   // @ts-ignore
-  assert.ok(res.headers['Content-Type'].includes('text/html'))
+  assert.ok(res.headers['content-type'].includes('text/html'))
 })
 
 test('processHandler - throws as json', async () => {
@@ -118,7 +118,7 @@ test('processHandler - throws as json', async () => {
   })
   assert.equal(res.statusCode, 500)
   // @ts-ignore
-  assert.ok(res.headers['Content-Type'].includes('application/json'))
+  assert.ok(res.headers['content-type'].includes('application/json'))
 })
 
 test('sendServerlessResponse', async () => {
@@ -140,7 +140,7 @@ test('sendServerlessResponse', async () => {
       write(body: string) {
         body = body
       },
-      end() {}
+      end() {},
     } as unknown as http.ServerResponse & { headers: any[] }
   }
 
@@ -148,14 +148,11 @@ test('sendServerlessResponse', async () => {
   sendServerlessResponse(one, {
     statusCode: 200,
     headers: {
-      'x-header': 'foo'
+      'x-header': 'foo',
     },
     multiValueHeaders: {
-      'x-header-multi': [
-        'foo',
-        'foo'
-      ]
-    }
+      'x-header-multi': ['foo', 'foo'],
+    },
   })
   assert.equal(one.statusCode, 200)
   assert.equal(one.headers, [
@@ -257,8 +254,8 @@ test('serve', async () => {
       {
         send() {
           count++
-        }
-      }
+        },
+      },
     ]
   }
 
@@ -270,13 +267,13 @@ test('serve', async () => {
             count++
 
             return {
-              on: () =>{
+              on: () => {
                 count++
               },
               close: (y) => {
                 count++
                 y()
-              }
+              },
             }
           },
         }

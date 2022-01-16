@@ -31,7 +31,7 @@ export function createHttpError(statusCode: number, message: string): HttpError 
 
 export function getMimeType(response: Response) {
   const type = (response?.headers || {})['content-type']
-  return mime.extension(String(type)) || 'html'
+  return mime.extension(type as string) || 'html'
 }
 
 export function loadLambdaFroManifest(url: string, manifest: { [route: string]: string }): { handler: Handler } {
