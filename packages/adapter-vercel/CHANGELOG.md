@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.1.11
+
+### Patch Changes
+
+- [`2f3017b`](https://github.com/sure-thing/presta/commit/2f3017b0810539a6056efb687e3ce5aca0e6508a) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Remove .output dir before fresh build
+
 ## 0.1.10
 
 ### Patch Changes
