@@ -169,12 +169,14 @@ export function html({
   bodyAttributes?: Partial<HTMLBodyElement>
 }) {
   // insert favicon during dev, if not otherwise specified
-  if (head.link && !head.link.find((m) => (typeof m === 'object' ? m.rel === 'icon' : /rel="icon/.test(m)))) {
+  if (!head.link) head.link = []
+  if (!head.link.find((m) => (typeof m === 'object' ? m.rel === 'icon' : /rel="icon/.test(m)))) {
     head.link.push({ rel: 'icon', type: 'image/png', href: 'https://presta.run/favicon.png' })
     head.link.push({ rel: 'icon', type: 'image/svg', href: 'https://presta.run/favicon.svg' })
   }
 
   // insert default charset and viewport, if not otherwise specified
+  if (!head.meta) head.meta = []
   if (head.meta) {
     // @ts-ignore TODO wtf
     if (!head.meta.find((m) => !!m.charset)) {
