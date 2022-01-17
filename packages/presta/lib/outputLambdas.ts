@@ -2,15 +2,15 @@ import fs from 'fs-extra'
 import path from 'path'
 import rsort from 'route-sort'
 
-import { hashContent } from './hashContent'
+import { hashContent } from './utils'
 import * as logger from './log'
 import { Config } from './config'
 import { Env } from './constants'
 
-function slugify(filename: string) {
+export function slugify(filename: string) {
   return filename
     .replace(process.cwd(), '') // /pages/File.page.js
-    .split('.') // [/pages/File, page, js]
+    .split('.') // extension, [/pages/File, page, js]
     .reverse()
     .slice(1)
     .reverse()

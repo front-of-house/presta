@@ -1,17 +1,26 @@
+/**
+ * THIS IS PROD CODE, BE CAREFUL WHAT YOU ADD TO THIS FILE
+ */
+
 import { parse as parseUrl } from 'url'
 import { NextApiRequest, NextApiResponse } from 'next'
-import { Handler, Response } from 'lambda-types'
-import { Event, Context } from 'presta'
+import { Response } from 'lambda-types'
+import { Handler, Event, Context } from 'presta'
 import { normalizeHeaders } from 'presta/dist/normalizeHeaders'
 import { parseQueryStringParameters } from 'presta/dist/parseQueryStringParameters'
 
+export type VercelEvent = Event & {
+  env: NextApiRequest['env']
+  cookies: { [cookie: string]: string }
+}
+
 // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
 const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
-function shouldBase64Encode(contentType: string) {
+export function shouldBase64Encode(contentType: string) {
   return Boolean(contentType) && BASE_64_MIME_REGEXP.test(contentType)
 }
 
-function requestToEvent(req: NextApiRequest): Event {
+export function requestToEvent(req: NextApiRequest): VercelEvent {
   const { url: path = '', method } = req
   const { headers, multiValueHeaders } = normalizeHeaders(req.headers)
   const isBase64Encoded = shouldBase64Encode(headers['content-type'] || '')
@@ -27,9 +36,11 @@ function requestToEvent(req: NextApiRequest): Event {
     rawQuery,
     queryStringParameters,
     multiValueQueryStringParameters,
-    body: req.body,
+    body: req.body || null,
     isBase64Encoded,
     pathParameters: {},
+    cookies: req.cookies || {},
+    env: req.env,
   }
 }
 

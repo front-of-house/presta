@@ -84,8 +84,10 @@ test('create', async () => {
   const cli = {
     _: ['pages/*.js'],
     output: 'dist',
+    assets: 'assets',
   }
   const file = {
+    assets: 'static',
     files: ['test/*.js'],
     port: 4000,
   }
@@ -98,7 +100,7 @@ test('create', async () => {
     port: 4000,
     files: [path.join(process.cwd(), 'pages/*.js')],
     output,
-    assets: path.join(process.cwd(), 'public'),
+    assets: path.join(process.cwd(), 'assets'),
     plugins: [],
     staticOutputDir: path.join(output, 'static'),
     functionsOutputDir: path.join(output, 'functions'),

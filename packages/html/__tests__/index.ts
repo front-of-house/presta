@@ -34,6 +34,7 @@ test('html - attributes work', () => {
   assert.ok(doc.includes('<html lang="en"'))
   assert.ok(doc.includes('<title>original</title>'))
   assert.ok(doc.includes('class="foo'))
+  assert.ok(doc.includes('https://presta.run/favicon.svg'))
 })
 
 test('filterUnique', () => {

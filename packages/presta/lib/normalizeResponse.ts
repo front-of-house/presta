@@ -3,7 +3,7 @@
  */
 
 import { Response as LambdaResponse } from 'lambda-types'
-import { Response } from './lambda'
+import { Response, Headers } from './lambda'
 
 function stringify(obj: object | string) {
   return typeof obj === 'object' ? JSON.stringify(obj) : obj
@@ -33,13 +33,22 @@ export function normalizeResponse(response: Partial<Response> | string): LambdaR
     contentType = 'application/xml; charset=utf-8'
   }
 
+  const rawHeaders: Headers = {
+    'Content-Type': contentType,
+    ...headers,
+  }
+  const normalizedHeaders: LambdaResponse['headers'] = {}
+
+  for (const header of Object.keys(rawHeaders)) {
+    const key = header.toLowerCase()
+    const value = rawHeaders[header]
+    normalizedHeaders[key] = value || ''
+  }
+
   return {
     isBase64Encoded,
     statusCode,
-    headers: {
-      'Content-Type': contentType,
-      ...headers,
-    },
+    headers: normalizedHeaders,
     multiValueHeaders,
     body: stringify(body || html || json || xml || ''),
   }

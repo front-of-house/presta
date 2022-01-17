@@ -7,7 +7,7 @@ const test = suite('presta - normalizeResponse')
 
 test('normalizeResponse - string', async () => {
   const res = normalizeResponse('body')
-  assert.ok(res.headers && String(res.headers['Content-Type']).includes('text/html'))
+  assert.ok(res.headers && String(res.headers['content-type']).includes('text/html'))
   assert.equal(res.body, 'body')
 })
 
@@ -15,21 +15,21 @@ test('normalizeResponse - html', async () => {
   const res = normalizeResponse({
     html: 'body',
   })
-  assert.ok(res.headers && String(res.headers['Content-Type']).includes('text/html'))
+  assert.ok(res.headers && String(res.headers['content-type']).includes('text/html'))
   assert.equal(res.body, 'body')
 })
 
 test('normalizeResponse - json', async () => {
   const json = { foo: true }
   const res = normalizeResponse({ json })
-  assert.ok(res.headers && String(res.headers['Content-Type']).includes('application/json'))
+  assert.ok(res.headers && String(res.headers['content-type']).includes('application/json'))
   assert.equal(res.body, JSON.stringify(json))
 })
 
 test('normalizeResponse - xml', async () => {
   const xml = '</>'
   const res = normalizeResponse({ xml })
-  assert.ok(res.headers && String(res.headers['Content-Type']).includes('application/xml'))
+  assert.ok(res.headers && String(res.headers['content-type']).includes('application/xml'))
   assert.equal(res.body, xml)
 })
 
@@ -40,7 +40,7 @@ test('normalizeResponse - statusCode', async () => {
 
 test('normalizeResponse - headers', async () => {
   const res = normalizeResponse({ headers: { Host: 'foo' } })
-  assert.ok(res.headers && res.headers.Host === 'foo')
+  assert.ok(res.headers && res.headers.host === 'foo')
 })
 
 test('normalizeResponse - multiValueHeaders', async () => {
