@@ -103,6 +103,7 @@ export default createPlugin(() => {
       message: `init`,
     })
 
+    fs.removeSync(path.join(process.cwd(), './.output'))
     fs.outputFileSync(path.join(process.cwd(), 'vercel.json'), JSON.stringify(mergeVercelConfig(), null, '  '))
 
     hooks.onPostBuild((props) => {
