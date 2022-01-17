@@ -1,5 +1,11 @@
 # @presta/html
 
+## 0.2.1
+
+### Patch Changes
+
+- [#180](https://github.com/sure-thing/presta/pull/180) [`be4fe30`](https://github.com/sure-thing/presta/commit/be4fe30b0f7c8438e5d6e211553b90dc7072ad3f) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Small refactors, additional tests
+
 ## 0.2.0
 
 ### Minor Changes
