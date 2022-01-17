@@ -7,10 +7,10 @@ import * as logger from './log'
 import { Config } from './config'
 import { Env } from './constants'
 
-function slugify(filename: string) {
+export function slugify(filename: string) {
   return filename
     .replace(process.cwd(), '') // /pages/File.page.js
-    .split('.') // [/pages/File, page, js]
+    .split('.') // extension, [/pages/File, page, js]
     .reverse()
     .slice(1)
     .reverse()

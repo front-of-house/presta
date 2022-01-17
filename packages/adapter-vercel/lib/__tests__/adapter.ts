@@ -1,9 +1,6 @@
 import http from 'http'
-import fs from 'fs'
-import path from 'path'
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
-import { afix } from 'afix'
 import { Event, Context } from 'presta'
 import { NextApiRequest, NextApiResponse } from 'next'
 
@@ -107,8 +104,6 @@ test('adapter', async () => {
   })
   const res = createResponse()
   await adapted(req, res as unknown as NextApiResponse)
-
-  console.log(res.body)
 
   assert.equal(plan, 1)
   assert.equal(res.statusCode, 200)
