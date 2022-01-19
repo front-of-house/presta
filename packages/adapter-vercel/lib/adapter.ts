@@ -6,8 +6,9 @@ import { parse as parseUrl } from 'url'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { Response } from 'lambda-types'
 import { Handler, Event, Context } from 'presta'
-import { normalizeHeaders } from 'presta/dist/normalizeHeaders'
-import { parseQueryStringParameters } from 'presta/dist/parseQueryStringParameters'
+import { normalizeHeaders } from '@presta/utils/normalizeHeaders'
+import { parseQueryStringParameters } from '@presta/utils/parseQueryStringParameters'
+import { sendServerlessResponse } from '@presta/utils/sendServerlessResponse'
 
 export type VercelEvent = Event & {
   env: NextApiRequest['env']
@@ -50,19 +51,6 @@ export function adapter(handler: Handler) {
     // @ts-ignore
     const response: Response = await handler(event, {} as Context)
 
-    if (response.multiValueHeaders) {
-      for (const key of Object.keys(response.multiValueHeaders)) {
-        res.setHeader(key, String(response.multiValueHeaders[key]))
-      }
-    }
-
-    if (response.headers) {
-      for (const key of Object.keys(response.headers)) {
-        res.setHeader(key, String(response.headers[key]))
-      }
-    }
-
-    res.statusCode = response.statusCode
-    res.end(response.body)
+    sendServerlessResponse(res, response)
   }
 }

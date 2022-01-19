@@ -6,7 +6,7 @@ import proxy from 'proxyquire'
 import { afix } from 'afix'
 
 import { create } from '../config'
-import { createHttpError, getMimeType, loadLambdaFroManifest, processHandler, sendServerlessResponse } from '../serve'
+import { createHttpError, getMimeType, loadLambdaFroManifest, processHandler } from '../serve'
 import { Event } from '../lambda'
 import { createEmitter, createHooks } from '../createEmitter'
 import { Env } from '../constants'
@@ -121,46 +121,6 @@ test('processHandler - throws as json', async () => {
   assert.ok(res.headers['content-type'].includes('application/json'))
 })
 
-test('sendServerlessResponse', async () => {
-  function createRequest() {
-    let headers = []
-    let body = ''
-
-    return {
-      get headers() {
-        return headers
-      },
-      statusCode: null,
-      get body() {
-        return body
-      },
-      setHeader(key: string, value: string) {
-        headers.push({ key, value })
-      },
-      write(body: string) {
-        body = body
-      },
-      end() {},
-    } as unknown as http.ServerResponse & { headers: any[] }
-  }
-
-  const one = createRequest()
-  sendServerlessResponse(one, {
-    statusCode: 200,
-    headers: {
-      'x-header': 'foo',
-    },
-    multiValueHeaders: {
-      'x-header-multi': ['foo', 'foo'],
-    },
-  })
-  assert.equal(one.statusCode, 200)
-  assert.equal(one.headers, [
-    { key: 'x-header-multi', value: 'foo,foo' },
-    { key: 'x-header', value: 'foo' },
-  ])
-})
-
 test('createRequestHandler', async () => {
   let plan = 0
 
@@ -184,24 +144,20 @@ test('createRequestHandler', async () => {
     '/': fixture.files.lambda.path,
   }
   const { createRequestHandler } = proxy('../serve', {
-    './timer': {
+    '@presta/utils': {
+      requestToEvent() {
+        plan++
+        return event
+      },
+      requireFresh() {
+        return manifest
+      },
       timer() {
         plan++
 
         return () => {
           plan++
         }
-      },
-    },
-    './requestToEvent': {
-      requestToEvent() {
-        plan++
-        return event
-      },
-    },
-    './utils': {
-      requireFresh() {
-        return manifest
       },
     },
   })

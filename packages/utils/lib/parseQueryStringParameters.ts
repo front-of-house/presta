@@ -1,15 +1,11 @@
-/**
- * THIS IS PROD CODE, BE CAREFUL WHAT YOU ADD TO THIS FILE
- */
-
 import { parse as parseQuery } from 'query-string'
-import { QueryStringParameters, MultiValueQueryStringParameters } from './lambda'
+import { Params, MultiValueParams } from 'lambda-types'
 
 export function parseQueryStringParameters(query: string) {
   const params = parseQuery(query, { arrayFormat: 'comma' })
 
-  const queryStringParameters: QueryStringParameters = {}
-  const multiValueQueryStringParameters: MultiValueQueryStringParameters = {}
+  const queryStringParameters: Params = {}
+  const multiValueQueryStringParameters: MultiValueParams = {}
 
   for (const param of Object.keys(params)) {
     const value = params[param]

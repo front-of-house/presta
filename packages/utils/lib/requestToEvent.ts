@@ -3,7 +3,7 @@ import { parse as parseUrl } from 'url'
 import rawBody from 'raw-body'
 import mime from 'mime-types'
 
-import { Event } from './lambda'
+import { Event } from 'lambda-types'
 import { normalizeHeaders } from './normalizeHeaders'
 import { parseQueryStringParameters } from './parseQueryStringParameters'
 
@@ -39,5 +39,7 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<Event> 
     body: body ? Buffer.from(body).toString(isBase64Encoded ? 'base64' : 'utf8') : null,
     isBase64Encoded,
     pathParameters: {},
+    requestContext: {},
+    resource: '',
   }
 }

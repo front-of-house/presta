@@ -4,12 +4,12 @@ import { create } from 'watch-dependency-graph'
 import chokidar from 'chokidar'
 import match from 'picomatch'
 import merge from 'deep-extend'
+import { timer } from '@presta/utils'
 
 import { outputLambdas } from './outputLambdas'
 import * as logger from './log'
 import { getFiles, isStatic, isDynamic } from './getFiles'
 import { buildStaticFiles, removeBuiltStaticFile, StaticFilesMap } from './buildStaticFiles'
-import { timer } from './timer'
 import { Config } from './config'
 import { Hooks } from './createEmitter'
 

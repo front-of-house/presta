@@ -4,6 +4,7 @@ import merge from 'deep-extend'
 import toRegExp from 'regexparam'
 import { createPlugin, logger, HookPostBuildPayload } from 'presta'
 import { build as esbuild } from 'esbuild'
+import { requireSafe } from '@presta/utils'
 
 export const vercelConfig = {
   build: {
@@ -26,14 +27,6 @@ export const routesManifest: {
   basePath: '',
   pages404: false,
   dynamicRoutes: [],
-}
-
-export function requireSafe(mod: string) {
-  try {
-    return require(mod)
-  } catch (e) {
-    return {}
-  }
 }
 
 export async function generateRoutes(

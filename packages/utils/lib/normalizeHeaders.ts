@@ -1,13 +1,9 @@
-/**
- * THIS IS PROD CODE, BE CAREFUL WHAT YOU ADD TO THIS FILE
- */
-
 import http from 'http'
-import { Headers, MultiValueHeaders } from './lambda'
+import { Params, MultiValueParams } from 'lambda-types'
 
 export function normalizeHeaders(rawHeaders: http.IncomingMessage['headers']) {
-  const headers: Headers = {}
-  const multiValueHeaders: MultiValueHeaders = {}
+  const headers: Params = {}
+  const multiValueHeaders: MultiValueParams = {}
 
   for (const header of Object.keys(rawHeaders)) {
     const key = header.toLowerCase()

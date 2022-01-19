@@ -5,17 +5,15 @@ import mime from 'mime-types'
 import toRegExp from 'regexparam'
 import status from 'statuses'
 import { WebSocketServer } from 'ws'
+import { timer, requestToEvent, requireFresh, sendServerlessResponse } from '@presta/utils'
 
-import { timer } from './timer'
 import * as logger from './log'
 import { createDefaultHtmlResponse } from './createDefaultHtmlResponse'
-import { requestToEvent } from './requestToEvent'
 import { createLiveReloadScript } from './utils'
 import { Handler, Event, Response, Context } from './lambda'
 import { Config } from './config'
 import { Hooks } from './createEmitter'
 import { normalizeResponse } from './normalizeResponse'
-import { requireFresh } from './utils'
 
 export interface HttpError extends Error {
   statusCode?: number
@@ -79,23 +77,6 @@ export async function processHandler(event: Event, lambda: { handler: Handler })
       json: acceptsJson ? { detail: status.message[statusCode] } : undefined,
     })
   }
-}
-
-export function sendServerlessResponse(res: http.ServerResponse, r: Partial<Response>) {
-  const response = normalizeResponse(r)
-
-  // @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L73
-  for (const key in r.multiValueHeaders) {
-    res.setHeader(key, String(r.multiValueHeaders[key]))
-  }
-
-  for (const key in r.headers) {
-    res.setHeader(key, String(r.headers[key]))
-  }
-
-  res.statusCode = response.statusCode
-  res.write(response.body)
-  res.end()
 }
 
 export function createRequestHandler({ port, config }: { port: number; config: Config }) {

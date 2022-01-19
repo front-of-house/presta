@@ -1,0 +1,9 @@
+{
+  "extends": "@tsconfig/node12/tsconfig.json",
+  "include": ["lib"],
+  "exclude": ["node_modules", "lib/__tests__"],
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "./"
+  }
+}
