@@ -1,15 +1,14 @@
 import path from 'path'
 import fs from 'fs-extra'
 import { build as esbuild } from 'esbuild'
+import { requireSafe, timer } from '@presta/utils'
 
 import { outputLambdas } from './outputLambdas'
 import { getFiles, isStatic, isDynamic } from './getFiles'
 import { buildStaticFiles } from './buildStaticFiles'
-import { timer } from './timer'
 import * as logger from './log'
 import { Config } from './config'
 import { Hooks } from './createEmitter'
-import { requireSafe } from './utils'
 
 export async function build(config: Config, hooks: Hooks) {
   const totalTime = timer()
@@ -121,7 +120,8 @@ export async function build(config: Config, hooks: Hooks) {
     if (copyTime) {
       logger.info({
         label: 'assets',
-        message: `copied in ${copyTime}`,
+        message: `copied`,
+        duration: copyTime,
       })
     }
 
@@ -134,8 +134,9 @@ export async function build(config: Config, hooks: Hooks) {
 
     if (staticTime || dynamicTime) {
       logger.info({
-        label: 'complete',
-        message: `in ${totalTime()}`,
+        label: 'build',
+        message: `complete`,
+        duration: totalTime(),
       })
     }
   }

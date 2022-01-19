@@ -1,9 +1,9 @@
 import fs from 'fs-extra'
 import path from 'path'
 import mime from 'mime-types'
+import { timer } from '@presta/utils'
 
 import * as logger from './log'
-import { timer } from './timer'
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
 import { createLiveReloadScript } from './utils'

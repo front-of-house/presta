@@ -5,16 +5,9 @@ import * as assert from 'uvu/assert'
 import { afix } from 'afix'
 import { build as esbuild } from 'esbuild'
 
-import createPlugin, { vercelConfig, requireSafe, onPostBuild } from '../index'
+import createPlugin, { vercelConfig, onPostBuild } from '../index'
 
 const test = suite('@presta/adapter-vercel')
-
-test('requireSafe', async () => {
-  const fixture = afix({
-    error: ['index.js', 'export default () => {'],
-  })
-  assert.equal(requireSafe(fixture.files.error.path), {})
-})
 
 test('onPostBuild', async () => {
   const cwd = process.cwd()

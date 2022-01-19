@@ -1,10 +1,11 @@
 /**
  * THIS IS PROD CODE, BE CAREFUL WHAT YOU ADD TO THIS FILE
  */
+import { Response } from 'lambda-types'
 
 import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
-import { Event, Context, Response, Handler } from './lambda'
+import { Event, Context, Handler } from './lambda'
 
 export function wrapHandler(file: {
   route: string

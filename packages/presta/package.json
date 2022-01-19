@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
+    "@presta/utils": "workspace:^0.0.0",
     "chokidar": "^3.4.3",
     "deep-extend": "^0.6.0",
     "dotenv": "^10.0.0",

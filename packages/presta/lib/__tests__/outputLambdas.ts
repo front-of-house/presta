@@ -3,10 +3,10 @@ import path from 'path'
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import { afix } from 'afix'
+import { hashContent } from '@presta/utils'
 
 import { create } from '../config'
 import { Env } from '../constants'
-import { hashContent } from '../utils'
 
 import { outputLambdas, slugify } from '../outputLambdas'
 
