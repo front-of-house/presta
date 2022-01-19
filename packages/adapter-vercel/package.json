@@ -1,6 +1,6 @@
 {
   "name": "@presta/adapter-vercel",
-  "version": "0.1.11",
+  "version": "0.2.0",
   "description": "Vercel adapter for Presta.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "@presta/utils": "workspace:^0.0.0",
+    "@presta/utils": "workspace:^0.1.0",
     "deep-extend": "^0.6.0",
     "esbuild": "^0.14.11",
     "fs-extra": "^9.0.1",
@@ -33,6 +33,6 @@
     "@types/deep-extend": "^0.4.32",
     "lambda-types": "^1.0.0",
     "next": "^12.0.8",
-    "presta": "workspace:^0.43.10"
+    "presta": "workspace:^0.44.0"
   }
 }
