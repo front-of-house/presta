@@ -53,7 +53,7 @@ jobs:
       # publish to npm
       - name: release
         id: changesets
-        uses: changesets/action@master
+        uses: changesets/action@v1
         with:
           publish: pnpm release
           version: pnpm version-packages
