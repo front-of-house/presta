@@ -1,5 +1,4 @@
 ---
-'@presta-example/node': minor
 '@presta/adapter-node': minor
 '@presta/adapter-vercel': minor
 'presta': minor
