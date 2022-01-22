@@ -20,3 +20,5 @@ sendServerlessResponse.js
 sendServerlessResponse.d.ts
 timer.js
 timer.d.ts
+createDefaultHtmlResponse.js
+createDefaultHtmlResponse.d.ts

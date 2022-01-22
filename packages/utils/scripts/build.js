@@ -13,6 +13,7 @@ require('esbuild').buildSync({
     'lib/hashContent.ts',
     'lib/sendServerlessResponse.ts',
     'lib/timer.ts',
+    'lib/createDefaultHtmlResponse.ts',
   ],
   outdir: path.join(__dirname, '..'),
   bundle: true,
