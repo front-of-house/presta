@@ -1,5 +1,11 @@
 # @presta/utils
 
+## 0.1.1
+
+### Patch Changes
+
+- [#187](https://github.com/sure-thing/presta/pull/187) [`0d77419`](https://github.com/sure-thing/presta/commit/0d77419e97d2a69f302321939d526a899f32f179) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fix multi-header setting, move default HTML response to utils
+
 ## 0.1.0
 
 ### Minor Changes

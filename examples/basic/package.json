@@ -6,8 +6,8 @@
     "build": "presta"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.2.2",
-    "presta": "workspace:^0.44.0"
+    "@presta/html": "workspace:^0.2.3",
+    "presta": "workspace:^0.44.1"
   },
   "devDependencies": {
     "micromark": "^3.0.5"
