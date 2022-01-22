@@ -1,5 +1,11 @@
 # @presta/html
 
+## 0.2.2
+
+### Patch Changes
+
+- [`b41e4da`](https://github.com/sure-thing/presta/commit/b41e4daaf2eac292282359169129bf7fa86cb544) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Swap in deepmerge for deep-extend
+
 ## 0.2.1
 
 ### Patch Changes

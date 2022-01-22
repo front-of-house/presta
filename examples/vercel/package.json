@@ -6,7 +6,7 @@
     "build": "presta"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.2.1",
+    "@presta/html": "workspace:^0.2.2",
     "presta": "workspace:^0.44.0"
   },
   "devDependencies": {
