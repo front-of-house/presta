@@ -1,4 +1,4 @@
-import merge from 'deep-extend'
+import merge from 'deepmerge'
 
 type GenericObject = { [key: string]: any }
 
@@ -112,7 +112,7 @@ export function prefixToObjects(prefix: string, props: Social): HeadElementWithC
 }
 
 export function createHeadTags(config: Partial<PrestaHead> = {}) {
-  const { title, description, image, url, ...o } = merge({}, defaults, config)
+  const { title, description, image, url, ...o } = merge(defaults, config)
 
   const meta = o.meta ? filterUnique(o.meta) : []
   const link = o.link ? filterUnique(o.link) : []

@@ -22,9 +22,6 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "deep-extend": "^0.6.0"
-  },
-  "devDependencies": {
-    "@types/deep-extend": "^0.4.32"
+    "deepmerge": "^4.2.2"
   }
 }
