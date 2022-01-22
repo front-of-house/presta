@@ -1,6 +1,6 @@
 {
   "name": "presta",
-  "version": "0.43.10",
+  "version": "0.44.0",
   "description": "Hyper minimal framework for the modern web.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "@presta/utils": "workspace:^0.0.0",
+    "@presta/utils": "workspace:^0.1.0",
     "chokidar": "^3.4.3",
     "deep-extend": "^0.6.0",
     "dotenv": "^10.0.0",

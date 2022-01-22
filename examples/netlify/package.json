@@ -7,12 +7,12 @@
     "serve": "netlify dev"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.2.1"
+    "@presta/html": "workspace:^0.2.2"
   },
   "devDependencies": {
-    "@presta/adapter-netlify": "workspace:^0.4.1",
+    "@presta/adapter-netlify": "workspace:^0.4.2",
     "netlify": "^10.1.1",
-    "presta": "workspace:^0.43.10"
+    "presta": "workspace:^0.44.0"
   },
   "version": null
 }

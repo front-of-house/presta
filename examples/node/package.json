@@ -6,11 +6,11 @@
     "build": "presta"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.2.1",
-    "presta": "workspace:^0.43.10"
+    "@presta/html": "workspace:^0.2.2",
+    "presta": "workspace:^0.44.0"
   },
   "devDependencies": {
-    "@presta/adapter-node": "workspace:^0.0.0",
+    "@presta/adapter-node": "workspace:^0.1.0",
     "micromark": "^3.0.5"
   },
   "version": null
