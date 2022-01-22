@@ -46,6 +46,7 @@
     "route-sort": "^1.0.0",
     "sade": "^1.7.3",
     "sirv": "^1.0.7",
+    "statues": "^1.0.0-alpha1",
     "statuses": "^2.0.1",
     "tiny-glob": "^0.2.9",
     "watch-dependency-graph": "^3.0.1",

@@ -108,7 +108,7 @@ test('adapter', async () => {
   assert.equal(plan, 1)
   assert.equal(res.statusCode, 200)
   assert.equal(res.headers, [
-    { key: 'x-header-multi', value: 'foo,foo' },
+    { key: 'x-header-multi', value: ['foo', 'foo'] },
     { key: 'x-header', value: 'foo' },
   ])
   assert.equal(res.body, 'foo')

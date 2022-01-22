@@ -141,7 +141,7 @@ test('sendServerlessResponse', async () => {
   })
   assert.equal(one.statusCode, 200)
   assert.equal(one.headers, [
-    { key: 'x-header-multi', value: 'foo,foo' },
+    { key: 'x-header-multi', value: ['foo', 'foo'] },
     { key: 'x-header', value: 'foo' },
   ])
 })
