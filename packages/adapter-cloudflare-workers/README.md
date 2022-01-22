@@ -1,23 +1,20 @@
-# @presta/adapter-node
+# @presta/adapter-cloudflare-workers
 
-Node deployment adapter plugin for Presta.
+Cloudflare Workers deployment adapter plugin for Presta.
 
 ## Usage
 
 Simply add to your Presta config (defaults to `presta.config.js`):
 
 ```javascript
-import node from '@presta/adapter-node'
+import cloudflare from '@presta/adapter-cloudflare-workers'
 
-export const plugins = [node({ port: 4000 })]
+export const plugins = [cloudflare()]
 ```
 
-This will generate a `server.js` file in your output directory. You can run it
-like any other node server:
-
-```bash
-node build/server.js
-```
+The plugin will output a `wrangler.toml` file if you don't have one, or a
+`presta-wrangler.toml` file if you do, and you can copy over Presta-specific
+settings.
 
 ## License
 
