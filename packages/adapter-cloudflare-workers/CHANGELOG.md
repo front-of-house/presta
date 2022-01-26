@@ -1,5 +1,11 @@
 # @presta/adapter-cloudflare-workers
 
+## 0.2.1
+
+### Patch Changes
+
+- [`4908b38`](https://github.com/sure-thing/presta/commit/4908b38f878a61b8841fc460e3d75e65d54970d6) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Add PRESTA_ENV back for now
+
 ## 0.2.0
 
 ### Minor Changes
