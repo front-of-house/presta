@@ -9,6 +9,18 @@ function stringify(obj: object | string) {
   return typeof obj === 'object' ? JSON.stringify(obj) : obj
 }
 
+function normalizeHeaders(headers: Headers) {
+  const normalized: Headers = {}
+
+  for (const header of Object.keys(headers)) {
+    const key = header.toLowerCase()
+    const value = headers[header]
+    normalized[key] = value || ''
+  }
+
+  return normalized
+}
+
 export function normalizeResponse(response: Partial<Response> | string): LambdaResponse {
   const {
     isBase64Encoded = false,
@@ -33,16 +45,10 @@ export function normalizeResponse(response: Partial<Response> | string): LambdaR
     contentType = 'application/xml; charset=utf-8'
   }
 
-  const rawHeaders: Headers = {
-    'Content-Type': contentType,
-    ...headers,
-  }
-  const normalizedHeaders: LambdaResponse['headers'] = {}
-
-  for (const header of Object.keys(rawHeaders)) {
-    const key = header.toLowerCase()
-    const value = rawHeaders[header]
-    normalizedHeaders[key] = value || ''
+  const normalizedIncomingHeaders = normalizeHeaders(headers as Headers)
+  const normalizedHeaders: LambdaResponse['headers'] = {
+    'content-type': contentType,
+    ...normalizedIncomingHeaders,
   }
 
   return {

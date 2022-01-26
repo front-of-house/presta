@@ -33,6 +33,14 @@ test('normalizeResponse - xml', async () => {
   assert.equal(res.body, xml)
 })
 
+test('normalizeResponse - incoming content-type overrides', async () => {
+  const res = normalizeResponse({
+    headers: { 'Content-Type': 'text/plain' },
+    json: { foo: true },
+  })
+  assert.equal(res.headers['content-type'], 'text/plain')
+})
+
 test('normalizeResponse - statusCode', async () => {
   const res = normalizeResponse({ statusCode: 400 })
   assert.equal(res.statusCode, 400)
