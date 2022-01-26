@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@cloudflare/wrangler": "^1.19.7",
-    "@presta/adapter-cloudflare-workers": "workspace:^0.1.0"
+    "@presta/adapter-cloudflare-workers": "workspace:^0.2.0"
   },
   "version": null
 }

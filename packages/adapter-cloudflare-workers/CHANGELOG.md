@@ -1,5 +1,11 @@
 # @presta/adapter-cloudflare-workers
 
+## 0.2.0
+
+### Minor Changes
+
+- [`bb18c51`](https://github.com/sure-thing/presta/commit/bb18c51c48929786762b66ad0c1d4cc994499792) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Bundle for non-Node env, stub globals WIP
+
 ## 0.1.0
 
 ### Minor Changes
