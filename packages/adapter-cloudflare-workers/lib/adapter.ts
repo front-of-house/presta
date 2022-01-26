@@ -59,7 +59,7 @@ export function createResponse(response: LambdaResponse) {
 
   if (response.headers) {
     for (const header of Object.keys(response.headers)) {
-      res.headers.append(header, String(response.headers[header]))
+      res.headers.set(header, String(response.headers[header]))
     }
   }
 
