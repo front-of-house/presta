@@ -1,5 +1,11 @@
 # @presta/utils
 
+## 0.1.2
+
+### Patch Changes
+
+- [`66eaa4a`](https://github.com/sure-thing/presta/commit/66eaa4a560ec679b7409689866a33e14bc293fb8) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Move parsePathParameters to @presta/utils
+
 ## 0.1.1
 
 ### Patch Changes
