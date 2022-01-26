@@ -200,5 +200,5 @@ export function html({
     return (attr += ` ${key}="${bodyAttributes[key as keyof HTMLBodyElement]}"`)
   }, '')
 
-  return `<!-- built with presta https://npm.im/presta --><!DOCTYPE html><html${htmlAttr}><head>${headTags}</head><body${bodyAttr}>${body}${footTags}</body></html>`
+  return `<!DOCTYPE html><html${htmlAttr}><head><!-- built with presta https://npm.im/presta -->${headTags}</head><body${bodyAttr}>${body}${footTags}</body></html>`
 }
