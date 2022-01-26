@@ -1,5 +1,11 @@
 # @presta/adapter-cloudflare-workers
 
+## 0.2.2
+
+### Patch Changes
+
+- [`87d73c3`](https://github.com/sure-thing/presta/commit/87d73c36200d7ce9333864f2d8791cc5ec5ef460) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Make sure non-multivalue headers are `set` and not `append`ed
+
 ## 0.2.1
 
 ### Patch Changes
