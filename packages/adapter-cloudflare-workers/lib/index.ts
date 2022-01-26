@@ -86,6 +86,9 @@ addEventListener("fetch", adapter(${JSON.stringify(props)}, routes));`,
     allowOverwrite: true, // it will be overwritten
     format: 'cjs',
     bundle: true,
+    define: {
+      PRESTA_ENV: JSON.stringify(process.env.PRESTA_ENV),
+    },
   })
 }
 
