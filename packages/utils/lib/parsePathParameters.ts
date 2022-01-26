@@ -1,13 +1,12 @@
 import toRegExp from 'regexparam'
-
-import { PathParameters } from './lambda'
+import { Params } from 'lambda-types'
 
 // @see https://github.com/lukeed/regexparam#usage
-export function getRouteParams(url: string, route: string): PathParameters {
+export function parsePathParameters(url: string, route: string): Params {
   const [path] = url.split('?')
   const result = toRegExp(route)
   let i = 0
-  let out: PathParameters = {}
+  let out: Params = {}
   let matches = result.pattern.exec(path) || []
 
   while (i < result.keys.length) {

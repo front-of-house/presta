@@ -146,4 +146,16 @@ test('sendServerlessResponse', async () => {
   ])
 })
 
+test('parsePathParameters - basic', async () => {
+  assert.equal(utils.parsePathParameters('/a', '/a'), {})
+  assert.equal(utils.parsePathParameters('/a', '/:slug'), { slug: 'a' })
+  assert.equal(utils.parsePathParameters('/a?query', '/:slug'), { slug: 'a' })
+  assert.equal(utils.parsePathParameters('/a/b', '/:page/:slug'), {
+    page: 'a',
+    slug: 'b',
+  })
+  assert.equal(utils.parsePathParameters('/a', '*'), { wild: 'a' })
+  assert.equal(utils.parsePathParameters('/a?query', '*'), { wild: 'a' })
+})
+
 test.run()

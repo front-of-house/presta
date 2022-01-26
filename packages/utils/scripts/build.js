@@ -14,6 +14,7 @@ require('esbuild').buildSync({
     'lib/sendServerlessResponse.ts',
     'lib/timer.ts',
     'lib/createDefaultHtmlResponse.ts',
+    'lib/parsePathParameters.ts',
   ],
   outdir: path.join(__dirname, '..'),
   bundle: true,

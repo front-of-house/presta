@@ -22,3 +22,5 @@ timer.js
 timer.d.ts
 createDefaultHtmlResponse.js
 createDefaultHtmlResponse.d.ts
+parsePathParameters.js
+parsePathParameters.d.ts

@@ -1,10 +1,9 @@
 import fs from 'fs-extra'
 import path from 'path'
 import mime from 'mime-types'
-import { timer } from '@presta/utils'
+import { timer, parsePathParameters } from '@presta/utils'
 
 import * as logger from './log'
-import { getRouteParams } from './getRouteParams'
 import { normalizeResponse } from './normalizeResponse'
 import { createLiveReloadScript } from './utils'
 import { Env } from './constants'
@@ -46,7 +45,7 @@ export async function buildStaticFile(file: string, output: string, { footer }: 
 
     const event = {
       path: url,
-      pathParameters: lambda.route ? getRouteParams(url, lambda.route) : {},
+      pathParameters: lambda.route ? parsePathParameters(url, lambda.route) : {},
     }
 
     const response = normalizeResponse(await lambda.handler(event, {}))
