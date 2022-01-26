@@ -1,5 +1,11 @@
 # presta
 
+## 0.44.3
+
+### Patch Changes
+
+- [`040810c`](https://github.com/sure-thing/presta/commit/040810cfbed0b3a8679150749b09fa6e288b3221) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Normalize user-supplied headers before merging
+
 ## 0.44.2
 
 ### Patch Changes

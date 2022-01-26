@@ -1,5 +1,11 @@
 # @presta/html
 
+## 0.2.4
+
+### Patch Changes
+
+- [`8c2cbdb`](https://github.com/sure-thing/presta/commit/8c2cbdb0356e42de7b6c265a6c6a0fe802345ce2) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Move presta credit inside head
+
 ## 0.2.3
 
 ### Patch Changes
