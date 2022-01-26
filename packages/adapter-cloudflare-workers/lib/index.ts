@@ -5,6 +5,7 @@ import { createPlugin, logger, HookPostBuildPayload, Config } from 'presta'
 import { build as esbuild } from 'esbuild'
 import { timer } from '@presta/utils/timer'
 import { requireSafe } from '@presta/utils/requireSafe'
+import { parse } from 'toml'
 
 function createWranglerConfig({ output }: Config) {
   const root = output.replace(process.cwd(), '').replace(/^\/+/, '')
@@ -31,6 +32,22 @@ compatibility_date = "2022-01-22"
 
 export function slugify(slug: string) {
   return slug.replace(/[^a-z]/gi, '')
+}
+
+export function getWranglerConfigPath() {
+  return path.join(process.cwd(), 'wrangler.toml')
+}
+
+export function getWranglerConfig() {
+  const wrangerConfigPath = getWranglerConfigPath()
+
+  if (!fs.existsSync(wrangerConfigPath)) return {}
+
+  try {
+    return parse(fs.readFileSync(wrangerConfigPath, 'utf8'))
+  } catch (e) {
+    return {}
+  }
 }
 
 export async function onPostBuild(props: HookPostBuildPayload) {
@@ -63,15 +80,12 @@ addEventListener("fetch", adapter(${JSON.stringify(props)}, routes));`,
   await esbuild({
     entryPoints: [filepath],
     outdir: output,
-    platform: 'node',
-    target: ['node12'],
+    platform: 'browser',
+    target: ['es2020'],
     minify: true,
     allowOverwrite: true, // it will be overwritten
     format: 'cjs',
     bundle: true,
-    define: {
-      PRESTA_ENV: JSON.stringify(process.env.PRESTA_ENV),
-    },
   })
 }
 
@@ -79,8 +93,15 @@ export default createPlugin(() => {
   const time = timer()
   const pkgpath = path.join(process.cwd(), 'package.json')
   const pkg = requireSafe(pkgpath)
-  const wranglerConfigPath = path.join(process.cwd(), 'wrangler.toml')
+  const wranglerConfigPath = getWranglerConfigPath()
   const prestaWranglerConfigPath = path.join(process.cwd(), 'presta-wrangler.toml')
+  const wrangler = getWranglerConfig()
+  const env = wrangler.vars || {}
+
+  for (const v of Object.keys(env)) {
+    // @ts-ignore
+    globalThis[v] = env[v]
+  }
 
   return async function plugin(config, hooks) {
     logger.debug({
@@ -93,12 +114,12 @@ export default createPlugin(() => {
       name: pkg.name,
       main: 'worker.js',
     }
-    const wrangerConfig = createWranglerConfig(config)
+    const generatedWranglerConfig = createWranglerConfig(config)
 
     if (!fs.existsSync(wranglerConfigPath)) {
-      fs.writeFileSync(wranglerConfigPath, wrangerConfig, 'utf8')
+      fs.writeFileSync(wranglerConfigPath, generatedWranglerConfig, 'utf8')
     } else if (!fs.existsSync(prestaWranglerConfigPath)) {
-      fs.writeFileSync(prestaWranglerConfigPath, wrangerConfig, 'utf8')
+      fs.writeFileSync(prestaWranglerConfigPath, generatedWranglerConfig, 'utf8')
     }
 
     hooks.onPostBuild(async (props) => {
