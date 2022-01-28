@@ -1,5 +1,11 @@
 # presta
 
+## 0.44.4
+
+### Patch Changes
+
+- [`0f87fe9`](https://github.com/sure-thing/presta/commit/0f87fe9727d9e1cd5e3a96eb95b2f73349bc2ff4) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Add lambda-types dep
+
 ## 0.44.3
 
 ### Patch Changes

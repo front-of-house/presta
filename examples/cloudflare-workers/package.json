@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@presta/html": "workspace:^0.2.4",
-    "presta": "workspace:^0.44.3"
+    "presta": "workspace:^0.44.4"
   },
   "devDependencies": {
     "@cloudflare/wrangler": "^1.19.7",
