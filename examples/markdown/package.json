@@ -9,7 +9,7 @@
     "@presta/html": "workspace:^0.2.4",
     "@presta/source-filesystem": "workspace:^0.3.1",
     "micromark": "^3.0.5",
-    "presta": "workspace:^0.44.3"
+    "presta": "workspace:^0.44.4"
   },
   "version": null
 }
