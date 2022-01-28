@@ -36,6 +36,7 @@
     "fs-extra": "^9.0.1",
     "get-port": "^5.1.1",
     "kleur": "^4.1.4",
+    "lambda-types": "^1.0.0",
     "mime-types": "^2.1.31",
     "module-alias": "^2.2.2",
     "ms": "^2.1.2",
