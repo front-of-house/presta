@@ -1,0 +1,44 @@
+name: Examples
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PNPM_CACHE_FOLDER: .pnpm-store
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      # env stuff
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: node - setup
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+
+      # pnpm stuff
+      - name: pnpm — install
+        run: npm i pnpm@latest -g
+      - name: pnpm - config
+        run: pnpm config set store-dir $PNPM_CACHE_FOLDER
+      - name: pnpm - output bin stubs
+        run: mkdir ./packages/presta/dist && echo "#! /usr/bin/env node" > ./packages/presta/dist/bin.js
+      - name: pnpm - install
+        run: pnpm install
+
+      - name: build - examples
+        run: pnpm build --filter "@presta-example/*"
+
+      - name: deploy @presta-example/netlify
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_EXAMPLE_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: cd examples/netlify && netlify deploy --prod
