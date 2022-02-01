@@ -1,7 +1,7 @@
 # Example: Cloudflare Workers
 
-To run: `pnpm start`. To build: `pnpm run build`. TO serve locally with Cloudflare
-Wrangerl, `pnpm serve`.
+To run: `pnpm start`. To build: `pnpm run build`. To serve locally with Cloudflare
+Wrangler: `pnpm serve`.
 
 ## License
 

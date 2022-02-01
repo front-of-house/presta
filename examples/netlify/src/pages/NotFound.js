@@ -1,4 +1,3 @@
-import { Event } from 'presta'
 import { html } from '@presta/html'
 
 import { Nav } from '@/src/components/Nav'
@@ -6,7 +5,7 @@ import { link } from '@/src/utils/head'
 
 export const route = '*'
 
-export function handler(event: Event) {
+export function handler(event) {
   return {
     statusCode: 404,
     html: html({
