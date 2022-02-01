@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "lib": ["dom"],
+    "jsx": "preserve",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "h",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# Example: Markdown
+# Example: Vercel
 
 To run: `npm start`. To build: `npm run build`.
 
