@@ -35,11 +35,8 @@ jobs:
       - name: pnpm - install
         run: pnpm install
 
-      - name: build - examples
-        run: pnpm build --filter "@presta-example/*"
-
-      - name: deploy @presta-example/netlify
+      - name: deploy - @presta-example/netlify
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_EXAMPLE_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        run: cd examples/netlify && netlify deploy --prod
+        run: cd examples/netlify && ls && pnpm build && netlify deploy --prod
