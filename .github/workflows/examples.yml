@@ -42,4 +42,4 @@ jobs:
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_EXAMPLE_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        run: cd examples/netlify && netlify deploy --prod
+        run: cd examples/netlify && pnpm build && ls && netlify deploy --prod
