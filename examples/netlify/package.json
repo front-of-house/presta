@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@presta/adapter-netlify": "workspace:^0.4.2",
-    "netlify-cli": "^8.15.1",
+    "netlify-cli": "6",
     "presta": "workspace:^0.44.4"
   },
   "version": null
