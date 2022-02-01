@@ -72,3 +72,8 @@ jobs:
         env:
           VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
         run: cd examples/vercel && vercel --prod --token $VERCEL_AUTH_TOKEN
+
+      - name: deploy - @presta-example/cloudflare-workers
+        env:
+          VERCEL_AUTH_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: cd examples/cloudflare-workers && wrangler publish

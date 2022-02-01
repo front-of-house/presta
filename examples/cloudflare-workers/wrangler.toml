@@ -1,9 +1,7 @@
-name = "presta-cloudflare-workers"
+name = "presta-example-cloudflare-workers"
 type = "javascript"
 
-zone_id = ''
-account_id = ''
-route = ''
+account_id = '0058269086e8cbec458f02e3e7bd036b'
 workers_dev = true
 compatibility_date = "2022-01-22"
 
