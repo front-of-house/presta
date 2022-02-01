@@ -2,5 +2,3 @@ node_modules
 build
 .output
 vercel.json
-
-.vercel

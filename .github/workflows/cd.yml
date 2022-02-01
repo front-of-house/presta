@@ -71,4 +71,4 @@ jobs:
       - name: deploy - @presta-example/vercel
         env:
           VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
-        run: cd examples/vercel && vercel --prod --scope estrattonbailey --token $VERCEL_AUTH_TOKEN
+        run: cd examples/vercel && vercel --prod --token $VERCEL_AUTH_TOKEN
