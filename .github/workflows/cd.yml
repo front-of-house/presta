@@ -67,3 +67,8 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_EXAMPLE_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: cd examples/netlify && netlify deploy --prod
+
+      - name: deploy - @presta-example/vercel
+        env:
+          VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
+        run: cd examples/vercel && vercel --prod --scope estrattonbailey --token $VERCEL_AUTH_TOKEN
