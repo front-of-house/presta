@@ -1,4 +1,3 @@
-import fs from 'fs-extra'
 import path from 'path'
 import chokidar from 'chokidar'
 
@@ -36,8 +35,6 @@ export async function buildCommand(options: PrestaCLIBuildOptions) {
   const hooks = createHooks(emitter)
   const config = create(Env.PRODUCTION, { ...options, port }, configFile)
   await initPlugins(config.plugins, config, hooks)
-
-  fs.emptyDirSync(config.output)
 
   logger.info({
     label: 'build',
