@@ -13,6 +13,7 @@ import { Handler, Event, Response, Context } from './lambda'
 import { Config } from './config'
 import { Hooks } from './createEmitter'
 import { normalizeResponse } from './normalizeResponse'
+import { getDynamicFilesFromManifest, Manifest, ManifestDynamicFile } from './manifest'
 
 export interface HttpError extends Error {
   statusCode?: number
@@ -31,19 +32,19 @@ export function getMimeType(response: Response) {
   return mime.extension(type as string) || 'html'
 }
 
-export function loadLambdaFroManifest(url: string, manifest: { [route: string]: string }): { handler: Handler } {
-  const routes = Object.keys(manifest)
-  const lambdaFilepath = routes
-    .map((route) => ({
-      matcher: toRegExp(route),
-      route,
+export function loadLambdaFromManifest(url: string, manifest: Manifest): { handler: Handler } {
+  const dynamicFiles = getDynamicFilesFromManifest(manifest)
+  const lambda = dynamicFiles
+    .map((file) => ({
+      matcher: toRegExp(file.route),
+      file,
     }))
     .filter(({ matcher }) => {
       return matcher.pattern.test(url.split('?')[0])
     })
-    .map(({ route }) => manifest[route])[0]
+    .map(({ file }) => file)[0]
 
-  return lambdaFilepath ? require(lambdaFilepath) : undefined
+  return lambda ? require(lambda.dest) : undefined
 }
 
 export async function processHandler(event: Event, lambda: { handler: Handler }) {
@@ -82,8 +83,8 @@ export function createRequestHandler({ port, config }: { port: number; config: C
   return async function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
     const time = timer()
     const event = await requestToEvent(req) // stock AWS Event shape
-    const manifest = requireFresh(config.functionsManifest)
-    const lambda = loadLambdaFroManifest(event.path, manifest)
+    const manifest = requireFresh(config.manifestFilepath) as Manifest
+    const lambda = loadLambdaFromManifest(event.path, manifest)
     const response = await processHandler(event, lambda)
     const redir = response.statusCode > 299 && response.statusCode < 399
     const mime = getMimeType(response)

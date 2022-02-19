@@ -5,7 +5,7 @@
 import { parse as parseUrl } from 'url'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { Response } from 'lambda-types'
-import { Handler, Event, Context } from 'presta'
+import type { Handler, Event, Context } from 'presta'
 import { normalizeHeaders } from '@presta/utils/normalizeHeaders'
 import { parseQueryStringParameters } from '@presta/utils/parseQueryStringParameters'
 import { sendServerlessResponse } from '@presta/utils/sendServerlessResponse'

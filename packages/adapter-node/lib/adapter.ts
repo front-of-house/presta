@@ -8,18 +8,19 @@ import sirv from 'sirv'
 import { Handler } from 'lambda-types'
 import { requestToEvent } from '@presta/utils/requestToEvent'
 import { sendServerlessResponse } from '@presta/utils/sendServerlessResponse'
-import { HookPostBuildPayload } from 'presta'
+import { HookPostBuildPayload, getDynamicFilesFromManifest } from 'presta'
 
 import { Options } from './types'
 
 export function adapter(props: HookPostBuildPayload, options: Options) {
   const assets = sirv(path.resolve(__dirname, props.staticOutput))
   const app = polka().use(assets)
+  const dynamicFiles = getDynamicFilesFromManifest(props.manifest)
 
-  for (const route in props.functionsManifest) {
-    app.all(route, async (req, res) => {
+  for (const file of dynamicFiles) {
+    app.all(file.route, async (req, res) => {
       const event = await requestToEvent(req)
-      const { handler } = require(props.functionsManifest[route]) as { handler: Handler }
+      const { handler } = require(file.dest) as { handler: Handler }
       // @ts-ignore
       const response = await handler(event, {})
       // @ts-ignore

@@ -18,7 +18,7 @@ export type Config = Options & {
   env: string
   staticOutputDir: string
   functionsOutputDir: string
-  functionsManifest: string
+  manifestFilepath: string
 }
 
 export const defaultConfigFilepath = 'presta.config.js'
@@ -87,6 +87,6 @@ export function create(
     ...config,
     staticOutputDir: path.join(config.output, 'static'),
     functionsOutputDir: path.join(config.output, 'functions'),
-    functionsManifest: path.join(config.output, 'routes.json'),
+    manifestFilepath: path.join(config.output, 'manifest.json'),
   }
 }

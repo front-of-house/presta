@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import merge from 'deep-extend'
 import toRegExp from 'regexparam'
-import { createPlugin, logger, HookPostBuildPayload } from 'presta'
+import { createPlugin, logger, HookPostBuildPayload, ManifestDynamicFile, getDynamicFilesFromManifest } from 'presta'
 import { build as esbuild } from 'esbuild'
 import { requireSafe } from '@presta/utils'
 
@@ -31,20 +31,19 @@ export const routesManifest: {
 
 export async function generateRoutes(
   prestaOutput: HookPostBuildPayload['output'],
-  prestaFunctionsManifest: HookPostBuildPayload['functionsManifest']
+  dynamicFiles: ManifestDynamicFile[]
 ) {
   const manifest = Object.assign({}, routesManifest)
 
-  for (const route of Object.keys(prestaFunctionsManifest)) {
-    const source = prestaFunctionsManifest[route]
-    const filename = /^\/$/.test(route) ? 'index' : path.basename(source, '.js')
+  for (const source of dynamicFiles) {
+    const filename = /^\/$/.test(source.route) ? 'index' : path.basename(source.dest, '.js')
     const tmpfile = path.join(prestaOutput, './.vercel', filename + '.js')
-    const { pattern } = toRegExp(route)
+    const { pattern } = toRegExp(source.route)
 
     fs.outputFileSync(
       tmpfile,
       `import { adapter } from '@presta/adapter-vercel/dist/adapter';
-import { handler } from '${source}';
+import { handler } from '${source.dest}';
 export default adapter(handler);`
     )
 
@@ -78,10 +77,12 @@ export function mergeVercelConfig() {
 }
 
 export async function onPostBuild(props: HookPostBuildPayload) {
-  const { output: prestaOutput, staticOutput, functionsManifest } = props
+  const { output: prestaOutput, staticOutput, manifest } = props
 
   fs.copySync(staticOutput, path.join(process.cwd(), './.output/static'))
-  if (Object.keys(functionsManifest).length) await generateRoutes(prestaOutput, functionsManifest)
+
+  const dynamicFiles = getDynamicFilesFromManifest(manifest)
+  if (dynamicFiles.length) await generateRoutes(prestaOutput, dynamicFiles)
 
   logger.info({
     label: '@presta/adapter-vercel',

@@ -4,6 +4,7 @@ import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import { afix } from 'afix'
 import { build as esbuild } from 'esbuild'
+import { ManifestDynamicFile } from 'presta'
 
 import createPlugin, { vercelConfig, onPostBuild } from '../index'
 
@@ -23,7 +24,7 @@ test('onPostBuild', async () => {
     output,
     staticOutput: path.join(output, 'static'),
     functionsOutput: path.join(output, 'functions'),
-    functionsManifest: {},
+    manifest: { files: [] },
   })
 
   assert.ok(fs.existsSync(path.join(fixture.root, './.output/static/index.html')))
@@ -77,10 +78,20 @@ test('generateRoutes', async () => {
   process.chdir(fixture.root)
 
   const prestaOutput = path.join(fixture.root, 'build')
-  const prestaFunctionsManifest = {
-    '/': path.join(prestaOutput, 'functions/home.js'),
-    '*': path.join(prestaOutput, 'functions/page.js'),
-  }
+  const dynamicFiles: ManifestDynamicFile[] = [
+    {
+      type: 'dynamic',
+      src: 'src',
+      dest: path.join(prestaOutput, 'functions/home.js'),
+      route: '/',
+    },
+    {
+      type: 'dynamic',
+      src: 'src',
+      dest: path.join(prestaOutput, 'functions/page.js'),
+      route: '*',
+    },
+  ]
 
   const { generateRoutes } = require('proxyquire')('../index', {
     esbuild: {
@@ -93,7 +104,7 @@ test('generateRoutes', async () => {
     },
   })
 
-  await generateRoutes(prestaOutput, prestaFunctionsManifest)
+  await generateRoutes(prestaOutput, dynamicFiles)
 
   const routesManifestPath = path.join(process.cwd(), './.output/routes-manifest.json')
   const routesManifest = JSON.parse(fs.readFileSync(routesManifestPath, 'utf8'))

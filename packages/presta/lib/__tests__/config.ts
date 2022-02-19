@@ -104,7 +104,7 @@ test('create', async () => {
     plugins: [],
     staticOutputDir: path.join(output, 'static'),
     functionsOutputDir: path.join(output, 'functions'),
-    functionsManifest: path.join(output, 'routes.json'),
+    manifestFilepath: path.join(output, 'manifest.json'),
   }
 
   assert.equal(config, generated)

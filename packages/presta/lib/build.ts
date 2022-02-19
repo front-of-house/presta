@@ -9,6 +9,7 @@ import { buildStaticFiles } from './buildStaticFiles'
 import * as logger from './log'
 import { Config } from './config'
 import { Hooks } from './createEmitter'
+import { ManifestStaticFile, ManifestDynamicFile, staticFilesMapToManifestFiles, writeManifest } from './manifest'
 
 export async function build(config: Config, hooks: Hooks) {
   const totalTime = timer()
@@ -31,6 +32,8 @@ export async function build(config: Config, hooks: Hooks) {
     let staticFileAmount = 0
     let dynamicTime = ''
     let copyTime = ''
+    let manifestStaticFiles: ManifestStaticFile[] = []
+    let manifestDynamicFiles: ManifestDynamicFile[] = []
 
     const tasks = await Promise.allSettled([
       (async () => {
@@ -38,6 +41,7 @@ export async function build(config: Config, hooks: Hooks) {
           const time = timer()
 
           const { staticFilesMap } = await buildStaticFiles(staticIds, config)
+          manifestStaticFiles = staticFilesMapToManifestFiles(staticFilesMap)
 
           staticTime = time()
           staticFileAmount = Object.keys(staticFilesMap).reduce((count, key) => {
@@ -50,10 +54,10 @@ export async function build(config: Config, hooks: Hooks) {
           const time = timer()
           const pkg = requireSafe(path.join(process.cwd(), 'package.json'))
 
-          outputLambdas(dynamicIds, config)
+          manifestDynamicFiles = outputLambdas(dynamicIds, config)
 
           await esbuild({
-            entryPoints: Object.values(require(config.functionsManifest)),
+            entryPoints: manifestDynamicFiles.map((f) => f.dest),
             outdir: config.functionsOutputDir,
             platform: 'node',
             target: ['node12'],
@@ -101,6 +105,19 @@ export async function build(config: Config, hooks: Hooks) {
       throw new Error('presta build failed')
     }
 
+    const manifest = {
+      files: [...manifestStaticFiles, ...manifestDynamicFiles],
+    }
+
+    writeManifest(manifest, config)
+
+    hooks.emitPostBuild({
+      output: config.output,
+      staticOutput: config.staticOutputDir,
+      functionsOutput: config.functionsOutputDir,
+      manifest,
+    })
+
     if (staticTime) {
       logger.info({
         label: 'static',
@@ -124,13 +141,6 @@ export async function build(config: Config, hooks: Hooks) {
         duration: copyTime,
       })
     }
-
-    hooks.emitPostBuild({
-      output: config.output,
-      staticOutput: config.staticOutputDir,
-      functionsOutput: config.functionsOutputDir,
-      functionsManifest: requireSafe(config.functionsManifest),
-    })
 
     if (staticTime || dynamicTime) {
       logger.info({

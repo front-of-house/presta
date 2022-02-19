@@ -6,6 +6,7 @@ import { hashContent } from '@presta/utils'
 import * as logger from './log'
 import { Config } from './config'
 import { Env } from './constants'
+import { ManifestDynamicFile } from './manifest'
 
 export function slugify(filename: string) {
   return filename
@@ -50,7 +51,12 @@ export function outputLambdas(inputs: string[], config: Config) {
       export const handler = wrapHandler(file)`
         )
 
-        return [route, output]
+        return {
+          type: 'dynamic',
+          src: input,
+          dest: output,
+          route,
+        }
       } catch (e) {
         logger.error({
           label: 'error',
@@ -58,20 +64,18 @@ export function outputLambdas(inputs: string[], config: Config) {
         })
       }
     })
-    .filter(Boolean) as [string, string][]
+    .filter(Boolean) as ManifestDynamicFile[]
 
-  const sorted = rsort(lambdas.map((l) => l[0]))
-  const manifest: { [route: string]: string } = {}
+  const sortedRoutes = rsort(lambdas.map((l) => l.route))
+  const sortedFiles: ManifestDynamicFile[] = []
 
-  for (const route of sorted) {
-    const match = lambdas.find((l) => l[0] === route)
+  for (const route of sortedRoutes) {
+    const match = lambdas.find((l) => l.route === route)
 
     if (match) {
-      manifest[route] = match[1]
+      sortedFiles.push(match)
     }
   }
 
-  fs.outputFileSync(config.functionsManifest, JSON.stringify(manifest))
-
-  return lambdas
+  return sortedFiles
 }

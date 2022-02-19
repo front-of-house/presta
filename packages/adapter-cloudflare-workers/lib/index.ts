@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { mkdir } from 'mk-dirs/sync'
-import { createPlugin, logger, HookPostBuildPayload, Config } from 'presta'
+import { createPlugin, logger, HookPostBuildPayload, Config, getDynamicFilesFromManifest } from 'presta'
 import { build as esbuild } from 'esbuild'
 import { timer } from '@presta/utils/timer'
 import { requireSafe } from '@presta/utils/requireSafe'
@@ -51,19 +51,20 @@ export function getWranglerConfig() {
 }
 
 export async function onPostBuild(props: HookPostBuildPayload) {
-  const { output, functionsManifest: fns } = props
+  const { output, manifest } = props
   const filepath = path.join(output, 'worker.js')
 
   mkdir(output)
 
-  const imports = Object.entries(fns)
-    .map(([route, filepath]) => {
-      return `import * as ${slugify(filepath)} from "${filepath}"`
+  const dynamicFiles = getDynamicFilesFromManifest(manifest)
+  const imports = dynamicFiles
+    .map((file) => {
+      return `import * as ${slugify(file.dest)} from "${file.dest}"`
     })
     .join(';\n')
-  const runtime = Object.entries(fns)
-    .map(([route, filepath]) => {
-      return `routes.push({ route: "${route}", module: ${slugify(filepath)} })`
+  const runtime = dynamicFiles
+    .map((file) => {
+      return `routes.push({ route: "${file.route}", module: ${slugify(file.dest)} })`
     })
     .join(';\n')
 
