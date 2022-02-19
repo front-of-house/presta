@@ -10,9 +10,9 @@
     "@presta/html": "workspace:^0.2.4"
   },
   "devDependencies": {
-    "@presta/adapter-netlify": "workspace:^0.4.2",
+    "@presta/adapter-netlify": "workspace:^0.5.0",
     "netlify-cli": "6",
-    "presta": "workspace:^0.44.4"
+    "presta": "workspace:^0.45.0"
   },
   "version": null
 }

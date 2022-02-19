@@ -13,7 +13,7 @@
   },
   "version": null,
   "devDependencies": {
-    "presta": "workspace:^0.44.4",
+    "presta": "workspace:^0.45.0",
     "@tsconfig/node14": "^1.0.1",
     "typescript": "^4.5.4"
   }
