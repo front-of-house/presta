@@ -7,10 +7,10 @@
   },
   "dependencies": {
     "@presta/html": "workspace:^0.2.4",
-    "presta": "workspace:^0.44.4"
+    "presta": "workspace:^0.45.0"
   },
   "devDependencies": {
-    "@presta/adapter-node": "workspace:^0.1.0",
+    "@presta/adapter-node": "workspace:^0.2.0",
     "micromark": "^3.0.5"
   },
   "version": null

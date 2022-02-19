@@ -1,5 +1,16 @@
 # @presta/adapter-netlify
 
+## 0.5.0
+
+### Minor Changes
+
+- [#203](https://github.com/sure-thing/presta/pull/203) [`67a3235`](https://github.com/sure-thing/presta/commit/67a32350e33ae958dc22cbe8f2e1faf6f8a4b13b) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Output and consume manifest.json
+
+### Patch Changes
+
+- Updated dependencies [[`67a3235`](https://github.com/sure-thing/presta/commit/67a32350e33ae958dc22cbe8f2e1faf6f8a4b13b)]:
+  - presta@0.45.0
+
 ## 0.4.2
 
 ### Patch Changes

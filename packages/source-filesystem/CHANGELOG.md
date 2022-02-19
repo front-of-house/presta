@@ -1,5 +1,12 @@
 # @presta/source-filesystem
 
+## 0.3.2
+
+### Patch Changes
+
+- Updated dependencies [[`67a3235`](https://github.com/sure-thing/presta/commit/67a32350e33ae958dc22cbe8f2e1faf6f8a4b13b)]:
+  - presta@0.45.0
+
 ## 0.3.1
 
 ### Patch Changes
