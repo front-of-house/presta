@@ -3,7 +3,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import { premove } from 'premove/sync'
 import { mkdir } from 'mk-dirs/sync'
-import { createPlugin, logger, HookPostBuildPayload } from 'presta'
+import { createPlugin, logger, HookPostBuildPayload, ManifestDynamicFile, getDynamicFilesFromManifest } from 'presta'
 import { parse as toml } from 'toml'
 // @ts-ignore
 import { parseFileRedirects } from 'netlify-redirect-parser'
@@ -62,10 +62,10 @@ export function normalizeNetlifyRoute(route: string) {
   return route
 }
 
-export function prestaRoutesToNetlifyRedirects(routes: [string, string][]): NetlifyRedirect[] {
-  return routes.map(([route, filename]) => ({
-    from: normalizeNetlifyRoute(route),
-    to: `/.netlify/functions/${path.basename(filename, '.js')}`,
+export function prestaRoutesToNetlifyRedirects(files: ManifestDynamicFile[]): NetlifyRedirect[] {
+  return files.map((file) => ({
+    from: normalizeNetlifyRoute(file.route),
+    to: `/.netlify/functions/${path.basename(file.dest, '.js')}`,
     status: 200,
     force: false,
     query: {},
@@ -91,7 +91,7 @@ export async function getUserConfiguredRedirects(dir: string) {
 }
 
 export async function onPostBuild(config: NetlifyConfig, props: HookPostBuildPayload) {
-  const { output, staticOutput, functionsOutput, functionsManifest } = props
+  const { output, staticOutput, functionsOutput, manifest } = props
   const hasFunctions = fs.existsSync(functionsOutput)
   const shouldCopyStaticFiles = config.build.publish !== staticOutput && fs.existsSync(staticOutput)
   const shouldCopyFunctions = config.build.functions !== functionsOutput && hasFunctions
@@ -118,7 +118,7 @@ export async function onPostBuild(config: NetlifyConfig, props: HookPostBuildPay
   if (shouldCopyFunctions) fs.copySync(functionsOutput, config.build.functions as string)
 
   if (hasFunctions) {
-    const prestaRedirects = prestaRoutesToNetlifyRedirects(Object.entries(functionsManifest))
+    const prestaRedirects = prestaRoutesToNetlifyRedirects(getDynamicFilesFromManifest(manifest))
     const combinedRedirects = userConfiguredRedirects.concat(prestaRedirects)
     const redirectsFilepath = path.join(config.build.publish, '_redirects')
 

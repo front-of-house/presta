@@ -3,7 +3,6 @@ import path from 'path'
 import { create } from 'watch-dependency-graph'
 import chokidar from 'chokidar'
 import match from 'picomatch'
-import merge from 'deep-extend'
 import { timer } from '@presta/utils'
 
 import { outputLambdas } from './outputLambdas'
@@ -12,6 +11,7 @@ import { getFiles, isStatic, isDynamic } from './getFiles'
 import { buildStaticFiles, removeBuiltStaticFile, StaticFilesMap } from './buildStaticFiles'
 import { Config } from './config'
 import { Hooks } from './createEmitter'
+import { staticFilesMapToManifestFiles, writeManifest } from './manifest'
 
 /*
  * Wraps outputLambdas for logging
@@ -20,7 +20,7 @@ function updateLambdas(inputs: string[], config: Config) {
   const time = timer()
 
   // always write this, even if inputs = []
-  outputLambdas(inputs, config)
+  const lambdas = outputLambdas(inputs, config)
 
   // if user actually has routes configured, give feedback
   if (inputs.length) {
@@ -30,6 +30,8 @@ function updateLambdas(inputs: string[], config: Config) {
       duration: time(),
     })
   }
+
+  return lambdas
 }
 
 export function isNewValidFile(file: string, globs: string[], existing: string[]) {
@@ -38,32 +40,32 @@ export function isNewValidFile(file: string, globs: string[], existing: string[]
 
 export async function watch(config: Config, hooks: Hooks) {
   let staticFilesMap: StaticFilesMap = {}
-  const files = getFiles(config.files)
+  const allFiles = getFiles(config.files)
 
-  if (!files.length) {
+  if (!allFiles.length) {
     logger.warn({
       label: 'paths',
       message: 'no files configured',
     })
   }
 
-  async function buildFile(file: string, existing: string[], config: Config) {
-    delete require.cache[file]
-
-    // render just file that changed
-    if (isStatic(file)) {
-      const result = await buildStaticFiles([file], config, staticFilesMap)
-      staticFilesMap = merge({}, staticFilesMap, result.staticFilesMap)
-    }
-
-    // update dynamic entry with ALL dynamic files
-    updateLambdas(existing.filter(isDynamic), config)
-  }
-
   async function buildFiles(files: string[], existing: string[], config: Config) {
     for (const file of files) {
-      await buildFile(file, existing, config)
+      delete require.cache[file]
     }
+
+    const builtStaticFiles = await buildStaticFiles(files.filter(isStatic), config, staticFilesMap)
+    const builtLambdas = updateLambdas(existing.filter(isDynamic), config)
+
+    // merge in new static files
+    staticFilesMap = Object.assign(staticFilesMap, builtStaticFiles.staticFilesMap)
+
+    writeManifest(
+      {
+        files: [...staticFilesMapToManifestFiles(staticFilesMap), ...builtLambdas],
+      },
+      config
+    )
   }
 
   /**
@@ -71,7 +73,7 @@ export async function watch(config: Config, hooks: Hooks) {
    * re-introduce "file priming" where we require all files and surface errors
    * on startup.
    */
-  await buildFiles(files, files, config)
+  await buildFiles(allFiles, allFiles, config)
   hooks.emitBrowserRefresh()
 
   /*
@@ -81,7 +83,7 @@ export async function watch(config: Config, hooks: Hooks) {
   const fileWatcher = create({ alias: { '@': process.cwd() } })
 
   fileWatcher.onChange(async (changed) => {
-    await buildFiles(changed, files, config)
+    await buildFiles(changed, allFiles, config)
     hooks.emitBrowserRefresh()
   })
 
@@ -89,10 +91,10 @@ export async function watch(config: Config, hooks: Hooks) {
     logger.debug({ label: 'watch', message: `removed ${id}` })
 
     // remove from local hash
-    files.splice(files.indexOf(id), 1)
+    allFiles.splice(allFiles.indexOf(id), 1)
 
     // update this regardless, not sure if [id] was dynamic or static
-    updateLambdas(files.filter(isDynamic), config)
+    updateLambdas(allFiles.filter(isDynamic), config)
     ;(staticFilesMap[id] || []).forEach((file) => removeBuiltStaticFile(path.join(config.staticOutputDir, file)))
 
     hooks.emitBrowserRefresh()
@@ -105,7 +107,7 @@ export async function watch(config: Config, hooks: Hooks) {
     })
   })
 
-  await fileWatcher.add(files)
+  await fileWatcher.add(allFiles)
 
   /*
    * globalWatcher watches the raw file globs passed to the CLI or as `files`
@@ -119,14 +121,14 @@ export async function watch(config: Config, hooks: Hooks) {
 
   globalWatcher.on('add', async (file) => {
     if (!fs.existsSync(file) || fs.lstatSync(file).isDirectory()) return
-    if (!isNewValidFile(file, config.files, files)) return
+    if (!isNewValidFile(file, config.files, allFiles)) return
 
     logger.debug({ label: 'watch', message: `add ${file}` })
 
-    files.push(file)
+    allFiles.push(file)
     await fileWatcher.add(file)
 
-    await buildFile(file, files, config)
+    await buildFiles([file], allFiles, config)
 
     hooks.emitBrowserRefresh()
   })
@@ -135,7 +137,7 @@ export async function watch(config: Config, hooks: Hooks) {
    * Listens for events from plugins requesting a file to be built
    */
   hooks.onBuildFile(async ({ file }) => {
-    await buildFile(file, files, config)
+    await buildFiles([file], allFiles, config)
     hooks.emitBrowserRefresh()
   })
 

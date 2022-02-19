@@ -3,6 +3,7 @@ import path from 'path'
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import { afix } from 'afix'
+import { ManifestDynamicFile } from 'presta'
 
 import createPlugin, {
   toAbsolutePath,
@@ -29,7 +30,13 @@ test('normalizeNetlifyRoute', async () => {
 })
 
 test('prestaRoutesToNetlifyRedirects', async () => {
-  assert.equal(prestaRoutesToNetlifyRedirects([['*', 'Func']])[0], {
+  const dynamicFile: ManifestDynamicFile = {
+    type: 'dynamic',
+    src: 'src',
+    dest: 'Func',
+    route: '/*',
+  }
+  assert.equal(prestaRoutesToNetlifyRedirects([dynamicFile])[0], {
     from: '/*',
     to: '/.netlify/functions/Func',
     status: 200,
@@ -171,7 +178,7 @@ test('onPostBuild - just static, netlify config matches presta config', async ()
     output: path.join(fixtures.root, 'build'),
     staticOutput: path.join(fixtures.root, 'build/static'),
     functionsOutput: path.join(fixtures.root, 'build/functions'),
-    functionsManifest: {},
+    manifest: { files: [] },
   }
 
   await onPostBuild(config, props)
@@ -196,7 +203,7 @@ test('onPostBuild - just static, netlify config does not match presta config', a
     output: path.join(fixtures.root, 'build'),
     staticOutput: path.join(fixtures.root, 'build/static'),
     functionsOutput: path.join(fixtures.root, 'build/functions'),
-    functionsManifest: {},
+    manifest: { files: [] },
   }
 
   await onPostBuild(config, props)
@@ -221,7 +228,16 @@ test('onPostBuild - has functions, not configured', async () => {
     output: path.join(fixtures.root, 'build'),
     staticOutput: path.join(fixtures.root, 'build/static'),
     functionsOutput: path.join(fixtures.root, 'build/functions'),
-    functionsManifest: { '*': fixtures.files.lambda.path },
+    manifest: {
+      files: [
+        {
+          type: 'dynamic',
+          src: 'src',
+          dest: fixtures.files.lambda.path,
+          route: '*',
+        } as ManifestDynamicFile,
+      ],
+    },
   }
 
   let plan = 0
@@ -256,7 +272,16 @@ test(`onPostBuild - has functions, paths match`, async () => {
     output: path.join(fixtures.root, 'build'),
     staticOutput: path.join(fixtures.root, 'build/static'),
     functionsOutput: path.join(fixtures.root, 'build/functions'),
-    functionsManifest: { '*': fixtures.files.lambda.path },
+    manifest: {
+      files: [
+        {
+          type: 'dynamic',
+          src: 'src',
+          dest: fixtures.files.lambda.path,
+          route: '*',
+        } as ManifestDynamicFile,
+      ],
+    },
   }
 
   await onPostBuild(config, props)
@@ -289,7 +314,16 @@ test(`onPostBuild - has functions, paths don't match`, async () => {
     output: path.join(fixtures.root, 'build'),
     staticOutput: path.join(fixtures.root, 'build/static'),
     functionsOutput: path.join(fixtures.root, 'build/functions'),
-    functionsManifest: { '*': fixtures.files.lambda.path },
+    manifest: {
+      files: [
+        {
+          type: 'dynamic',
+          src: 'src',
+          dest: fixtures.files.lambda.path,
+          route: '*',
+        } as ManifestDynamicFile,
+      ],
+    },
   }
 
   await onPostBuild(config, props)

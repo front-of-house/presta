@@ -50,8 +50,15 @@ test('adapter', async () => {
   adapter(
     {
       staticOutput: path.join(fixture.root, 'build/static'),
-      functionsManifest: {
-        [route]: fixture.files.fn.path,
+      manifest: {
+        files: [
+          {
+            type: 'dynamic',
+            src: 'src',
+            dest: fixture.files.fn.path,
+            route,
+          },
+        ],
       },
     },
     { port: 4000 }

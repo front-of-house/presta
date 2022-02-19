@@ -33,16 +33,11 @@ test('outputLambdas', async () => {
     config
   )
 
-  assert.equal(slug[0], `/:slug`)
-  assert.ok(slug[1].includes(`slug.js`))
+  assert.equal(slug.route, `/:slug`)
+  assert.ok(slug.dest.includes(`slug.js`))
 
-  assert.equal(fallback[0], `/:slug?`)
-  assert.ok(fallback[1].includes(`fallback.js`))
-
-  const manifest = require(config.functionsManifest)
-
-  assert.equal(manifest[slug[0]], slug[1])
-  assert.equal(manifest[fallback[0]], fallback[1])
+  assert.equal(fallback.route, `/:slug?`)
+  assert.ok(fallback.dest.includes(`fallback.js`))
 })
 
 test('outputLambdas - hashed in prod', async () => {
@@ -62,9 +57,9 @@ test('outputLambdas - hashed in prod', async () => {
   const [slug] = outputLambdas([fixture.files.slug.path], config)
   const hash = hashContent(fixture.files.slug.content)
 
-  assert.equal(slug[0], `/:slug`)
-  assert.ok(slug[1].includes(`slug-${hash}.js`))
-  assert.ok(fs.existsSync(slug[1]))
+  assert.equal(slug.route, `/:slug`)
+  assert.ok(slug.dest.includes(`slug-${hash}.js`))
+  assert.ok(fs.existsSync(slug.dest))
 })
 
 test('slugify', async () => {

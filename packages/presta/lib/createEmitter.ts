@@ -1,3 +1,5 @@
+import { Manifest } from './manifest'
+
 export enum Events {
   PostBuild = 'post-build',
   BuildFile = 'build-file',
@@ -10,7 +12,7 @@ export type HookPostBuildPayload = {
   output: string
   staticOutput: string
   functionsOutput: string
-  functionsManifest: Record<string, string>
+  manifest: Manifest
 }
 
 export type HookBuildFilePayload = {

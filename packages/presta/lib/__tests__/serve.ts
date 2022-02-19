@@ -6,10 +6,11 @@ import proxy from 'proxyquire'
 import { afix } from 'afix'
 
 import { create } from '../config'
-import { createHttpError, getMimeType, loadLambdaFroManifest, processHandler } from '../serve'
+import { createHttpError, getMimeType, loadLambdaFromManifest, processHandler } from '../serve'
 import { Event } from '../lambda'
 import { createEmitter, createHooks } from '../createEmitter'
 import { Env } from '../constants'
+import { Manifest } from '../manifest'
 
 const test = suite('presta - serve')
 
@@ -53,19 +54,31 @@ test('getMimeType', async () => {
   assert.equal(noHeaders, 'html')
 })
 
-test('loadLambdaFroManifest', async () => {
+test('loadLambdaFromManifest', async () => {
   const fixture = afix({
     lambda: ['lambda.js', `module.exports = { handler: true }`],
   })
-  const manifest = {
-    '/page': fixture.files.lambda.path,
-    '/page/:slug': fixture.files.lambda.path,
+  const manifest: Manifest = {
+    files: [
+      {
+        type: 'dynamic',
+        src: 'foo',
+        dest: fixture.files.lambda.path,
+        route: '/page',
+      },
+      {
+        type: 'dynamic',
+        src: 'foo',
+        dest: fixture.files.lambda.path,
+        route: '/page/:slug',
+      },
+    ],
   }
 
-  assert.equal(loadLambdaFroManifest('/page', manifest), { handler: true })
-  assert.equal(loadLambdaFroManifest('/page/path', manifest), { handler: true })
-  assert.equal(loadLambdaFroManifest('/page?query', manifest), { handler: true })
-  assert.equal(loadLambdaFroManifest('/foo/bar', manifest), undefined)
+  assert.equal(loadLambdaFromManifest('/page', manifest), { handler: true })
+  assert.equal(loadLambdaFromManifest('/page/path', manifest), { handler: true })
+  assert.equal(loadLambdaFromManifest('/page?query', manifest), { handler: true })
+  assert.equal(loadLambdaFromManifest('/foo/bar', manifest), undefined)
 
   fixture.cleanup()
 })
@@ -141,7 +154,14 @@ test('createRequestHandler', async () => {
     {}
   )
   const manifest = {
-    '/': fixture.files.lambda.path,
+    files: [
+      {
+        type: 'dynamic',
+        src: 'src',
+        dest: fixture.files.lambda.path,
+        route: '/',
+      },
+    ],
   }
   const { createRequestHandler } = proxy('../serve', {
     '@presta/utils': {
