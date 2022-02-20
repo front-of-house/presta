@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.3.1
+
+### Patch Changes
+
+- [`206081d`](https://github.com/sure-thing/presta/commit/206081d5cfe04b7b613de9c01adec7f3a2495f1c) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Only copy static output if it exists
+
 ## 0.3.0
 
 ### Minor Changes
