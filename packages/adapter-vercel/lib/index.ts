@@ -79,7 +79,7 @@ export function mergeVercelConfig() {
 export async function onPostBuild(props: HookPostBuildPayload) {
   const { output: prestaOutput, staticOutput, manifest } = props
 
-  fs.copySync(staticOutput, path.join(process.cwd(), './.output/static'))
+  if (fs.existsSync(staticOutput)) fs.copySync(staticOutput, path.join(process.cwd(), './.output/static'))
 
   const dynamicFiles = getDynamicFilesFromManifest(manifest)
   if (dynamicFiles.length) await generateRoutes(prestaOutput, dynamicFiles)
