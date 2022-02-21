@@ -1,5 +1,11 @@
 # @presta/adapter-netlify
 
+## 0.5.1
+
+### Patch Changes
+
+- [`b9b46eb`](https://github.com/sure-thing/presta/commit/b9b46eb158ff12e492f09126c218d8254c111aca) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Output default netlify.toml if not exists
+
 ## 0.5.0
 
 ### Minor Changes

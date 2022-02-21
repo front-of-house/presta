@@ -1,5 +1,11 @@
 # create-presta
 
+## 0.1.1
+
+### Patch Changes
+
+- [`3de7d0f`](https://github.com/sure-thing/presta/commit/3de7d0f82089e9005ef2b9ee7b580758233a1175) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fix bad paths in config file
+
 ## 0.1.0
 
 ### Minor Changes
