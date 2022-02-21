@@ -339,13 +339,24 @@ test(`onPostBuild - has functions, paths don't match`, async () => {
 })
 
 test('createPlugin with no config', async () => {
-  try {
+  const cwd = process.cwd()
+
+  const fixtures = afix({})
+
+  process.chdir(fixtures.root)
+
+  // @ts-ignore
+  await createPlugin()(
     // @ts-ignore
-    await createPlugin()()
-    throw 'err'
-  } catch (e) {
-    assert.ok(e !== 'err')
-  }
+    {},
+    {
+      onPostBuild() {},
+    }
+  )
+
+  assert.ok(fs.existsSync(path.join(fixtures.root, 'netlify.toml')))
+
+  process.chdir(cwd)
 })
 
 test('createPlugin with config', async () => {

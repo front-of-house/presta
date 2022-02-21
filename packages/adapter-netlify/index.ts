@@ -28,6 +28,15 @@ export type NetlifyRedirect = {
 
 export function getNetlifyConfig({ cwd }: { cwd: string }): Partial<NetlifyConfig> | undefined {
   const filepath = path.join(cwd, 'netlify.toml')
+
+  if (!fs.existsSync(filepath)) {
+    fs.writeFileSync(
+      filepath,
+      `[build]\ncommand = 'npm run build'\npublish = 'build/static'\nfunctions = 'build/functions'`,
+      'utf8'
+    )
+  }
+
   const raw = fs.readFileSync(filepath, 'utf8')
   const json = toml(raw)
 
