@@ -1,1 +1,1 @@
-export const files = ['pages/*', 'api/*']
+export const files = ['src/pages/*', 'src/api/*']
