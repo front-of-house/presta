@@ -1,6 +1,6 @@
 {
   "name": "create-presta",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Create a new Presta project from your CLI",
   "main": "cli.js",
   "types": "index.d.ts",
