@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "name": "create-presta",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "presta dev",
+    "build": "presta"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@presta/html": "*",
+    "presta": "*"
+  }
+}

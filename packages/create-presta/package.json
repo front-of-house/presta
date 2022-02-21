@@ -1,0 +1,39 @@
+{
+  "name": "create-presta",
+  "version": "0.0.0",
+  "description": "Create a new Presta project from your CLI",
+  "main": "cli.js",
+  "types": "index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "bin": {
+    "create-presta": "cli.js"
+  },
+  "scripts": {
+    "build": "node scripts/build && pnpx tsc --emitDeclarationOnly",
+    "typecheck": "pnpx tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sure-thing/presta.git"
+  },
+  "author": "estrattonbailey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sure-thing/presta/issues"
+  },
+  "homepage": "https://github.com/sure-thing/presta#readme",
+  "dependencies": {
+    "deepmerge": "^4.2.2",
+    "fs-extra": "^9.0.1",
+    "kleur": "^4.1.4",
+    "presta": "workspace:^0.45.0",
+    "prompts": "^2.4.2",
+    "sort-package-json": "^1.54.0"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.0.14",
+    "package-json-types": "^1.0.2"
+  }
+}
