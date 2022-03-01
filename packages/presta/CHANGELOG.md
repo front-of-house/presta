@@ -1,5 +1,11 @@
 # presta
 
+## 0.45.1
+
+### Patch Changes
+
+- [#201](https://github.com/sure-thing/presta/pull/201) [`b4132d5`](https://github.com/sure-thing/presta/commit/b4132d532b8be2a997b9f173d374fe65c8de42f6) Thanks [@mikehwagz](https://github.com/mikehwagz)! - Let end user of presta handle output directory removal instead of automatically removing the output directory
+
 ## 0.45.0
 
 ### Minor Changes
