@@ -30,11 +30,6 @@ test('buildCommand', async () => {
         plan++
       },
     },
-    'fs-extra': {
-      emptyDirSync() {
-        plan++
-      },
-    },
     './build': {
       build() {
         plan++
@@ -44,7 +39,7 @@ test('buildCommand', async () => {
 
   await buildCommand({})
 
-  assert.equal(plan, 6)
+  assert.equal(plan, 5)
 })
 
 test('devCommand', async () => {
