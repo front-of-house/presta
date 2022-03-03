@@ -6,7 +6,7 @@
     "build": "presta"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.2.4",
+    "@presta/html": "workspace:^0.2.5",
     "hyposcript": "^1.1.3",
     "micromark": "^3.0.5"
   },

@@ -7,7 +7,7 @@
     "serve": "netlify dev"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.2.4"
+    "@presta/html": "workspace:^0.2.5"
   },
   "devDependencies": {
     "@presta/adapter-netlify": "workspace:^0.5.1",

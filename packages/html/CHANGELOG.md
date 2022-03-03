@@ -1,5 +1,11 @@
 # @presta/html
 
+## 0.2.5
+
+### Patch Changes
+
+- [`5c5b81f`](https://github.com/sure-thing/presta/commit/5c5b81f0fe000c8b401deaa6472815c7d83f6e6a) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Export html parameters type
+
 ## 0.2.4
 
 ### Patch Changes
