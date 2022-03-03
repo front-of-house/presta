@@ -33,6 +33,14 @@ export type PrestaHead = {
   style: Style[]
 }
 
+export type DocumentProperties = {
+  body?: string
+  head?: Partial<PrestaHead>
+  foot?: Partial<Pick<PrestaHead, 'script' | 'style'>>
+  htmlAttributes?: Partial<{ [key in keyof HTMLHtmlElement]: string }>
+  bodyAttributes?: Partial<HTMLBodyElement>
+}
+
 const defaults: PrestaHead = {
   title: 'Presta',
   description: '',
@@ -161,13 +169,7 @@ export function html({
   foot = {},
   htmlAttributes = {},
   bodyAttributes = {},
-}: {
-  body?: string
-  head?: Partial<PrestaHead>
-  foot?: Partial<Pick<PrestaHead, 'script' | 'style'>>
-  htmlAttributes?: Partial<{ [key in keyof HTMLHtmlElement]: string }>
-  bodyAttributes?: Partial<HTMLBodyElement>
-}) {
+}: DocumentProperties) {
   // insert favicon during dev, if not otherwise specified
   if (!head.link) head.link = []
   if (!head.link.find((m) => (typeof m === 'object' ? m.rel === 'icon' : /rel="icon/.test(m)))) {
