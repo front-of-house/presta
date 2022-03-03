@@ -7,7 +7,7 @@
     "serve": "wrangler dev"
   },
   "dependencies": {
-    "@presta/html": "workspace:^0.2.4",
+    "@presta/html": "workspace:^0.2.5",
     "presta": "workspace:^0.45.1"
   },
   "devDependencies": {
