@@ -1,5 +1,11 @@
 # presta
 
+## 0.45.2
+
+### Patch Changes
+
+- [#215](https://github.com/sure-thing/presta/pull/215) [`ccbfd7d`](https://github.com/sure-thing/presta/commit/ccbfd7d158c7dcb962a50116319cdc825dda1aa0) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Introduce \_\_unsafe_bundle_everything to config
+
 ## 0.45.1
 
 ### Patch Changes

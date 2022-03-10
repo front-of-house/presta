@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@presta/html": "workspace:^0.2.5",
-    "presta": "workspace:^0.45.1"
+    "presta": "workspace:^0.45.2"
   },
   "devDependencies": {
     "@presta/adapter-vercel": "workspace:^0.3.1",
