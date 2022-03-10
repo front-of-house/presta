@@ -105,6 +105,7 @@ test('create', async () => {
     staticOutputDir: path.join(output, 'static'),
     functionsOutputDir: path.join(output, 'functions'),
     manifestFilepath: path.join(output, 'manifest.json'),
+    __unsafe_bundle_everything: false,
   }
 
   assert.equal(config, generated)
