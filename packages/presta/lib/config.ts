@@ -12,6 +12,7 @@ export type Options = {
   assets: string
   plugins: Plugin[]
   port: number
+  __unsafe_bundle_everything: boolean
 }
 
 export type Config = Options & {
@@ -88,5 +89,6 @@ export function create(
     staticOutputDir: path.join(config.output, 'static'),
     functionsOutputDir: path.join(config.output, 'functions'),
     manifestFilepath: path.join(config.output, 'manifest.json'),
+    __unsafe_bundle_everything: config.__unsafe_bundle_everything || false,
   }
 }

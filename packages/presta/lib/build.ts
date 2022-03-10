@@ -63,7 +63,7 @@ export async function build(config: Config, hooks: Hooks) {
             target: ['node12'],
             minify: true,
             allowOverwrite: true,
-            external: Object.keys(pkg.dependencies || {}),
+            external: config.__unsafe_bundle_everything ? [] : Object.keys(pkg.dependencies || {}),
             bundle: true,
             define: {
               'process.env.PRESTA_SERVERLESS_RUNTIME': 'true',
