@@ -13,7 +13,7 @@ import { Handler, Event, Response, Context } from './lambda'
 import { Config } from './config'
 import { Hooks } from './createEmitter'
 import { normalizeResponse } from './normalizeResponse'
-import { getDynamicFilesFromManifest, Manifest, ManifestDynamicFile } from './manifest'
+import { getDynamicFilesFromManifest, Manifest } from './manifest'
 
 export interface HttpError extends Error {
   statusCode?: number
@@ -87,7 +87,7 @@ export function createRequestHandler({ port, config }: { port: number; config: C
     const lambda = loadLambdaFromManifest(event.path, manifest)
     const response = await processHandler(event, lambda)
     const redir = response.statusCode > 299 && response.statusCode < 399
-    const mime = getMimeType(response)
+    const mime = redir ? undefined : getMimeType(response)
 
     if (mime === 'html') {
       response.body = (response.body || '').split('</body>')[0] + createLiveReloadScript({ port })

@@ -36,6 +36,7 @@ export function normalizeResponse(response: Partial<Response> | string): LambdaR
         body: response,
       }
     : response
+  const redir = statusCode > 299 && statusCode < 399
 
   let contentType = 'text/html; charset=utf-8'
 
@@ -46,15 +47,16 @@ export function normalizeResponse(response: Partial<Response> | string): LambdaR
   }
 
   const normalizedIncomingHeaders = normalizeHeaders(headers as Headers)
-  const normalizedHeaders: LambdaResponse['headers'] = {
-    'content-type': contentType,
-    ...normalizedIncomingHeaders,
+  const normalizedHeaders: LambdaResponse['headers'] = {}
+
+  if (!redir) {
+    normalizedHeaders['content-type'] = contentType
   }
 
   return {
     isBase64Encoded,
     statusCode,
-    headers: normalizedHeaders,
+    headers: Object.assign({}, normalizedHeaders, normalizedIncomingHeaders),
     multiValueHeaders,
     body: stringify(body || html || json || xml || ''),
   }
