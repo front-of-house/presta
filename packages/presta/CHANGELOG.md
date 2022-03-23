@@ -1,5 +1,11 @@
 # presta
 
+## 0.45.3
+
+### Patch Changes
+
+- [`f62bacf`](https://github.com/sure-thing/presta/commit/f62bacfbfacf2ac7d73d8858cc283761efd9b807) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Unset headers and body if response is a redirect
+
 ## 0.45.2
 
 ### Patch Changes
