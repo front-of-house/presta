@@ -79,4 +79,49 @@ test('build - dynamic files', async () => {
   fixture.cleanup()
 })
 
+test('build - dynamic errors throw', async () => {
+  const fixture = afix({
+    dynamic: [
+      'dynamic.js',
+      `
+      export const route = '*'
+      export const handler = ( => 'page'
+    `,
+    ],
+  })
+
+  const config = create(
+    Env.DEVELOPMENT,
+    {
+      _: [fixture.files.dynamic.path],
+      output: fixture.root,
+      port: 4000,
+    },
+    {}
+  )
+
+  let called = false
+
+  const { build } = proxy('../build', {
+    esbuild: {
+      build() {
+        called = true
+      },
+    },
+  })
+
+  let plan = 0
+
+  try {
+    await build(config, createHooks(createEmitter()))
+  } catch (e) {
+    plan++
+  }
+
+  assert.equal(plan, 1)
+  assert.equal(called, false)
+
+  fixture.cleanup()
+})
+
 test.run()
