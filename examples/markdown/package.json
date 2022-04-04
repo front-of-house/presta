@@ -14,6 +14,6 @@
   "devDependencies": {
     "@presta/source-filesystem": "workspace:^0.3.2",
     "micromark": "^3.0.5",
-    "presta": "workspace:^0.45.3"
+    "presta": "workspace:^0.45.4"
   }
 }
