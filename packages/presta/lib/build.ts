@@ -54,7 +54,7 @@ export async function build(config: Config, hooks: Hooks) {
           const time = timer()
           const pkg = requireSafe(path.join(process.cwd(), 'package.json'))
 
-          manifestDynamicFiles = outputLambdas(dynamicIds, config)
+          manifestDynamicFiles = outputLambdas(dynamicIds, config, true)
 
           await esbuild({
             entryPoints: manifestDynamicFiles.map((f) => f.dest),

@@ -21,7 +21,7 @@ export function slugify(filename: string) {
     .join('-') // pages-File-page
 }
 
-export function outputLambdas(inputs: string[], config: Config) {
+export function outputLambdas(inputs: string[], config: Config, shouldThrow = false) {
   const lambdas = inputs
     .map((input) => {
       try {
@@ -58,6 +58,8 @@ export function outputLambdas(inputs: string[], config: Config) {
           route,
         }
       } catch (e) {
+        if (shouldThrow) throw e
+
         logger.error({
           label: 'error',
           error: e as Error,
