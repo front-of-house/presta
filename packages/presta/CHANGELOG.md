@@ -1,5 +1,11 @@
 # presta
 
+## 0.45.4
+
+### Patch Changes
+
+- [`ee0d39c`](https://github.com/sure-thing/presta/commit/ee0d39c00dc234a655e2b9c70c049724319b9c5d) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Ensure that outputLambdas can throw on compile errors during build
+
 ## 0.45.3
 
 ### Patch Changes
