@@ -1,5 +1,11 @@
 # @presta/adapter-netlify
 
+## 0.5.2
+
+### Patch Changes
+
+- [`e36e1df`](https://github.com/sure-thing/presta/commit/e36e1dfec0204d277763e4f8dc5e4ce7fae42dc5) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Include docs on Netlify's esbuild bundler option
+
 ## 0.5.1
 
 ### Patch Changes
