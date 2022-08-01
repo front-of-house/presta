@@ -11,9 +11,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "node scripts/build && pnpx tsc --emitDeclarationOnly",
+    "build": "node scripts/build && tsc --emitDeclarationOnly",
     "cloc": "pnpm dlx cloc './lib/*.ts'",
-    "typecheck": "pnpx tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",

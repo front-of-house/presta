@@ -8,8 +8,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "node scripts/build && pnpx tsc --emitDeclarationOnly",
-    "typecheck": "pnpx tsc --noEmit"
+    "build": "node scripts/build && tsc --emitDeclarationOnly",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,8 @@
     "sirv": "^1.0.7"
   },
   "devDependencies": {
-    "lambda-types": "^1.0.0"
+    "@types/node": "^18.6.3",
+    "lambda-types": "^1.0.0",
+    "typescript": "^4.7.4"
   }
 }

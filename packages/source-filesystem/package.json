@@ -8,8 +8,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "node scripts/build && pnpx tsc --emitDeclarationOnly",
-    "typecheck": "pnpx tsc --noEmit"
+    "build": "node scripts/build && tsc --emitDeclarationOnly",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,11 @@
   "dependencies": {
     "filewatcher": "^3.0.1",
     "pirates": "^4.0.1",
-    "presta": "workspace:^0.45.0",
+    "presta": "workspace:^0.45.4",
     "tiny-glob": "^0.2.9"
+  },
+  "devDependencies": {
+    "@types/node": "^18.6.3",
+    "typescript": "^4.7.4"
   }
 }

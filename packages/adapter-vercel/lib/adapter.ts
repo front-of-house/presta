@@ -40,6 +40,7 @@ export function requestToEvent(req: NextApiRequest): VercelEvent {
     body: req.body || null,
     isBase64Encoded,
     pathParameters: {},
+    // @ts-expect-error
     cookies: req.cookies || {},
     env: req.env,
   }
