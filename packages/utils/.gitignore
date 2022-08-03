@@ -24,3 +24,9 @@ createDefaultHtmlResponse.js
 createDefaultHtmlResponse.d.ts
 parsePathParameters.js
 parsePathParameters.d.ts
+normalizeRequestHeaders.js
+normalizeRequestHeaders.d.ts
+normalizeResponseHeaders.js
+normalizeResponseHeaders.d.ts
+normalizeEvent.js
+normalizeEvent.d.ts

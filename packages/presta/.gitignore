@@ -1,2 +1,15 @@
+./__tests__/
 node_modules
 dist
+utils
+runtime
+bin.js
+bin.d.ts
+core.js
+core.d.ts
+index.js
+index.d.ts
+runtime.js
+runtime.d.ts
+serialize.js
+serialize.d.ts

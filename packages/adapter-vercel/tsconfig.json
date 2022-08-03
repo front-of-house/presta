@@ -3,6 +3,7 @@
   "include": ["./lib"],
   "compilerOptions": {
     "declaration": true,
-    "declarationDir": "dist"
+    "declarationDir": "dist",
+    "resolveJsonModule": true
   }
 }

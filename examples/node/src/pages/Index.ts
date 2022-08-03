@@ -9,17 +9,15 @@ export function getStaticPaths() {
 }
 
 export function handler(event: Event) {
-  return {
-    html: html({
-      head: {
-        link,
-      },
-      body: `
-        <div class='p10'>
-          ${Nav({ currentPath: event.path })}
-          <h1>Static page: ${event.path}</h1>
-        </div>
-      `,
-    }),
-  }
+  return html({
+    head: {
+      link,
+    },
+    body: `
+      <div class='p10'>
+        ${Nav({ currentPath: event.path })}
+        <h1>Static page: ${event.path}</h1>
+      </div>
+    `,
+  })
 }

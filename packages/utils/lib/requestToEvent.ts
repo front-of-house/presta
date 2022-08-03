@@ -1,22 +1,24 @@
 import http from 'http'
+// TODO can we make this file V8 safe?
 import { parse as parseUrl } from 'url'
 import rawBody from 'raw-body'
 import mime from 'mime-types'
 
-import { Event } from 'lambda-types'
-import { normalizeHeaders } from './normalizeHeaders'
+import { Event } from 'presta'
+import { normalizeEvent } from './normalizeEvent'
+import { normalizeRequestHeaders } from './normalizeRequestHeaders'
 import { parseQueryStringParameters } from './parseQueryStringParameters'
+import { isBase64EncodedContentType } from './isBase64EncodedContentType'
 
-// @see https://github.com/netlify/cli/blob/27bb7b9b30d465abe86f87f4274dd7a71b1b003b/src/utils/serve-functions.js#L167
-const BASE_64_MIME_REGEXP = /image|audio|video|application\/pdf|application\/zip|applicaton\/octet-stream/i
-function shouldBase64Encode(contentType: string) {
-  return Boolean(contentType) && BASE_64_MIME_REGEXP.test(contentType)
-}
-
+/**
+ * Used internally. Converts a `http.IncomingMessage` to a AWS Lambda flavored
+ * `Event` object. This method only has access to the incoming message, so it
+ * can't populate all `Event` properties, like `pathParameters`.
+ */
 export async function requestToEvent(req: http.IncomingMessage): Promise<Event> {
   const { url: path = '', method } = req
-  const { headers, multiValueHeaders } = normalizeHeaders(req.headers)
-  const isBase64Encoded = shouldBase64Encode(headers['content-type'] || '')
+  const { headers, multiValueHeaders } = normalizeRequestHeaders(req.headers)
+  const isBase64Encoded = isBase64EncodedContentType(headers['content-type'] || '')
   const contentLengthHeader = headers['content-length']
   const body = contentLengthHeader
     ? await rawBody(req, {
@@ -27,7 +29,7 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<Event> 
   const rawQuery = parseUrl(path).query || ''
   const { queryStringParameters, multiValueQueryStringParameters } = parseQueryStringParameters(rawQuery)
 
-  return {
+  return normalizeEvent({
     rawUrl: path,
     path,
     httpMethod: method as string,
@@ -38,8 +40,8 @@ export async function requestToEvent(req: http.IncomingMessage): Promise<Event> 
     multiValueQueryStringParameters,
     body: body ? Buffer.from(body).toString(isBase64Encoded ? 'base64' : 'utf8') : null,
     isBase64Encoded,
-    pathParameters: {},
+    pathParameters: undefined,
     requestContext: {},
     resource: '',
-  }
+  })
 }

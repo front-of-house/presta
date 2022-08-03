@@ -1,0 +1,30 @@
+{
+  "staticFiles": {
+    "/Users/estrattonbailey/Sites/foh/presta/examples/v2/pages/index.ts": [
+      "/Users/estrattonbailey/Sites/foh/presta/examples/v2/output/static/.json"
+    ],
+    "/Users/estrattonbailey/Sites/foh/presta/examples/v2/pages/noop.ts": [
+      "/Users/estrattonbailey/Sites/foh/presta/examples/v2/output/static/noop/index.html"
+    ],
+    "/Users/estrattonbailey/Sites/foh/presta/examples/v2/pages/static.ts": [
+      "/Users/estrattonbailey/Sites/foh/presta/examples/v2/output/static/static/index.html"
+    ]
+  },
+  "dynamicFiles": {
+    "/Users/estrattonbailey/Sites/foh/presta/examples/v2/pages/dynamic.ts": {
+      "route": "/dynamic",
+      "src": "/Users/estrattonbailey/Sites/foh/presta/examples/v2/pages/dynamic.ts",
+      "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/v2/output/dynamic/pages-dynamic.js"
+    },
+    "/Users/estrattonbailey/Sites/foh/presta/examples/v2/pages/index.ts": {
+      "route": "/",
+      "src": "/Users/estrattonbailey/Sites/foh/presta/examples/v2/pages/index.ts",
+      "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/v2/output/dynamic/pages-index.js"
+    },
+    "/Users/estrattonbailey/Sites/foh/presta/examples/v2/pages/noop.ts": {
+      "route": "/noop",
+      "src": "/Users/estrattonbailey/Sites/foh/presta/examples/v2/pages/noop.ts",
+      "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/v2/output/dynamic/pages-noop.js"
+    }
+  }
+}

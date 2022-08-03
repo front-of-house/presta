@@ -1,19 +1,43 @@
-/*
- * Any used exports of the core library need to be in this file
+/**
+ * This is main export of the Presta library. It's used by most end-users
+ * within their applications, so we need to keep it as small as possible. It
+ * should mostly-re-export types and utils for end-user use.
  */
+import type { PrestaConfig, Handler, Plugin } from './core'
 
-import * as log from './log'
-export const logger = log
+export type Config = PrestaConfig
 
-export { Env } from './constants'
-export * from './lambda'
-export { Config, Options } from './config'
-export { HookPostBuildPayload, HookBuildFilePayload } from './createEmitter'
-export { createPlugin, PluginInit, Plugin, PluginInterface } from './plugins'
-export {
+export type {
+  Event,
+  Context,
+  Handler,
+  Response,
+  Headers,
+  Plugin,
+  PluginContext,
+  PluginInterface,
   Manifest,
-  ManifestDynamicFile,
-  ManifestStaticFile,
-  getDynamicFilesFromManifest,
-  getStaticFilesFromManifest,
-} from './manifest'
+} from './core'
+
+export enum Mode {
+  Dev = 'dev',
+  Build = 'build',
+  Serve = 'serve',
+}
+
+export class HttpError extends Error {
+  statusCode: number
+
+  constructor(message: string, statusCode: number = 500) {
+    super(message)
+
+    this.name = 'HttpError'
+    this.statusCode = statusCode
+  }
+}
+
+export const createConfig = (conf: Partial<Config>) => conf
+export const createPlugin = <T>(fn: (options: T) => Plugin) => fn
+export const createRoute = (route: string) => route
+export const createGetStaticPaths = (getStaticPaths: () => string[]) => getStaticPaths
+export const createHandler = (handler: Handler) => handler

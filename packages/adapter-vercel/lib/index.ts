@@ -2,9 +2,14 @@ import fs from 'fs-extra'
 import path from 'path'
 import merge from 'deep-extend'
 import toRegExp from 'regexparam'
-import { createPlugin, logger, HookPostBuildPayload, ManifestDynamicFile, getDynamicFilesFromManifest } from 'presta'
+import { createPlugin, PluginContext } from 'presta'
 import { build as esbuild } from 'esbuild'
-import { requireSafe } from '@presta/utils'
+import { timer } from 'presta/utils/timer'
+import { requireSafe } from 'presta/utils/requireSafe'
+
+import pkg from '../package.json'
+
+const PLUGIN = `${pkg.name}@${pkg.version}`
 
 export const vercelConfig = {
   build: {
@@ -29,20 +34,19 @@ export const routesManifest: {
   dynamicRoutes: [],
 }
 
-export async function generateRoutes(
-  prestaOutput: HookPostBuildPayload['output'],
-  dynamicFiles: ManifestDynamicFile[]
-) {
+export async function generateRoutes(ctx: PluginContext) {
+  const functionsFiles = ctx.getManifest().functions
+  const prestaOutputDir = ctx.getOutputDir()
   const manifest = Object.assign({}, routesManifest)
 
-  for (const source of dynamicFiles) {
+  for (const source of Object.values(functionsFiles)) {
     const filename = /^\/$/.test(source.route) ? 'index' : path.basename(source.dest, '.js')
-    const tmpfile = path.join(prestaOutput, './.vercel', filename + '.js')
+    const tmpfile = path.join(prestaOutputDir, './.vercel', filename + '.js')
     const { pattern } = toRegExp(source.route)
 
     fs.outputFileSync(
       tmpfile,
-      `import { adapter } from '@presta/adapter-vercel/dist/adapter';
+      `import { adapter } from '@presta/adapter-vercel/dist/runtime';
 import { handler } from '${source.dest}';
 export default adapter(handler);`
     )
@@ -63,10 +67,7 @@ export default adapter(handler);`
     })
   }
 
-  logger.debug({
-    label: '@presta/adapter-vercel',
-    message: `manifest generated ${JSON.stringify(manifest)}`,
-  })
+  ctx.logger.debug(`${PLUGIN} manifest generated ${JSON.stringify(manifest)}`)
 
   fs.outputFileSync(path.join(process.cwd(), './.output/routes-manifest.json'), JSON.stringify(manifest, null, '  '))
 }
@@ -76,33 +77,33 @@ export function mergeVercelConfig() {
   return merge(config, vercelConfig)
 }
 
-export async function onPostBuild(props: HookPostBuildPayload) {
-  const { output: prestaOutput, staticOutput, manifest } = props
+export async function onPostBuild(ctx: PluginContext) {
+  const time = timer()
+  const manifest = ctx.getManifest()
+  const staticOutputDir = ctx.getStaticOutputDir()
 
-  if (fs.existsSync(staticOutput)) fs.copySync(staticOutput, path.join(process.cwd(), './.output/static'))
+  if (fs.existsSync(staticOutputDir)) fs.copySync(staticOutputDir, path.join(process.cwd(), './.output/static'))
+  if (Object.keys(manifest.functions).length) await generateRoutes(ctx)
 
-  const dynamicFiles = getDynamicFilesFromManifest(manifest)
-  if (dynamicFiles.length) await generateRoutes(prestaOutput, dynamicFiles)
-
-  logger.info({
-    label: '@presta/adapter-vercel',
-    message: `complete`,
-  })
+  ctx.logger.info(`${PLUGIN} complete`, { duration: time() })
 }
 
 export default createPlugin(() => {
-  return async function plugin(config, hooks) {
-    logger.debug({
-      label: '@presta/adapter-vercel',
-      message: `init`,
-    })
+  return function plugin(ctx) {
+    ctx.logger.debug(`${PLUGIN} initialized`)
 
+    // cleanup
     fs.removeSync(path.join(process.cwd(), './.output'))
     fs.outputFileSync(path.join(process.cwd(), 'vercel.json'), JSON.stringify(mergeVercelConfig(), null, '  '))
 
-    hooks.onPostBuild((props) => {
+    ctx.events.on('buildComplete', () => {
+      ctx.logger.debug(`${PLUGIN} received event buildComplete`)
       /* c8 ignore next */
-      onPostBuild(props)
+      onPostBuild(ctx)
     })
+
+    return {
+      name: PLUGIN,
+    }
   }
 })

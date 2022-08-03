@@ -1,12 +1,15 @@
 import assert from 'assert'
 import fs from 'fs-extra'
 import path from 'path'
-import { premove } from 'premove/sync'
-import { mkdir } from 'mk-dirs/sync'
-import { createPlugin, logger, HookPostBuildPayload, ManifestDynamicFile, getDynamicFilesFromManifest } from 'presta'
 import { parse as toml } from 'toml'
 // @ts-ignore
 import { parseFileRedirects } from 'netlify-redirect-parser'
+// @ts-ignore
+import filewatcher from 'filewatcher'
+import { createPlugin, PluginContext, Manifest, Mode } from 'presta'
+import { timer } from 'presta/utils/timer'
+
+import pkg from './package.json'
 
 // TODO do I need more here?
 export type NetlifyConfig = {
@@ -26,20 +29,11 @@ export type NetlifyRedirect = {
   signed: string | undefined
 }
 
-export function getNetlifyConfig({ cwd }: { cwd: string }): Partial<NetlifyConfig> | undefined {
-  const filepath = path.join(cwd, 'netlify.toml')
+const PLUGIN = `${pkg.name}@${pkg.version}`
 
-  if (!fs.existsSync(filepath)) {
-    fs.writeFileSync(
-      filepath,
-      `[build]\ncommand = 'npm run build'\npublish = 'build/static'\nfunctions = 'build/functions'`,
-      'utf8'
-    )
-  }
-
-  const raw = fs.readFileSync(filepath, 'utf8')
+export function getNetlifyConfig(configFilepath: string): Partial<NetlifyConfig> | undefined {
+  const raw = fs.readFileSync(configFilepath, 'utf8')
   const json = toml(raw)
-
   return JSON.parse(JSON.stringify(json))
 }
 
@@ -65,14 +59,18 @@ export function toAbsolutePath(cwd: string, file?: string) {
   return file ? path.join(cwd, file) : undefined
 }
 
+export function toRelativePath(cwd: string, filepath: string) {
+  return path.relative(cwd, filepath)
+}
+
 export function normalizeNetlifyRoute(route: string) {
   route = route.replace(/^\*/, '/*')
   route = route.replace(/^\/\//, '/')
   return route
 }
 
-export function prestaRoutesToNetlifyRedirects(files: ManifestDynamicFile[]): NetlifyRedirect[] {
-  return files.map((file) => ({
+export function prestaRoutesToNetlifyRedirects(files: Manifest['functions']): NetlifyRedirect[] {
+  return Object.values(files).map((file) => ({
     from: normalizeNetlifyRoute(file.route),
     to: `/.netlify/functions/${path.basename(file.dest, '.js')}`,
     status: 200,
@@ -99,69 +97,101 @@ export async function getUserConfiguredRedirects(dir: string) {
   }, [] as NetlifyRedirect[])
 }
 
-export async function onPostBuild(config: NetlifyConfig, props: HookPostBuildPayload) {
-  const { output, staticOutput, functionsOutput, manifest } = props
-  const hasFunctions = fs.existsSync(functionsOutput)
-  const shouldCopyStaticFiles = config.build.publish !== staticOutput && fs.existsSync(staticOutput)
-  const shouldCopyFunctions = config.build.functions !== functionsOutput && hasFunctions
-  const userConfiguredRedirects = await getUserConfiguredRedirects(config.build.publish)
+export async function onPostBuild(config: NetlifyConfig, ctx: PluginContext) {
+  const { publish: publishDir, functions: functionsDir } = config.build
+  const time = timer()
+  const manifest = ctx.getManifest()
+  const userConfiguredRedirects = await getUserConfiguredRedirects(publishDir)
+  const staticOutputDir = ctx.getStaticOutputDir()
+  const functionsOutputDir = ctx.getFunctionsOutputDir()
 
-  const debug = {
-    netlifyConfig: config,
-    postBuildPayload: props,
-    hasFunctions,
-    shouldCopyStaticFiles,
-    shouldCopyFunctions,
+  if (Object.keys(manifest.statics).length) {
+    if (publishDir === staticOutputDir) {
+      ctx.logger.debug(`${PLUGIN} Netlify publish directory matches static output directory`)
+    } else {
+      fs.copySync(ctx.getStaticOutputDir(), publishDir)
+      ctx.logger.debug(`${PLUGIN} copying static files`)
+    }
   }
 
-  logger.debug({
-    label: '@presta/adapter-netlify',
-    message: `handling onPostBuild hook\n${JSON.stringify(debug)}`,
-  })
+  if (Object.keys(manifest.functions).length) {
+    if (!functionsDir) {
+      ctx.logger.warn(
+        `${PLUGIN} detected built functions, but Netlify config does not specify an functions output directory.`
+      )
+    } else {
+      const prestaRedirects = prestaRoutesToNetlifyRedirects(ctx.getManifest().functions)
+      const combinedRedirects = userConfiguredRedirects.concat(prestaRedirects)
+      const redirectsFilepath = path.join(config.build.publish, '_redirects')
 
-  if (hasFunctions && !config.build.functions) {
-    throw new Error(`Missing required netlify.toml config: build.functions`)
+      // TODO overwrites, right?
+      fs.outputFileSync(redirectsFilepath, generateRedirectsString(combinedRedirects), 'utf8')
+      ctx.logger.debug(`${PLUGIN} writing redirects`)
+
+      if (functionsDir === functionsOutputDir) {
+        ctx.logger.debug(`${PLUGIN} Netlify functions directory matches functions output directory`)
+      } else {
+        fs.copySync(ctx.getFunctionsOutputDir(), functionsDir)
+        ctx.logger.debug(`${PLUGIN} copying functions`)
+      }
+    }
   }
 
-  if (shouldCopyStaticFiles) fs.copySync(staticOutput, config.build.publish)
-  if (shouldCopyFunctions) fs.copySync(functionsOutput, config.build.functions as string)
-
-  if (hasFunctions) {
-    const prestaRedirects = prestaRoutesToNetlifyRedirects(getDynamicFilesFromManifest(manifest))
-    const combinedRedirects = userConfiguredRedirects.concat(prestaRedirects)
-    const redirectsFilepath = path.join(config.build.publish, '_redirects')
-
-    mkdir(path.dirname(redirectsFilepath))
-    fs.writeFileSync(path.join(config.build.publish, '_redirects'), generateRedirectsString(combinedRedirects), 'utf8')
-  }
-
-  if ((shouldCopyStaticFiles && !shouldCopyFunctions) || (shouldCopyStaticFiles && shouldCopyFunctions)) {
-    premove(output)
-  }
-
-  logger.info({
-    label: '@presta/adapter-netlify',
-    message: `complete`,
-  })
+  ctx.logger.info(`${PLUGIN} complete`, { duration: time() })
 }
 
 export default createPlugin(() => {
-  return async function plugin(config, hooks) {
-    logger.debug({
-      label: '@presta/adapter-netlify',
-      message: `init`,
-    })
+  return (ctx) => {
+    const startupTime = timer()
 
-    const netlify = validateAndNormalizeNetlifyConfig(getNetlifyConfig({ cwd: process.cwd() }))
+    ctx.logger.debug(`${PLUGIN} initialized`)
 
-    logger.debug({
-      label: '@presta/adapter-netlify',
-      message: `configured ${JSON.stringify(netlify)}`,
-    })
+    const netlifyConfigFilepath = path.join(ctx.cwd, 'netlify.toml')
 
-    hooks.onPostBuild((props) => {
-      /* c8 ignore next */
-      onPostBuild(netlify, props)
-    })
+    if (!fs.existsSync(netlifyConfigFilepath)) {
+      ctx.logger.debug(`${PLUGIN} Netlify config not found, initializing defaults`)
+
+      const relativePublishDir = path.relative(ctx.cwd, ctx.getStaticOutputDir())
+      const relativeFunctionsDir = path.relative(ctx.cwd, ctx.getFunctionsOutputDir())
+
+      fs.writeFileSync(
+        netlifyConfigFilepath,
+        `[build]\n\tcommand = 'npm run build'\n\tpublish = '${relativePublishDir}'\n\tfunctions = '${relativeFunctionsDir}'`,
+        'utf8'
+      )
+    } else {
+      ctx.logger.debug(`${PLUGIN} Netlify config found`)
+    }
+
+    const netlifyConfig = validateAndNormalizeNetlifyConfig(getNetlifyConfig(netlifyConfigFilepath))
+
+    ctx.logger.info(`${PLUGIN} initialized`, { duration: startupTime() })
+
+    if (ctx.mode === Mode.Dev) {
+      const watcher = filewatcher()
+      watcher.add(netlifyConfigFilepath)
+      watcher.on('change', () => {
+        ctx.logger.debug(`${PLUGIN} Netlify config changed, requesting dev server restart`)
+        ctx.restartDevServer()
+      })
+
+      return {
+        name: PLUGIN,
+        cleanup() {
+          watcher.removeAll()
+        },
+      }
+    } else {
+      ctx.events.on('buildComplete', () => {
+        ctx.logger.debug(`${PLUGIN} received event buildComplete`)
+
+        /* c8 ignore next */
+        onPostBuild(netlifyConfig, ctx)
+      })
+
+      return {
+        name: PLUGIN,
+      }
+    }
   }
 })

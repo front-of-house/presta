@@ -1,4 +1,5 @@
-import { html } from '@presta/html'
+import { html } from 'presta/serialize'
+import { html as document } from '@presta/html'
 
 import { Nav } from '@/src/components/Nav'
 import { link } from '@/src/utils/head'
@@ -6,9 +7,9 @@ import { link } from '@/src/utils/head'
 export const route = '*'
 
 export function handler(event) {
-  return {
+  return html({
     statusCode: 404,
-    html: html({
+    body: document({
       head: {
         link,
       },
@@ -19,5 +20,5 @@ export function handler(event) {
         </div>
       `,
     }),
-  }
+  })
 }
