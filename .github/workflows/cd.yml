@@ -45,10 +45,10 @@ jobs:
       - name: test
         run: pnpm test
 
-      - name: coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: coveralls
+      #   uses: coverallsapp/github-action@master
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # publish to npm
       - name: release
