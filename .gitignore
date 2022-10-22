@@ -27,3 +27,6 @@ packages/presta/serialize.js
 packages/presta/serialize.d.ts
 packages/presta/html.js
 packages/presta/html.d.ts
+
+# create-presta
+packages/create-presta/bin.js
