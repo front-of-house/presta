@@ -62,19 +62,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: deploy - @presta-example/netlify
-        env:
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_EXAMPLE_SITE_ID }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        run: cd examples/netlify && netlify deploy --prod
+      # - name: deploy - @presta-example/netlify
+      #   env:
+      #     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_EXAMPLE_SITE_ID }}
+      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      #   run: cd examples/netlify && netlify deploy --prod
 
-      - name: deploy - @presta-example/vercel
-        env:
-          VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
-        run: cd examples/vercel && vercel --prod --token $VERCEL_AUTH_TOKEN
+      # - name: deploy - @presta-example/vercel
+      #   env:
+      #     VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
+      #   run: cd examples/vercel && vercel --prod --token $VERCEL_AUTH_TOKEN
 
-      - name: deploy - @presta-example/cloudflare-workers
-        uses: cloudflare/wrangler-action@1.3.0
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          preCommands: cd examples/cloudflare-workers
+      # - name: deploy - @presta-example/cloudflare-workers
+      #   uses: cloudflare/wrangler-action@1.3.0
+      #   with:
+      #     apiToken: ${{ secrets.CF_API_TOKEN }}
+      #     preCommands: cd examples/cloudflare-workers
