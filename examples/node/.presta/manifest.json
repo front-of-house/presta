@@ -1,15 +1,30 @@
 {
-  "statics": {},
+  "statics": {
+    "/Users/estrattonbailey/Sites/foh/presta/examples/node/src/pages/Index.ts": [
+      "/Users/estrattonbailey/Sites/foh/presta/examples/node/.presta/static/index.html",
+      "/Users/estrattonbailey/Sites/foh/presta/examples/node/.presta/static/about/index.html"
+    ]
+  },
   "functions": {
     "/Users/estrattonbailey/Sites/foh/presta/examples/node/src/pages/Redirect.ts": {
       "route": "/redirect",
       "src": "/Users/estrattonbailey/Sites/foh/presta/examples/node/src/pages/Redirect.ts",
       "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/node/.presta/functions/src-pages-Redirect-tt4cq.js"
     },
+    "/Users/estrattonbailey/Sites/foh/presta/examples/node/src/pages/Page.ts": {
+      "route": "/:slug?",
+      "src": "/Users/estrattonbailey/Sites/foh/presta/examples/node/src/pages/Page.ts",
+      "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/node/.presta/functions/src-pages-Page-7kxktp.js"
+    },
     "/Users/estrattonbailey/Sites/foh/presta/examples/node/src/pages/Api.ts": {
       "route": "/api/*",
       "src": "/Users/estrattonbailey/Sites/foh/presta/examples/node/src/pages/Api.ts",
       "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/node/.presta/functions/src-pages-Api-1ynskub.js"
+    },
+    "/Users/estrattonbailey/Sites/foh/presta/examples/node/src/pages/NotFound.ts": {
+      "route": "*",
+      "src": "/Users/estrattonbailey/Sites/foh/presta/examples/node/src/pages/NotFound.ts",
+      "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/node/.presta/functions/src-pages-NotFound-1edxktq.js"
     }
   }
 }

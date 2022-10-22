@@ -1,0 +1,30 @@
+{
+  "statics": {
+    "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/src/pages/Index.tsx": [
+      "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/.presta/static/index.html",
+      "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/.presta/static/about/index.html"
+    ]
+  },
+  "functions": {
+    "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/src/pages/Redirect.ts": {
+      "route": "/redirect",
+      "src": "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/src/pages/Redirect.ts",
+      "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/.presta/functions/src-pages-Redirect-tt4cq.js"
+    },
+    "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/src/pages/Page.tsx": {
+      "route": "/:slug?",
+      "src": "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/src/pages/Page.tsx",
+      "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/.presta/functions/src-pages-Page-ip6igo.js"
+    },
+    "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/src/pages/Api.ts": {
+      "route": "/api/*",
+      "src": "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/src/pages/Api.ts",
+      "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/.presta/functions/src-pages-Api-15d5njp.js"
+    },
+    "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/src/pages/NotFound.tsx": {
+      "route": "*",
+      "src": "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/src/pages/NotFound.tsx",
+      "dest": "/Users/estrattonbailey/Sites/foh/presta/examples/jsx-hyposcript/.presta/functions/src-pages-NotFound-1cks4m3.js"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { html } from 'presta/serialize'
-import { html as document } from '@presta/html'
+import { html as document } from 'presta/html'
 
 import { Nav } from '@/src/components/Nav'
 import { link } from '@/src/utils/head'

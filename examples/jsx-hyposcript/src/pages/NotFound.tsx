@@ -1,6 +1,7 @@
 import { h } from 'hyposcript'
 import { Event } from 'presta'
-import { html } from '@presta/html'
+import { html } from 'presta/serialize'
+import { html as document } from 'presta/html'
 import { Box } from 'hypobox'
 
 import { hypostyle, globalStyle } from '@/src/utils/hypostyle'
@@ -18,14 +19,14 @@ export function handler(event: Event) {
   )
   const css = hypostyle.flush() // then extract styles
 
-  return {
+  return html({
     statusCode: 404,
-    html: html({
+    body: document({
       head: {
         link,
         style: [{ children: globalStyle }, { children: css }],
       },
       body: markup,
     }),
-  }
+  })
 }
