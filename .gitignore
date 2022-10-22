@@ -6,3 +6,6 @@ coverage
 .presta-load-cache
 pnpm-lock.yaml
 .nyc_output
+
+packages/presta/runtime
+packages/presta/utils
