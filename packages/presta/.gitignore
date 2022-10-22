@@ -1,8 +1,8 @@
 ./__tests__/
 node_modules
 dist
-utils
-runtime
+./utils
+./runtime
 bin.js
 bin.d.ts
 core.js
@@ -13,3 +13,5 @@ runtime.js
 runtime.d.ts
 serialize.js
 serialize.d.ts
+html.js
+html.d.ts
