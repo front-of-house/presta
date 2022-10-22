@@ -1,5 +1,0 @@
-{
-  "devDependencies": {
-    "@presta/adapter-netlify": "*"
-  }
-}

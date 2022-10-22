@@ -6,7 +6,7 @@ import prompts, { PromptObject } from 'prompts'
 import c from 'kleur'
 
 import pkg from '../package.json'
-import { createPresta, Config } from './'
+import { createPresta, Config } from '.'
 
 console.clear()
 console.log(`create-presta ${c.gray(`v${pkg.version}`)}\n\nHey there. Let's get you set up :)\n`)
@@ -34,7 +34,6 @@ console.log(`create-presta ${c.gray(`v${pkg.version}`)}\n\nHey there. Let's get 
         { title: `I don't know`, value: `presta` },
         { title: `Netlify`, value: `netlify` },
         { title: `Vercel`, value: `vercel` },
-        { title: `Cloudflare Workers`, value: `cloudflare_workers` },
       ],
     },
     {

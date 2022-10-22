@@ -1,10 +1,12 @@
+import { json } from 'presta/serialize'
+
 export const route = '/api/*'
 
-export function handler(event, context) {
-  return {
-    json: {
+export const handler = (event, context) => {
+  return json({
+    body: {
       event,
       context,
     },
-  }
+  })
 }

@@ -33,7 +33,6 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "@presta/utils": "workspace:^0.1.2",
     "chokidar": "^3.4.3",
     "deep-extend": "^0.6.0",
     "deepmerge": "^4.2.2",

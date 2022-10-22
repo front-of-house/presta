@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "@presta/utils": "workspace:^0.1.2",
     "filewatcher": "^3.0.1",
     "fs-extra": "^9.0.1",
     "netlify-redirect-parser": "^8.0.0",

@@ -2,9 +2,9 @@ import path from 'path'
 import fs from 'fs-extra'
 import merge from 'deepmerge'
 import sort from 'sort-package-json'
-import type { Body } from 'package-json-types'
+// import type { Body } from 'package-json-types'
 
-export type Service = 'presta' | 'netlify' | 'vercel' | 'cloudflare_workers'
+export type Service = 'presta' | 'netlify' | 'vercel'
 export type Language = 'ts' | 'js'
 export type Config = {
   root: string
@@ -12,28 +12,76 @@ export type Config = {
   language: Language
 }
 
-const templatesPath = path.join(__dirname, 'lib/templates')
+const LOCAL_TEMPLATES_DIR = path.join(__dirname, 'lib/templates')
+
+const basePackageJson = {
+  name: 'create-presta',
+  version: '0.0.0',
+  scripts: {
+    start: 'presta dev',
+    build: 'presta',
+  },
+}
+
+const commonDependencies = {
+  js: {
+    devDependencies: {},
+    dependencies: {
+      presta: '*',
+    },
+  },
+  ts: {
+    devDependencies: {
+      typescript: '*',
+    },
+    dependencies: {
+      presta: '*',
+    },
+  },
+}
+
+const serviceDependencies = {
+  presta: {
+    devDependencies: {},
+    dependencies: {},
+  },
+  netlify: {
+    devDependencies: {
+      '@presta/adapter-netlify': '*',
+    },
+    dependencies: {},
+  },
+  vercel: {
+    devDependencies: {
+      '@presta/adapter-vercel': '*',
+    },
+    dependencies: {},
+  },
+}
 
 export async function createPresta(config: Config) {
-  const ts = config.language === 'ts'
+  const { root, language, service } = config
+  const isTypeScript = language === 'ts'
+  const serviceDir = path.join(LOCAL_TEMPLATES_DIR, service)
 
-  await fs.copy(ts ? path.join(templatesPath, '_ts') : path.join(templatesPath, '_js'), config.root)
+  // common files
+  await fs.copy(path.join(LOCAL_TEMPLATES_DIR, '_common'), root)
+  await fs.copy(isTypeScript ? path.join(LOCAL_TEMPLATES_DIR, '_ts') : path.join(LOCAL_TEMPLATES_DIR, '_js'), root)
 
-  const basePkg = path.join(config.root, 'package.json')
-  const baseConf = path.join(config.root, 'presta.config.js')
-  const baseGitignore = path.join(config.root, 'gitignore')
+  // package.json
+  const commonDeps = commonDependencies[language]
+  const serviceDeps = serviceDependencies[service]
+  const deps = merge(commonDeps, serviceDeps)
+  const packageJson = merge(basePackageJson, deps)
+  await fs.writeFile(path.join(root, 'package.json'), JSON.stringify(sort(packageJson), null, '  '), 'utf8')
 
-  const service = {
-    pkg: path.join(templatesPath, `${config.service}/package.json`),
-    conf: path.join(templatesPath, `${config.service}/presta.config.js`),
-    gitignore: path.join(templatesPath, `${config.service}/gitignore`),
-  }
+  // .gitignore
+  const mergedGitignore =
+    fs.readFileSync(path.join(root, 'gitignore'), 'utf8') + fs.readFileSync(path.join(serviceDir, 'gitignore'), 'utf8')
+  await fs.writeFile(path.join(root, './.gitignore'), mergedGitignore, 'utf8')
 
-  const mergedPkg = sort(merge(require(service.pkg) as Body, require(basePkg) as Body))
-  const mergedConf = fs.readFileSync(service.conf, 'utf8') + fs.readFileSync(baseConf, 'utf8')
-  const mergedGitignore = fs.readFileSync(service.gitignore, 'utf8') + fs.readFileSync(baseGitignore, 'utf8')
-
-  fs.writeFileSync(basePkg, JSON.stringify(mergedPkg, null, '  '), 'utf8')
-  fs.writeFileSync(baseConf, mergedConf, 'utf8')
-  fs.writeFileSync(path.join(config.root, './.gitignore'), mergedGitignore, 'utf8')
+  // presta.config
+  const prestaConfigFilename = isTypeScript ? 'presta.config.ts' : 'presta.config.js'
+  const prestaConfigFilepath = path.join(serviceDir, prestaConfigFilename)
+  await fs.copy(prestaConfigFilepath, path.join(root, prestaConfigFilename))
 }

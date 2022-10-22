@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/sure-thing/presta#readme",
   "dependencies": {
-    "@presta/utils": "workspace:^0.1.0",
     "esbuild": "^0.14.11",
     "fs-extra": "^10.1.0",
     "mk-dirs": "^3.0.0",
