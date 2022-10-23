@@ -4,21 +4,24 @@ Node deployment adapter plugin for Presta.
 
 ## Usage
 
-Simply add to your Presta config (defaults to `presta.config.js`):
+Simply add to your Presta config:
 
 ```javascript
+import { createConfig } from 'presta'
 import node from '@presta/adapter-node'
 
-export const plugins = [node({ port: 4000 })]
+export default createConfig({
+  plugins: [node({ port: 4000 })],
+})
 ```
 
-This will generate a `server.js` file in your output directory. You can run it
-like any other node server:
+This will generate a `presta-node.js` file in the `.presta` output directory.
+You can run this or deploy like any other node server:
 
 ```bash
-node build/server.js
+node .presta/presta-node.js
 ```
 
 ## License
 
-MIT License © [Sure Thing](https://github.com/sure-thing)
+MIT License © [Front of House](https://github.com/front-of-house)

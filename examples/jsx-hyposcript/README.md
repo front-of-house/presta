@@ -4,4 +4,4 @@ To run: `pnpm start`. To build: `pnpm run build`.
 
 ## License
 
-MIT License © [Sure Thing](https://github.com/sure-thing)
+MIT License © [Front of House](https://github.com/front-of-house)

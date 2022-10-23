@@ -101,8 +101,8 @@ export function getStaticPaths() {
 export function handler(event) {
   return html({
     head: {
-      title: 'Presta | Minimalist Web Framework',
-      description: `Minimalist web framework for SSG, SSR, API functions and more.`,
+      title: 'Presta | Minimalist Serverless Framework',
+      description: `Minimalist serverless framework for APIs, server-rendered apps, static sites, and more.`,
       image: 'https://presta.run/og.png',
       twitter: {
         card: 'summary_large_image',
