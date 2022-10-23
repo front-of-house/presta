@@ -1,5 +1,5 @@
 import { h } from 'hyposcript'
-import { html } from '@presta/html'
+import { html } from 'presta/html'
 
 const help = (
   <pre>{`<span class='neon'>❯</span> npx presta --help

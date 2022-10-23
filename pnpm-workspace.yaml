@@ -1,4 +1,5 @@
 packages:
   - 'packages/*'
   - 'examples/*'
+  - 'site'
   - '!packages/create-presta/lib/*'

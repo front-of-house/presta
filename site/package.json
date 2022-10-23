@@ -6,9 +6,9 @@
     "build": "presta"
   },
   "dependencies": {
-    "@presta/adapter-netlify": "^0.1.2",
+    "@presta/adapter-netlify": "workspace:^0.5.2",
     "hyposcript": "^1.0.4",
     "nanoclass": "^0.0.2",
-    "presta": "^0.36.2"
+    "presta": "workspace:^0.45.4"
   }
 }

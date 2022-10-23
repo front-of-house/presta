@@ -1,4 +1,9 @@
-import { createPlugin as netlify } from '@presta/adapter-netlify'
+import netlify from '@presta/adapter-netlify'
+import { createConfig } from 'presta'
 
-export const files = 'pages/*.jsx'
-export const plugins = [netlify()]
+export default createConfig({
+  files: ['pages/*'],
+  plugins: [
+    netlify()
+  ]
+})
