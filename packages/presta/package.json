@@ -8,12 +8,16 @@
     "presta": "./bin.js"
   },
   "files": [
+    "utils",
+    "runtime",
     "bin.js",
     "index.js",
-    "runtime.js",
+    "html.js",
     "serialize.js",
+    "bin.d.ts",
     "index.d.ts",
-    "runtime.d.ts",
+    "core.d.ts",
+    "html.d.ts",
     "serialize.d.ts"
   ],
   "scripts": {
