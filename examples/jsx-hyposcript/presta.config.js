@@ -1,1 +1,5 @@
-export const files = ['src/pages/*']
+import { createConfig } from 'presta'
+
+export default createConfig({
+  files: ['src/pages/*'],
+})

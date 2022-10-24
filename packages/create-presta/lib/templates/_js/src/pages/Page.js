@@ -1,11 +1,11 @@
-import { html } from '@presta/html'
+import { html } from 'presta/html'
 
 import * as head from '@/src/utils/head'
 import { Nav } from '@/src/components/Nav'
 
 export const route = '/:slug'
 
-export function handler(event) {
+export const handler = (event) => {
   return html({
     head,
     body: `

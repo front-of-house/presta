@@ -16,12 +16,15 @@ look something like this:
   functions = 'build/functions'
 ```
 
-Then, update your Presta config (defaults to `presta.config.js`):
+Then, update your Presta config:
 
 ```javascript
+import { createConfig } from 'presta'
 import netlify from '@presta/adapter-netlify'
 
-export const plugins = [netlify()]
+export default createConfig({
+  plugins: [netlify()],
+})
 ```
 
 ### Bundle size limit
@@ -40,4 +43,4 @@ To do so, add this to your Netlify config:
 
 ## License
 
-MIT License © [Sure Thing](https://github.com/sure-thing)
+MIT License © [Front of House](https://github.com/front-of-house)

@@ -1,7 +1,9 @@
-export const route = '/api/*'
+import { json } from 'presta/serialize'
+
+export const route = '/api/:slug?'
 
 export function handler(event) {
-  return {
-    json: event,
-  }
+  return json({
+    body: event,
+  })
 }

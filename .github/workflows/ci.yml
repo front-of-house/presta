@@ -31,7 +31,7 @@ jobs:
       - name: pnpm - config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
       - name: pnpm - output bin stubs
-        run: mkdir ./packages/presta/dist && echo "#! /usr/bin/env node" > ./packages/presta/dist/bin.js
+        run: mkdir ./packages/presta/dist && echo "#! /usr/bin/env node" > ./packages/presta/bin.js
       - name: pnpm - install
         run: pnpm install
 
@@ -45,7 +45,7 @@ jobs:
       - name: test
         run: pnpm test
 
-      - name: coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: coveralls
+      #   uses: coverallsapp/github-action@master
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}

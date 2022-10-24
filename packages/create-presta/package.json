@@ -2,13 +2,13 @@
   "name": "create-presta",
   "version": "0.1.1",
   "description": "Create a new Presta project from your CLI",
-  "main": "cli.js",
+  "main": "bin.js",
   "types": "index.d.ts",
   "files": [
-    "lib"
+    "bin.js"
   ],
   "bin": {
-    "create-presta": "cli.js"
+    "create-presta": "bin.js"
   },
   "scripts": {
     "build": "node scripts/build && tsc --emitDeclarationOnly",

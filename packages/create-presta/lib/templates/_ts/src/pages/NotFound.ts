@@ -1,15 +1,16 @@
-import type { Event } from 'presta'
-import { html } from '@presta/html'
+import type { Handler } from 'presta'
+import { html } from 'presta/serialize'
+import { html as document } from 'presta/html'
 
 import * as head from '@/src/utils/head'
 import { Nav } from '@/src/components/Nav'
 
 export const route = '*'
 
-export function handler(event: Event) {
-  return {
+export const handler: Handler = (event) => {
+  return html({
     statusCode: 404,
-    html: html({
+    body: document({
       head,
       body: `
         <div class='p10'>
@@ -18,5 +19,5 @@ export function handler(event: Event) {
         </div>
       `,
     }),
-  }
+  })
 }

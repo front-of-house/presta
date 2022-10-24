@@ -1,2 +1,14 @@
 node_modules
 dist
+bin.js
+bin.d.ts
+core.js
+core.d.ts
+index.js
+index.d.ts
+runtime.js
+runtime.d.ts
+serialize.js
+serialize.d.ts
+html.js
+html.d.ts

@@ -1,6 +1,6 @@
 export const route = '/redirect'
 
-export function handler() {
+export const handler = () => {
   return {
     statusCode: 302,
     headers: { location: '/' },

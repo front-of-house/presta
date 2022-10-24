@@ -1,7 +1,4 @@
 node_modules
-demo
-fixtures
-test/fixtures
 dist
 build
 .nyc_output
@@ -10,3 +7,29 @@ pnpm-lock.yaml
 .pnpm*
 .changeset
 .output
+.presta
+*.d.ts
+
+# common
+dist
+.presta
+
+# core
+packages/presta/__tests__
+packages/presta/runtime
+packages/presta/utils
+packages/presta/bin.js
+packages/presta/bin.d.ts
+packages/presta/core.js
+packages/presta/core.d.ts
+packages/presta/index.js
+packages/presta/index.d.ts
+packages/presta/runtime.js
+packages/presta/runtime.d.ts
+packages/presta/serialize.js
+packages/presta/serialize.d.ts
+packages/presta/html.js
+packages/presta/html.d.ts
+
+# create-presta
+packages/create-presta/bin.js

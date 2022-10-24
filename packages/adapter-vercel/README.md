@@ -4,14 +4,17 @@ Vercel deployment adapter plugin for Presta.
 
 ## Usage
 
-Simply add to your Presta config (defaults to `presta.config.js`):
+Simply add to your Presta config:
 
 ```javascript
+import { createConfig } from 'presta'
 import vercel from '@presta/adapter-vercel'
 
-export const plugins = [vercel()]
+export default createConfig({
+  plugins: [vercel()],
+})
 ```
 
 ## License
 
-MIT License © [Sure Thing](https://github.com/sure-thing)
+MIT License © [Front of House](https://github.com/front-of-house)

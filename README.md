@@ -1,97 +1,51 @@
 # Presta
 
-[![npm version](https://img.shields.io/npm/v/presta?style=flat&colorA=4488FF&colorB=4488FF)](https://www.npmjs.com/package/presta) [![test coverage](https://img.shields.io/coveralls/github/sure-thing/presta?style=flat&colorA=223355&colorB=223355)](https://coveralls.io/github/sure-thing/presta?branch=main) [![npm bundle size](https://badgen.net/packagephobia/install/presta?color=223355&labelColor=223355)](https://packagephobia.com/result?p=presta)
+[![npm version](https://img.shields.io/npm/v/presta?style=flat&colorA=4488FF&colorB=4488FF)](https://www.npmjs.com/package/presta)
 
-Minimalist serverless framework for SSR, SSG, serverless APIs and more.
+Minimalist serverless framework.
 
-## Usage
+### Features
 
-In each file, define a route:
+- **flexible** — APIs, server-rendered apps, static sites, etc
+- **unopinionated** — build whatever you want
+- **no runtime** — use any frontend framework
+- **thin** — not many features
+- **small** — easy to contribute to
+- **extensible** — simple plugin API
+- **future-proof** — TypeScript + deploy anywhere
 
-```js
-export const route = '/products/:sku'
-```
+### Quick Start
 
-Or generate an array of static paths:
+Presta is just thin wrapper around AWS-flavored serverless functions + a simple
+local dev server. Here's a simple Presta file, which you can run right now with
+`npx presta dev index.ts`:
 
-```js
-export async function getStaticPaths() {
-  return ['/products/book']
+```typescript
+// index.ts
+import { Handler } from 'presta'
+
+export const route: string = '*'
+
+export const getStaticPaths: string[] = () => {
+  return ['/']
 }
-```
 
-Or both, as a fallback for static files that aren't matched.
-
-```js
-export const route = '/products/:sku'
-
-export async function getStaticPaths() {
-  return ['/products/book']
-}
-```
-
-Handlers are just... serverless handlers.
-
-```js
-export async function handler(event, context) {}
-```
-
-Return a string to render HTML:
-
-```js
-export async function handler(event, context) {
-  return `<h1>Hello world!</h1>`
-}
-```
-
-Or a normal serverless response object:
-
-```js
-export async function handler(event, context) {
+export const handler: Handler = (ev, ctx) => {
   return {
     statusCode: 200,
-    headers: {
-      'Content-Type': 'text/html',
-    },
-    body: `<h1>Hello world!</h1>`,
+    body: `You're looking at path ${ev.path}`,
   }
 }
 ```
 
-For convenience, you can use a few shortcuts that automatically set
-`Content-Type` headers, including `html`, `json`, and `xml`:
+### Documentation
 
-```js
-export async function handler(event, context) {
-  return {
-    html: `<h1>Hello world!</h1>`,
-  }
-}
-```
+Docs can be found [here in the repo](docs). For the rest of the
+ecosystem, see the following READMEs:
 
-## Config
-
-Peep the CLI with `npx presta -h` for more info. You can also define a config
-file with any CLI options predefined:
-
-```js
-export const files = ['index.tsx', 'pages/*.jsx']
-export const output = 'build'
-export const assets = 'public'
-```
-
-## Deployment
-
-Presta builds everything to `config.output`.
-
-- static paths and assets to `<config.output>/static`
-- serverless functions to `<config.output>/functions`
-
-## Ecosystem
-
-- [@presta/html](https://github.com/sure-thing/presta/tree/main/packages/html) — util for creating HTML pages
-- [@presta/adapter-netlify](https://github.com/sure-thing/presta/tree/main/packages/adapter-netlify) — deployment adapter for Netlify
-- [@presta/source-filesystem](https://github.com/sure-thing/presta/tree/main/packages/source-filesystem) — source and watch local files
+- [@presta/adapter-netlify](https://github.com/front-of-house/presta/tree/main/packages/adapter-netlify) — builds Presta for deployment to Netlify
+- [@presta/adapter-vercel](https://github.com/front-of-house/presta/tree/main/packages/adapter-vercel) — builds Presta for deployment to Vercel
+- [@presta/adapter-node](https://github.com/front-of-house/presta/tree/main/packages/adapter-node) — builds Presta for deployment to a custom node server
 
 ## Contributing
 
@@ -99,4 +53,4 @@ We'd love your help getting Presta to `v1.0.0`. Have a look at the [contributing
 
 ## License
 
-MIT License © [Sure Thing](https://github.com/sure-thing)
+MIT License © [Front of House](https://github.com/front-of-house)

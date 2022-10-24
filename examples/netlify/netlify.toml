@@ -1,3 +1,4 @@
 [build]
-  publish = '/site'
-  functions = '/functions'
+	command = 'npm run build'
+	publish = '.presta/static'
+	functions = '.presta/functions'

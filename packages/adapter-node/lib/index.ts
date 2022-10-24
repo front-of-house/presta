@@ -1,28 +1,33 @@
-import fs from 'fs'
+import fs from 'fs-extra'
 import path from 'path'
-import { mkdir } from 'mk-dirs/sync'
-import { createPlugin, logger, HookPostBuildPayload } from 'presta'
 import { build as esbuild } from 'esbuild'
-import { timer } from '@presta/utils/timer'
+import { createPlugin, PluginContext } from 'presta'
+import { timer } from 'presta/utils/timer'
 
+import pkg from '../package.json'
 import { Options } from './types'
 
-export async function onPostBuild(props: HookPostBuildPayload, options: Options) {
-  const { output } = props
-  const filepath = path.join(output, 'server.js')
+const PLUGIN = `${pkg.name}@${pkg.version}`
 
-  mkdir(output)
+export async function onPostBuild(ctx: PluginContext, options: Options) {
+  const outputDir = ctx.getOutputDir()
+  const filepath = path.join(outputDir, 'presta-node.js')
+  const context = {
+    staticOutputDir: ctx.getStaticOutputDir(),
+    functionsOutputDir: ctx.getFunctionsOutputDir(),
+    manifest: ctx.getManifest(),
+  }
 
-  fs.writeFileSync(
+  fs.outputFileSync(
     filepath,
-    `import { adapter } from '@presta/adapter-node/dist/adapter';
-export default adapter(${JSON.stringify(props)}, ${JSON.stringify(options)});`,
+    `import { adapter } from '@presta/adapter-node/dist/runtime';
+export default adapter(${JSON.stringify(context)}, ${JSON.stringify(options)});`,
     'utf8'
   )
 
   await esbuild({
     entryPoints: [filepath],
-    outdir: output,
+    outdir: outputDir,
     platform: 'node',
     target: ['node12'],
     minify: true,
@@ -33,24 +38,21 @@ export default adapter(${JSON.stringify(props)}, ${JSON.stringify(options)});`,
 
 export default createPlugin((options: Partial<Options> = {}) => {
   const opts = Object.assign({ port: 4000 }, options)
-  const time = timer()
 
-  return async function plugin(config, hooks) {
-    logger.debug({
-      label: '@presta/adapter-node',
-      message: `init`,
-    })
+  return function plugin(ctx) {
+    ctx.logger.debug(`${PLUGIN} initialized`)
 
-    hooks.onPostBuild(async (props) => {
+    ctx.events.on('buildComplete', async () => {
+      const time = timer()
       /* c8 ignore start */
-      await onPostBuild(props, opts)
+      await onPostBuild(ctx, opts)
 
-      logger.info({
-        label: '@presta/adapter-node',
-        message: `complete`,
-        duration: time(),
-      })
+      ctx.logger.info(`${PLUGIN} complete`, { duration: time() })
       /* c8 ignore stop */
     })
+
+    return {
+      name: PLUGIN,
+    }
   }
 })

@@ -31,7 +31,7 @@ jobs:
       - name: pnpm - config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
       - name: pnpm - output bin stubs
-        run: mkdir ./packages/presta/dist && echo "#! /usr/bin/env node" > ./packages/presta/dist/bin.js
+        run: mkdir ./packages/presta/dist && echo "#! /usr/bin/env node" > ./packages/presta/bin.js
       - name: pnpm - install
         run: pnpm install
 
@@ -45,10 +45,10 @@ jobs:
       - name: test
         run: pnpm test
 
-      - name: coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: coveralls
+      #   uses: coverallsapp/github-action@master
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # publish to npm
       - name: release
@@ -62,19 +62,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: deploy - @presta-example/netlify
-        env:
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_EXAMPLE_SITE_ID }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        run: cd examples/netlify && netlify deploy --prod
+      # - name: deploy - @presta-example/netlify
+      #   env:
+      #     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_EXAMPLE_SITE_ID }}
+      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      #   run: cd examples/netlify && netlify deploy --prod
 
-      - name: deploy - @presta-example/vercel
-        env:
-          VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
-        run: cd examples/vercel && vercel --prod --token $VERCEL_AUTH_TOKEN
+      # - name: deploy - @presta-example/vercel
+      #   env:
+      #     VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
+      #   run: cd examples/vercel && vercel --prod --token $VERCEL_AUTH_TOKEN
 
-      - name: deploy - @presta-example/cloudflare-workers
-        uses: cloudflare/wrangler-action@1.3.0
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          preCommands: cd examples/cloudflare-workers
+      # - name: deploy - @presta-example/cloudflare-workers
+      #   uses: cloudflare/wrangler-action@1.3.0
+      #   with:
+      #     apiToken: ${{ secrets.CF_API_TOKEN }}
+      #     preCommands: cd examples/cloudflare-workers

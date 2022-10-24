@@ -1,4 +1,4 @@
 {
   "extends": "@tsconfig/node12/tsconfig.json",
-  "include": ["./packages/**/*.ts"]
+  "exclude": ["./packages/**/*.ts"]
 }

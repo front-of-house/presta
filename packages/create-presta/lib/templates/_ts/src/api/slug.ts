@@ -1,12 +1,13 @@
-import type { Event, Context } from 'presta'
+import type { Handler } from 'presta'
+import { json } from 'presta/serialize'
 
 export const route = '/api/*'
 
-export function handler(event: Event, context: Context) {
-  return {
-    json: {
+export const handler: Handler = (event, context) => {
+  return json({
+    body: {
       event,
       context,
     },
-  }
+  })
 }

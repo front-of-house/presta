@@ -8,7 +8,6 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "@presta/html": "*",
     "presta": "*"
   }
 }
