@@ -1,5 +1,11 @@
 # @presta/adapter-vercel
 
+## 0.4.0
+
+### Minor Changes
+
+- [#223](https://github.com/front-of-house/presta/pull/223) [`55f2883`](https://github.com/front-of-house/presta/commit/55f288321da4fdfd3b4e0fc999f904997ca600e4) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Initial release after refactor! This release contains a few breaking changes, please review the latest docs.
+
 ## 0.3.1
 
 ### Patch Changes
