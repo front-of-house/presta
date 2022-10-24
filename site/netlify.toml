@@ -1,4 +1,8 @@
 [build]
   command = "npm run build"
-  publish = "./.presta/static"
-  functions = "./.presta/functions"
+  publish = ".presta/static"
+  functions = ".presta/functions" # deprecated
+
+[functions]
+  directory = ".presta/functions"
+  node_bundler = 'esbuild'
