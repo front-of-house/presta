@@ -1,5 +1,11 @@
 # presta
 
+## 0.46.1
+
+### Patch Changes
+
+- [#227](https://github.com/front-of-house/presta/pull/227) [`fbd77a8`](https://github.com/front-of-house/presta/commit/fbd77a8e8cfddb1065af6497f4430e28fe276995) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Fixes some compiled `presta` files not being published with the rest of the npm package.
+
 ## 0.46.0
 
 ### Minor Changes

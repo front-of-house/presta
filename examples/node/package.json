@@ -6,7 +6,7 @@
     "build": "presta"
   },
   "dependencies": {
-    "presta": "workspace:^0.46.0"
+    "presta": "workspace:^0.46.1"
   },
   "devDependencies": {
     "@presta/adapter-node": "workspace:^0.3.0",
