@@ -18,6 +18,6 @@ We'll keep this short ;)
 
 ## Ecosystem
 
-- [@presta/adapter-netlify]() — builds Presta for deployment to Netlify
-- [@presta/adapter-vercel]() — builds Presta for deployment to Vercel
-- [@presta/adapter-node]() — builds Presta for deployment to a custom node
+- [@presta/adapter-netlify](https://github.com/front-of-house/presta/tree/main/packages/adapter-netlify) — builds Presta for deployment to Netlify
+- [@presta/adapter-vercel](https://github.com/front-of-house/presta/tree/main/packages/adapter-vercel) — builds Presta for deployment to Vercel
+- [@presta/adapter-node](https://github.com/front-of-house/presta/tree/main/packages/adapter-node) — builds Presta for deployment to a custom node server

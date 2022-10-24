@@ -109,10 +109,7 @@ Presta doesn't want to make assumptions.
 export const handler: Handler = (ev) => {
   return {
     statusCode: 404,
-    body: `<h1>I'm an HTML document</h1>`,
+    body: `<h1>I'm plaintext that might be rendered as HTML</h1>`,
   }
 }
 ```
-
-This makes it convenient to use Presta as a site generator, as well as provides
-a decent fallback state for errors.
