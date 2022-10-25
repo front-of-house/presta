@@ -4,7 +4,7 @@ export const route = '*'
 
 export const handler: Handler = () => {
   return {
-    status: 302,
+    statusCode: 302,
     headers: {
       Location: 'https://github.com/front-of-house/presta',
     },
