@@ -1,5 +1,11 @@
 # create-presta
 
+## 0.2.1
+
+### Patch Changes
+
+- [`214802a`](https://github.com/front-of-house/presta/commit/214802a098c3ffddfe46bb7dfb97dbcf782b52eb) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Include /lib in files
+
 ## 0.2.0
 
 ### Minor Changes
