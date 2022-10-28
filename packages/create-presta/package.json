@@ -5,7 +5,8 @@
   "main": "bin.js",
   "types": "index.d.ts",
   "files": [
-    "bin.js"
+    "bin.js",
+    "lib"
   ],
   "bin": {
     "create-presta": "bin.js"
