@@ -2,7 +2,6 @@ import path from 'path'
 import fs from 'fs-extra'
 import merge from 'deepmerge'
 import sort from 'sort-package-json'
-// import type { Body } from 'package-json-types'
 
 export type Service = 'presta' | 'netlify' | 'vercel'
 export type Language = 'ts' | 'js'

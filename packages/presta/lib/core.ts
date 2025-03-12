@@ -272,16 +272,16 @@ export function sortManifestFunctions(functions: Manifest['functions']) {
 
 export function findAndParseConfigFile(userProvidedConfigFilepath?: string): Partial<PrestaConfig> {
   if (userProvidedConfigFilepath) {
-    return requireFresh(path.resolve(userProvidedConfigFilepath))?.default
+    return requireFresh(path.resolve(userProvidedConfigFilepath))
   } else {
     try {
-      return requireFresh(path.resolve(defaultJSConfigFilepath))?.default
+      return requireFresh(path.resolve(defaultJSConfigFilepath))
     } catch (e) {
       if (fs.existsSync(defaultJSConfigFilepath)) {
         throw e
       } else {
         try {
-          return requireFresh(path.resolve(defaultTSConfigFilepath))?.default
+          return requireFresh(path.resolve(defaultTSConfigFilepath))
         } catch (e) {
           if (fs.existsSync(defaultTSConfigFilepath)) {
             throw e
@@ -648,10 +648,14 @@ export class Presta {
           const html = response.body
           const outfile = path.join(this.staticOutputDir, filename)
 
-          fs.outputFileSync(outfile, html, 'utf-8')
-          builtFiles.push(outfile)
+          if (!html) {
+            this.logger.warn(`Nothing to build for ${url}, response.body is undefined`)
+          } else {
+            fs.outputFileSync(outfile, html, 'utf-8')
+            builtFiles.push(outfile)
 
-          this.logger.info(`● ${url}`, { duration: time() })
+            this.logger.info(`● ${url}`, { duration: time() })
+          }
         }
 
         // diff previous built files with new files and remove stale
