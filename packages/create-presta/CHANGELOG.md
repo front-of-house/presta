@@ -1,5 +1,14 @@
 # create-presta
 
+## 0.2.2
+
+### Patch Changes
+
+- [`b4c57ab568c09a4a618a4188b89d2a64c84bae0d`](https://github.com/front-of-house/presta/commit/b4c57ab568c09a4a618a4188b89d2a64c84bae0d) Thanks [@estrattonbailey](https://github.com/estrattonbailey)! - Small fixes
+
+- Updated dependencies [[`b4c57ab568c09a4a618a4188b89d2a64c84bae0d`](https://github.com/front-of-house/presta/commit/b4c57ab568c09a4a618a4188b89d2a64c84bae0d)]:
+  - presta@0.46.2
+
 ## 0.2.1
 
 ### Patch Changes
