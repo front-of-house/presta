@@ -27,7 +27,7 @@ jobs:
 
       # pnpm stuff
       - name: pnpm — install
-        run: npm i pnpm@latest -g
+        run: npm i pnpm@9 -g
       - name: pnpm - config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
       - name: pnpm - output bin stubs
