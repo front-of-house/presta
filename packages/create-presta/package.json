@@ -1,6 +1,6 @@
 {
   "name": "create-presta",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Create a new Presta project from your CLI",
   "main": "bin.js",
   "types": "index.d.ts",
@@ -29,7 +29,7 @@
     "deepmerge": "^4.2.2",
     "fs-extra": "^9.1.0",
     "kleur": "^4.1.4",
-    "presta": "workspace:^0.46.0",
+    "presta": "workspace:^0.46.2",
     "prompts": "^2.4.2",
     "sort-package-json": "^1.54.0"
   },
