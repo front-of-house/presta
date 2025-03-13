@@ -34,8 +34,6 @@ jobs:
         run: mkdir ./packages/presta/dist && echo "#! /usr/bin/env node" > ./packages/presta/bin.js
       - name: pnpm - install
         run: pnpm install
-      - name: pnpm - approve builds
-        run: pnpm approve-builds
 
       # build
       - name: lint
